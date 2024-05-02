@@ -212,7 +212,7 @@ namespace MusicBeePlugin
             var tagsStorage = SettingsStorage.GetTagsStorage(tagName);
             if (tagsStorage == null)
             {
-                log.Error("tagsStorage is null"); // Log the error
+                log.Error("tagsStorage is null");
                 return;
             }
 
@@ -222,9 +222,11 @@ namespace MusicBeePlugin
             checkListBox.Dock = DockStyle.Fill;
             checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
 
-            tabPage.Controls.Clear();
-            tabPage.Controls.Add(checkListBox);
-            checkListBox.Visible = true; // Show the ChecklistBoxPanel
+            if (!tabPage.Controls.Contains(checkListBox))
+            {
+                tabPage.Controls.Add(checkListBox);
+            }
+            checkListBox.Visible = true;
         }
 
 
