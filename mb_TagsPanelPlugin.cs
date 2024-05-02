@@ -50,6 +50,7 @@ namespace MusicBeePlugin
 
         private PluginInfo CreatePluginInfo()
         {
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             try
             {
                 var pluginInfo = new PluginInfo
@@ -60,8 +61,8 @@ namespace MusicBeePlugin
                     Author = "mat-st & The Anonymous Programmer",
                     TargetApplication = "Tags-Panel",
                     Type = PluginType.General,
-                    VersionMajor = (short)System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Major,
-                    VersionMinor = (short)System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Minor,
+                    VersionMajor = (short)version.Major,
+                    VersionMinor = (short)version.Minor,
                     Revision = 1,
                     MinInterfaceVersion = MinInterfaceVersion,
                     MinApiRevision = MinApiRevision,
@@ -72,9 +73,8 @@ namespace MusicBeePlugin
             }
             catch (Exception ex)
             {
-                // Use log instance to log the exception
                 log.Error(ex.ToString());
-                throw; // Re-throw the exception to let the application handle it.
+                throw;
             }
         }
 
