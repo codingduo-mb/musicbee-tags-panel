@@ -287,7 +287,7 @@ namespace MusicBeePlugin
             checkListBox.AddDataSource(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
-            checkListBox.AddItemCheckEventHandler(new System.Windows.Forms.ItemCheckEventHandler(CheckedListBox1_ItemCheck));
+            checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
 
             return checkListBox;
         }
@@ -347,50 +347,39 @@ namespace MusicBeePlugin
 
         private void UpdateTagsTableData()
         {
-            try
+            TagsStorage currentTagsStorage = GetCurrentTagsStorage();
+            if (currentTagsStorage == null)
             {
-                TagsStorage currentTagsStorage = GetCurrentTagsStorage();
-                if (currentTagsStorage == null)
-                {
-                    log.Error("currentTagsStorage is null");
-                    return;
-                }
-
-                currentTagsStorage.SortByIndex();
-                var allTagsFromSettings = currentTagsStorage.GetTags();
-
-                Dictionary<string, CheckState> data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
-                foreach (var tagFromSettings in allTagsFromSettings)
-                {
-                    CheckState checkState;
-                    if (tagsFromFiles.TryGetValue(tagFromSettings.Key.Trim(), out checkState))
-                    {
-                        data[tagFromSettings.Key] = checkState;
-                    }
-                    else
-                    {
-                        data[tagFromSettings.Key] = CheckState.Unchecked;
-                    }
-                }
-
-                                
-                    // Add tags from selected files which are not in the current list
-                    foreach (var tagFromFile in tagsFromFiles)
-                    {
-                        if (!data.ContainsKey(tagFromFile.Key))
-                        {
-                            data[tagFromFile.Key] = tagFromFile.Value;
-                        }
-                    }
-                
-
-                string tagName = currentTagsStorage.GetTagName();
-                AddTagsToChecklistBoxPanel(tagName, data);
+                log.Error("currentTagsStorage is null");
+                return;
             }
-            catch (Exception ex)
+
+            currentTagsStorage.SortByIndex();
+            var allTagsFromSettings = currentTagsStorage.GetTags();
+
+            Dictionary<string, CheckState> data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
+            foreach (var tagFromSettings in allTagsFromSettings)
             {
-                log.Error("An error occurred: " + ex.Message);
+                if (tagsFromFiles.TryGetValue(tagFromSettings.Key.Trim(), out CheckState checkState))
+                {
+                    data[tagFromSettings.Key] = checkState;
+                }
+                else
+                {
+                    data[tagFromSettings.Key] = CheckState.Unchecked;
+                }
             }
+
+            foreach (var tagFromFile in tagsFromFiles)
+            {
+                if (!data.ContainsKey(tagFromFile.Key))
+                {
+                    data[tagFromFile.Key] = tagFromFile.Value;
+                }
+            }
+
+            string tagName = currentTagsStorage.GetTagName();
+            AddTagsToChecklistBoxPanel(tagName, data);
         }
 
         private void InvokeUpdateTagsTableData()

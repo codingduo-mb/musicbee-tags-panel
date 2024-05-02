@@ -123,18 +123,17 @@ namespace MusicBeePlugin
 
         private void KeyEventHandler(object sender, KeyEventArgs e)
         {
-            switch (e.KeyCode)
+            if (e.KeyCode == Keys.Enter && sender == this.TxtNewTagInput)
             {
-                case Keys.Enter when sender == this.TxtNewTagInput:
-                    e.SuppressKeyPress = true;
-                    AddNewTagToList();
-                    e.Handled = true;
-                    break;
-                case Keys.Delete when sender == this.lstTags:
-                    e.SuppressKeyPress = true;
-                    RemoveSelectedTagFromList();
-                    e.Handled = true;
-                    break;
+                e.SuppressKeyPress = true;
+                AddNewTagToList();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Delete && sender == this.lstTags)
+            {
+                e.SuppressKeyPress = true;
+                RemoveSelectedTagFromList();
+                e.Handled = true;
             }
         }
 
