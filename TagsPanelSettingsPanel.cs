@@ -22,15 +22,13 @@ namespace MusicBeePlugin
             InitializeComponent();
 
             // Create a new ToolTip instance
-            ToolTip toolTip = new ToolTip();
-
-            // Set up the delays for the ToolTip.
-            toolTip.AutoPopDelay = 5000;
-            toolTip.InitialDelay = 1000;
-            toolTip.ReshowDelay = 500;
-
-            // Force the ToolTip text to be displayed whether or not the form is active.
-            toolTip.ShowAlways = true;
+            ToolTip toolTip = new ToolTip
+            {
+                AutoPopDelay = 5000,
+                InitialDelay = 1000,
+                ReshowDelay = 500,
+                ShowAlways = true
+            };
 
             // Set up the ToolTip text for the CheckBox.
             toolTip.SetToolTip(this.cbEnableAlphabeticalTagSort, "If enabled the Tags are always sorted alphabetically in the tag. If not enabled you can use the up and down buttons to reorder your tag lists.");
@@ -40,7 +38,6 @@ namespace MusicBeePlugin
             tagsStorage = SettingsStorage.GetTagsStorage(tagName);
             UpdateTags();
             UpdateSortOption();
-
 
             // this must be at the very end to suppress the events
             MakeOwnModifications();
@@ -410,18 +407,11 @@ namespace MusicBeePlugin
         private void ShowConfirmationDialogToSort()
         {
             DialogResult dialogResult = MessageBox.Show("Do you really want to sort the tags alphabetically? Your current order will be lost.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dialogResult == DialogResult.Yes)
-            {
-                SortAlphabetically();
-                tagsStorage.Sorted = true;
-                this.lstTags.Sorted = true;
-            }
-            else
-            {
-                tagsStorage.Sorted = false;
-                this.lstTags.Sorted = false;
-                this.cbEnableAlphabeticalTagSort.Checked = false;
-            }
+            bool sort = dialogResult == DialogResult.Yes;
+            SortAlphabetically();
+            tagsStorage.Sorted = sort;
+            this.lstTags.Sorted = sort;
+            this.cbEnableAlphabeticalTagSort.Checked = sort;
         }
 
         private void ShowDialogForDuplicate()

@@ -146,10 +146,6 @@ namespace MusicBeePlugin
             {
                 RemoveTagPage();
             }
-            else
-            {
-                return;
-            }
         }
 
         private void ShowWarningMetaDataTypeExists()

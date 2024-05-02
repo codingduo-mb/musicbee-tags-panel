@@ -608,15 +608,10 @@ namespace MusicBeePlugin
             // If ignoreEventFromHandler is true, return early
             if (ignoreEventFromHandler) return;
 
-            switch (type)
+            if (type == NotificationType.TagsChanging)
             {
-                case NotificationType.PluginStartup:
-                case NotificationType.TrackChanged:
-                    break;
-                case NotificationType.TagsChanging:
-                    ignoreForBatchSelect = true;
-                    mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
-                    break;
+                ignoreForBatchSelect = true;
+                mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
             tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, metaDataType);
