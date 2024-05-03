@@ -14,6 +14,7 @@ namespace MusicBeePlugin
                 MetaDataType.DiscNo,
                 MetaDataType.DiscCount,
                 MetaDataType.Encoder,
+                MetaDataType.GenreCategory,
                 MetaDataType.HasLyrics,
                 MetaDataType.Lyrics,
                 MetaDataType.TrackCount,
