@@ -68,6 +68,7 @@ namespace MusicBeePlugin
         public void RemoveItemCheckEventHandler()
         {
             checkedListBoxWithTags.ItemCheck -= this.eventHandler;
+            this.eventHandler = null;
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
