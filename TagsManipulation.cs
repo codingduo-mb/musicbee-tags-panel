@@ -50,26 +50,22 @@ namespace MusicBeePlugin
 
         public string RemoveTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            string tags = GetTags(fileUrl, metaDataType);
-            string[] tagArray = tags.Split(SEPARATOR);
-
-            var cleanedTags = tagArray.Where(tag => tag.Trim() != selectedTag);
-
-            return string.Join(SEPARATOR.ToString(), cleanedTags);
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
+            tagList.Remove(selectedTag);
+            return string.Join(SEPARATOR.ToString(), tagList);
         }
 
         public string AddTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            string tags = GetTags(fileUrl, metaDataType).Trim(SEPARATOR);
-            var tagList = new HashSet<string>(tags.Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries));
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
             tagList.Add(selectedTag);
             return string.Join(SEPARATOR.ToString(), tagList);
         }
 
         public bool IsTagAvailable(string tagName, string fileUrl, MetaDataType metaDataType)
         {
-            string tags = GetTags(fileUrl, metaDataType);
-            return tags.Contains(tagName + SEPARATOR) || tags.EndsWith(tagName);
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
+            return tagList.Contains(tagName);
         }
 
         public string GetTags(string fileUrl, MetaDataType metaDataType)
