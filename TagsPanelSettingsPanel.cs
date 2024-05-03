@@ -224,52 +224,53 @@ namespace MusicBeePlugin
 
         public void ImportCsv()
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.CheckFileExists = true;
-            openFileDialog1.CheckPathExists = true;
-
-            openFileDialog1.Title = "Choose a CSV file";
-            openFileDialog1.Filter = "csv files (*.csv)|*.csv";
-            openFileDialog1.DefaultExt = "csv";
-            openFileDialog1.Multiselect = false;
-
-            openFileDialog1.RestoreDirectory = true;
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            using (OpenFileDialog openFileDialog1 = new OpenFileDialog())
             {
-                string importCsvFilename = openFileDialog1.FileName;
-                if (importCsvFilename.Length <= 0)
-                {
-                    return;
-                }
+                openFileDialog1.CheckFileExists = true;
+                openFileDialog1.CheckPathExists = true;
 
-                DialogResult dialogResult = MessageBox.Show("Do you want to continue with the CSV import?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    string[] lines = File.ReadAllLines(importCsvFilename);
-                    List<string> importedTags = new List<string>();
+                openFileDialog1.Title = "Choose a CSV file";
+                openFileDialog1.Filter = "csv files (*.csv)|*.csv";
+                openFileDialog1.DefaultExt = "csv";
+                openFileDialog1.Multiselect = false;
 
-                    foreach (string line in lines)
+                openFileDialog1.RestoreDirectory = true;
+
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    string importCsvFilename = openFileDialog1.FileName;
+                    if (string.IsNullOrEmpty(importCsvFilename))
                     {
-                        string[] values = line.Split(';');
-                        foreach (string value in values)
-                        {
-                            string importtag = value.Trim();
-                            if (!string.IsNullOrEmpty(importtag) && !importedTags.Contains(importtag))
-                            {
-                                importedTags.Add(importtag);
-                                this.tagsStorage.TagList[importtag] = this.tagsStorage.TagList.Count();
-                                this.lstTags.Items.Add(importtag);
-                            }
-                        }
+                        return;
                     }
 
-                    MessageBox.Show("CSV import successful");
-                }
-                else
-                {
-                    MessageBox.Show("CSV import canceled");
+                    DialogResult dialogResult = MessageBox.Show("Do you want to continue with the CSV import?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        string[] lines = File.ReadAllLines(importCsvFilename);
+                        List<string> importedTags = new List<string>();
+
+                        foreach (string line in lines)
+                        {
+                            string[] values = line.Split(';');
+                            foreach (string value in values)
+                            {
+                                string importtag = value.Trim();
+                                if (!string.IsNullOrEmpty(importtag) && !importedTags.Contains(importtag))
+                                {
+                                    importedTags.Add(importtag);
+                                    this.tagsStorage.TagList[importtag] = this.tagsStorage.TagList.Count();
+                                    this.lstTags.Items.Add(importtag);
+                                }
+                            }
+                        }
+
+                        MessageBox.Show("CSV import successful");
+                    }
+                    else
+                    {
+                        MessageBox.Show("CSV import canceled");
+                    }
                 }
             }
         }
