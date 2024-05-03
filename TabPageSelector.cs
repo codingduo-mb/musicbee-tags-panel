@@ -8,6 +8,7 @@ namespace MusicBeePlugin
 {
     public partial class TabPageSelectorForm : Form
     {
+        // Blacklist certain metadata types that are not allowed to be added as a new tab
         private static readonly HashSet<MetaDataType> blacklist = new HashSet<MetaDataType> {
                 MetaDataType.Artwork,
                 MetaDataType.DiscNo,
