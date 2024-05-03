@@ -1,23 +1,31 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    class Style
+    public class Style
     {
         private readonly MusicBeeApiInterface mbApiInterface;
+        private readonly Dictionary<(SkinElement, ElementComponent), Color> colorCache;
 
         public Style(MusicBeeApiInterface mbApiInterface)
         {
             this.mbApiInterface = mbApiInterface;
+            this.colorCache = new Dictionary<(SkinElement, ElementComponent), Color>();
         }
 
         public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
-            //get current skin colors
-            int colorValue = this.mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
-            return Color.FromArgb(colorValue);
+            if (!colorCache.TryGetValue((skinElement, elementComponent), out var color))
+            {
+                int colorValue = this.mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
+                color = Color.FromArgb(colorValue);
+                colorCache[(skinElement, elementComponent)] = color;
+            }
+
+            return color;
         }
 
         public void StyleControl(Control formControl)
