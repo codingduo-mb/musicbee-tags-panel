@@ -32,7 +32,7 @@ namespace MusicBeePlugin
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
 
-            foreach (KeyValuePair<String, CheckState> entry in data)
+            foreach (var entry in data)
             {
                 checkedListBoxWithTags.Items.Add(entry.Key, entry.Value);
             }
