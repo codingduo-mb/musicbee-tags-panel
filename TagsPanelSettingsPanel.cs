@@ -278,25 +278,26 @@ namespace MusicBeePlugin
 
         public void ExportCsv()
         {
-            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-
-            saveFileDialog1.CheckFileExists = false;
-            saveFileDialog1.Title = "Choose a file name";
-            saveFileDialog1.Filter = "csv files (*.csv)|*.csv";
-            saveFileDialog1.DefaultExt = "csv";
-            saveFileDialog1.RestoreDirectory = true;
-
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            using (SaveFileDialog saveFileDialog1 = new SaveFileDialog())
             {
-                string exportCSVFilename = saveFileDialog1.FileName;
+                saveFileDialog1.CheckFileExists = false;
+                saveFileDialog1.Title = "Choose a file name";
+                saveFileDialog1.Filter = "csv files (*.csv)|*.csv";
+                saveFileDialog1.DefaultExt = "csv";
+                saveFileDialog1.RestoreDirectory = true;
 
-                using (StreamWriter csvWriter = new StreamWriter(exportCSVFilename))
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    string csvContent = string.Join(";", lstTags.Items.Cast<string>());
-                    csvWriter.Write(csvContent);
-                }
+                    string exportCSVFilename = saveFileDialog1.FileName;
 
-                MessageBox.Show("Tags exported in CSV");
+                    using (StreamWriter csvWriter = new StreamWriter(exportCSVFilename))
+                    {
+                        string csvContent = string.Join(";", lstTags.Items.Cast<string>());
+                        csvWriter.Write(csvContent);
+                    }
+
+                    MessageBox.Show("Tags exported in CSV");
+                }
             }
         }
 
