@@ -73,13 +73,19 @@ namespace MusicBeePlugin
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
         {
             // this will prevent the item to be checked if a key was pressed
-            checkedListBoxWithTags.CheckOnClick = true;
+            if (!checkedListBoxWithTags.CheckOnClick)
+            {
+                checkedListBoxWithTags.CheckOnClick = true;
+            }
         }
 
         private void CheckedListBox1_KeyDown(object sender, KeyEventArgs e)
         {
             // this will prevent the item to be checked if a key was pressed
-            checkedListBoxWithTags.CheckOnClick = false;
+            if (checkedListBoxWithTags.CheckOnClick)
+            {
+                checkedListBoxWithTags.CheckOnClick = false;
+            }
         }
     }
 }
