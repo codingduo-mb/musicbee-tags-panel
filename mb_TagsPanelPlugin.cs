@@ -56,7 +56,7 @@ namespace MusicBeePlugin
                 PluginInfoVersion = PluginInfoVersion,
                 Name = "Tags-Panel",
                 Description = "Creates a dockable Panel with user-defined tabbed pages which let the user choose tags from user-defined lists",
-                Author = "mat-st & The Anonymous Programmer",
+                Author = "kn9ff & The Anonymous Programmer",
                 TargetApplication = "Tags-Panel",
                 Type = PluginType.General,
                 VersionMajor = (short)version.Major,
