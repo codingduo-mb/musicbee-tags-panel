@@ -20,7 +20,6 @@ namespace MusicBeePlugin
 
         public Dictionary<string, CheckState> CombineTagLists(string[] fileNames, TagsStorage tagsStorage)
         {
-            var tagList = new Dictionary<string, CheckState>();
             var stateOfSelection = new Dictionary<string, int>();
             int numberOfSelectedFiles = fileNames.Length;
 
@@ -34,12 +33,7 @@ namespace MusicBeePlugin
                 }
             }
 
-            foreach (var entry in stateOfSelection)
-            {
-                tagList.Add(entry.Key, entry.Value == numberOfSelectedFiles ? CheckState.Checked : CheckState.Indeterminate);
-            }
-
-            return tagList;
+            return stateOfSelection.ToDictionary(entry => entry.Key, entry => entry.Value == numberOfSelectedFiles ? CheckState.Checked : CheckState.Indeterminate);
         }
 
         public string SortTagsAlphabetical(string tags)
@@ -81,7 +75,7 @@ namespace MusicBeePlugin
                 string tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
                 string sortedTags = SettingsStorage.GetTagsStorage(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
 
-                bool result = mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
+                mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
                 mbApiInterface.Library_CommitTagsToFile(fileUrl);
             }
             mbApiInterface.MB_SetBackgroundTaskMessage("Added tags to file");
@@ -89,28 +83,18 @@ namespace MusicBeePlugin
 
         public string[] ReadTagsFromFile(string filename, MetaDataType metaDataField)
         {
-            var tags = new HashSet<string>();
-
-            if (string.IsNullOrEmpty(filename) || filename.Length <= 0 || metaDataField == 0)
+            if (string.IsNullOrEmpty(filename) || metaDataField == 0)
             {
-                return tags.ToArray();
+                return Array.Empty<string>();
             }
 
             string filetagMetaDataFields = mbApiInterface.Library_GetFileTag(filename, metaDataField);
-            string[] filetagMetaDataFieldsParts = filetagMetaDataFields.Split(SEPARATOR);
-            foreach (string tag in filetagMetaDataFieldsParts.Where(t => !string.IsNullOrWhiteSpace(t)))
-            {
-                tags.Add(tag.Trim());
-            }
-
-            return tags.ToArray();
+            return filetagMetaDataFields.Split(SEPARATOR).Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToArray();
         }
 
         public Dictionary<string, CheckState> UpdateTagsFromFile(string sourceFileUrl, MetaDataType metaDataType)
         {
-            string[] tagParts = ReadTagsFromFile(sourceFileUrl, metaDataType);
-
-            return tagParts.ToDictionary(tag => tag, _ => CheckState.Checked);
+            return ReadTagsFromFile(sourceFileUrl, metaDataType).ToDictionary(tag => tag, _ => CheckState.Checked);
         }
     }
 }
