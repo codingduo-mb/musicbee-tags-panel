@@ -43,18 +43,11 @@ namespace MusicBeePlugin
 
         private int GetLongestStringWidth(IEnumerable<string> strings)
         {
-            if (!strings.Any())
-            {
-                return 0;
-            }
-
-            var longestStringLength = strings.Max(str => str.Length);
-            return TextRenderer.MeasureText(new string('M', longestStringLength), checkedListBoxWithTags.Font).Width;
+            return strings.Any() ? TextRenderer.MeasureText(new string('M', strings.Max(str => str.Length)), checkedListBoxWithTags.Font).Width : 0;
         }
 
         private void StylePanel()
         {
-            // apply current skin colors to tag panel
             style.StyleControl(checkedListBoxWithTags);
             style.StyleControl(this);
         }
@@ -67,26 +60,21 @@ namespace MusicBeePlugin
 
         public void RemoveItemCheckEventHandler()
         {
-            checkedListBoxWithTags.ItemCheck -= this.eventHandler;
-            this.eventHandler = null;
+            if (this.eventHandler != null)
+            {
+                checkedListBoxWithTags.ItemCheck -= this.eventHandler;
+                this.eventHandler = null;
+            }
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
         {
-            // this will prevent the item to be checked if a key was pressed
-            if (!checkedListBoxWithTags.CheckOnClick)
-            {
-                checkedListBoxWithTags.CheckOnClick = true;
-            }
+            checkedListBoxWithTags.CheckOnClick = true;
         }
 
         private void CheckedListBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            // this will prevent the item to be checked if a key was pressed
-            if (checkedListBoxWithTags.CheckOnClick)
-            {
-                checkedListBoxWithTags.CheckOnClick = false;
-            }
+            checkedListBoxWithTags.CheckOnClick = false;
         }
     }
 }
