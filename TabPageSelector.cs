@@ -8,8 +8,8 @@ namespace MusicBeePlugin
 {
     public partial class TabPageSelectorForm : Form
     {
-        // Blacklist certain metadata types that are not allowed to be added as a new tab
-        private static readonly HashSet<MetaDataType> blacklist = new HashSet<MetaDataType> {
+        private static readonly HashSet<MetaDataType> Blacklist = new HashSet<MetaDataType>
+            {
                 MetaDataType.Artwork,
                 MetaDataType.DiscNo,
                 MetaDataType.DiscCount,
@@ -23,32 +23,23 @@ namespace MusicBeePlugin
                 MetaDataType.RatingLove
             };
 
-        private List<string> metaDataTypes;
-
-        public TabPageSelectorForm(List<string> usedTags)
+        public TabPageSelectorForm(IEnumerable<string> usedTags)
         {
             InitializeComponent();
             Btn_ComboBoxAddTag.DialogResult = DialogResult.OK;
             Btn_ComboBoxCancel.DialogResult = DialogResult.Cancel;
-            metaDataTypes = GetMetaDataTypesAsString(usedTags);
-            SetMetaDataTypes();
+            comboBoxTagSelect.DataSource = GetUnusedMetaDataTypes(usedTags);
         }
 
-        private void SetMetaDataTypes()
+        private static IEnumerable<string> GetUnusedMetaDataTypes(IEnumerable<string> usedTags)
         {
-            comboBoxTagSelect.DataSource = metaDataTypes;
-        }
-
-        private List<string> GetMetaDataTypesAsString(List<string> usedTags)
-        {
-            List<string> dataTypesAsString = Enum.GetValues(typeof(MetaDataType))
+            return Enum.GetValues(typeof(MetaDataType))
                 .Cast<MetaDataType>()
-                .Where(dataType => !blacklist.Contains(dataType) && !usedTags.Contains(dataType.ToString("g")))
+                .Except(Blacklist)
                 .Select(dataType => dataType.ToString("g"))
+                .Except(usedTags)
+                .OrderBy(dataType => dataType)
                 .ToList();
-
-            dataTypesAsString.Sort();
-            return dataTypesAsString;
         }
 
         public string GetMetaDataType()

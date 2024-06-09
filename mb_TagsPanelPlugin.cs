@@ -392,8 +392,9 @@ namespace MusicBeePlugin
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error occurred while invoking UpdateTagsTableData: " + ex.Message);
+                    log.Error("Error occurred while invoking UpdateTagsTableData: " + ex.ToString());
                 }
+                
             }
             else
             {
