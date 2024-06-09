@@ -36,7 +36,7 @@ namespace MusicBeePlugin
 
         private static bool HasSelectedItem(ListBox listBox)
         {
-            return listBox.SelectedItem != null && listBox.SelectedIndex >= 0;
+            return listBox.SelectedItem != null;
         }
 
         private static bool IsIndexWithinBounds(int index, int itemCount)
@@ -46,12 +46,10 @@ namespace MusicBeePlugin
 
         private static CheckState SaveCheckedState(ListBox listBox)
         {
-            CheckState checkState = CheckState.Unchecked;
-
             if (listBox is CheckedListBox checkedListBox)
-                checkState = checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
+                return checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
 
-            return checkState;
+            return CheckState.Unchecked;
         }
 
         private static void RestoreCheckedState(ListBox listBox, CheckState checkState, int newIndex)
