@@ -44,7 +44,8 @@ namespace MusicBeePlugin
         {
             if (!sorted && enableAlphabeticalTagSort)
             {
-                tagList = new SortedDictionary<string, int>(tagList);
+                var sortedTagList = tagList.OrderBy(item => item.Key).ToDictionary(item => item.Key, item => item.Value);
+                tagList = new SortedDictionary<string, int>(sortedTagList);
                 sorted = true;
             }
         }
@@ -53,12 +54,8 @@ namespace MusicBeePlugin
         {
             if (!enableAlphabeticalTagSort)
             {
-                var sortedTagList = tagList.OrderBy(item => item.Value).ToList();
-                tagList.Clear();
-                for (int i = 0; i < sortedTagList.Count; i++)
-                {
-                    tagList.Add(sortedTagList[i].Key, i);
-                }
+                var sortedTagList = tagList.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
+                tagList = new SortedDictionary<string, int>(sortedTagList);
             }
         }
 
