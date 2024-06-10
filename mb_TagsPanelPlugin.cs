@@ -621,11 +621,17 @@ namespace MusicBeePlugin
         {
             _panel = panel;
 
-            _panel.CreateControl();
+            if (!_panel.Created)
+            {
+                _panel.CreateControl();
+            }
 
             AddControls();
             AddSettingsLabel();
-            InvokeUpdateTagsTableData();
+            if (_panel.IsHandleCreated)
+            {
+                InvokeUpdateTagsTableData();
+            }
 
             return 0;
         }
