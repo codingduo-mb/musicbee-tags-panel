@@ -215,10 +215,6 @@ namespace MusicBeePlugin
                 _tabPageList[tagName] = tabPage;
                 tabControl.TabPages.Add(tabPage);
             }
-            else if (!tabPage.IsHandleCreated)
-            {
-                tabPage.CreateControl();
-            }
 
             return tabPage;
         }
