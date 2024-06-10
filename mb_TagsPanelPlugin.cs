@@ -504,11 +504,13 @@ namespace MusicBeePlugin
         private void CreateTabPanel()
         {
             tabControl = (TabControl)mbApiInterface.MB_AddPanel(_panel, (PluginPanelDock)6);
-            // TODO 
             tabControl.Dock = DockStyle.Fill;
-            tabControl.Selected += new System.Windows.Forms.TabControlEventHandler(TabControl1_Selected);
+            tabControl.Selected += TabControl1_Selected;
 
-            AddTabPages();
+            if (tabControl.TabPages.Count == 0)
+            {
+                AddTabPages();
+            }
         }
 
         private void AddSettingsLabel()
