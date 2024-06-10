@@ -65,8 +65,8 @@ namespace MusicBeePlugin
             {
                 tagList[key] = position;
 
-                var item = tagList.FirstOrDefault(x => x.Value == position && x.Key != key);
-                if (!item.Equals(default(KeyValuePair<string, int>)))
+                var items = tagList.Where(x => x.Value == position && x.Key != key).ToList();
+                foreach (var item in items)
                 {
                     tagList[item.Key] = oldPosition;
                 }
