@@ -486,15 +486,14 @@ namespace MusicBeePlugin
                 {
                     tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
                 }
+
+                UpdateTagsInPanelOnFileSelection();
+                SetPanelEnabled(true);
             }
             else
             {
                 tagsFromFiles.Clear();
             }
-
-            UpdateTagsInPanelOnFileSelection();
-
-            SetPanelEnabled(true);
         }
 
 
