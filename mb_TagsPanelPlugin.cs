@@ -553,10 +553,11 @@ namespace MusicBeePlugin
         /// <param name="reason">The reason why MusicBee has closed the plugin.</param>
         public void Close(PluginCloseReason reason)
         {
-            log.Info(reason.ToString("G"));
-            log.Dispose();
+            log?.Info(reason.ToString("G"));
+            log?.Dispose();
             _panel?.Dispose();
             _panel = null;
+            log = null;
         }
 
         /// <summary>
@@ -565,10 +566,16 @@ namespace MusicBeePlugin
         public void Uninstall()
         {
             // Delete settings file
-            DeleteFile(settingsStorage.GetSettingsPath());
+            if (System.IO.File.Exists(settingsStorage.GetSettingsPath()))
+            {
+                System.IO.File.Delete(settingsStorage.GetSettingsPath());
+            }
 
             // Delete log file
-            DeleteFile(log.GetLogFilePath());
+            if (System.IO.File.Exists(log.GetLogFilePath()))
+            {
+                System.IO.File.Delete(log.GetLogFilePath());
+            }
         }
 
 
