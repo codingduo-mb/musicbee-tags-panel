@@ -599,15 +599,8 @@ namespace MusicBeePlugin
         /// <param name="type"></param>
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
-            // If the panel is null or the application window has changed, return early
-            if (_panel == null || type == NotificationType.ApplicationWindowChanged) return;
-
-            MetaDataType metaDataType = GetVisibleTabPageName();
-            // If the metaDataType is 0, return early
-            if (metaDataType == 0) return;
-
-            // If ignoreEventFromHandler is true, return early
-            if (ignoreEventFromHandler) return;
+            // Return early if the panel is null, the application window has changed, the metaDataType is 0, or ignoreEventFromHandler is true
+            if (_panel == null || type == NotificationType.ApplicationWindowChanged || GetVisibleTabPageName() == 0 || ignoreEventFromHandler) return;
 
             if (type == NotificationType.TagsChanging)
             {
@@ -615,7 +608,7 @@ namespace MusicBeePlugin
                 mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
-            tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, metaDataType);
+            tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, GetVisibleTabPageName());
 
             if (type == NotificationType.TrackChanged || type == NotificationType.TagsChanging)
             {
@@ -653,10 +646,8 @@ namespace MusicBeePlugin
         /// <param name="filenames">List of selected files.</param>
         public void OnSelectedFilesChanged(string[] filenames)
         {
-            if (_panel == null || filenames == null || filenames.Length == 0) return;
-
             selectedFileUrls = filenames;
-            SetTagsFromFilesInPanel(filenames);
+            SetTagsFromFilesInPanel(selectedFileUrls);
         }
 
         /// <summary>
