@@ -532,18 +532,18 @@ namespace MusicBeePlugin
 
         private void AddSettingsLabel()
         {
+            Label emptyPanelText = new Label
+            {
+                AutoSize = true,
+                Location = new System.Drawing.Point(14, 30),
+                Size = new System.Drawing.Size(38, 13),
+                TabIndex = 2,
+                Text = "Please add a tag in the settings dialog first."
+            };
+
             _panel.BeginInvoke(new Action(() =>
             {
                 _panel.SuspendLayout();
-                Label emptyPanelText = new Label
-                {
-                    AutoSize = true,
-                    Location = new System.Drawing.Point(14, 30),
-                    Size = new System.Drawing.Size(38, 13),
-                    TabIndex = 2,
-                    Text = "Please add a tag in the settings dialog first."
-                };
-
                 _panel.Controls.Add(emptyPanelText);
                 _panel.Controls.SetChildIndex(emptyPanelText, 1);
                 _panel.Controls.SetChildIndex(tabControl, 0);
