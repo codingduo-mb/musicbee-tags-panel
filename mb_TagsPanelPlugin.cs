@@ -500,21 +500,18 @@ namespace MusicBeePlugin
         void SwitchVisibleTagPanel(string visibleTag)
         {
             // Hide checklistBox on all panels
-            foreach (var tagsStorage in SettingsStorage.TagsStorages.Values)
+            foreach (var checklistBoxPanel in checklistBoxList.Values)
             {
-                string tagName = tagsStorage.GetTagName();
-                TabPage page = GetOrCreateTagPage(tagName);
-
-                if (page.Controls.Count > 0 && page.Controls[0] is ChecklistBoxPanel checklistBoxPanel)
-                {
-                    checklistBoxPanel.Visible = false;
-                }
+                checklistBoxPanel.Visible = false;
             }
 
             // Show checklistBox on visible panel 
             if (!string.IsNullOrEmpty(visibleTag))
             {
-                AddVisibleTagPanel(visibleTag);
+                if (checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
+                {
+                    visibleChecklistBoxPanel.Visible = true;
+                }
                 SetTagsFromFilesInPanel(selectedFileUrls);
             }
         }
