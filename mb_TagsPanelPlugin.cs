@@ -573,7 +573,7 @@ namespace MusicBeePlugin
         public void Close(PluginCloseReason reason)
         {
             log.Info(reason.ToString("G"));
-            log.Close();
+            log.Dispose();
             _panel?.Dispose();
             _panel = null;
         }

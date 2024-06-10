@@ -19,7 +19,6 @@ namespace MusicBeePlugin
             this.musicBeeApiInterface = musicBeeApiInterface;
             fileInfo = new FileInfo(GetLogFilePath());
             writer = new StreamWriter(fileInfo.FullName, true, Encoding.UTF8);
-            writer.AutoFlush = false;
         }
 
         private void Write(string type, string message, params object[] args)
@@ -32,14 +31,7 @@ namespace MusicBeePlugin
         public void Dispose()
         {
             writer?.Dispose();
-        }
-
-        public void Close()
-        {
-            if (writer != null)
-            {
-                writer.Close();
-            }
+            writer = null;
         }
 
         public void Debug(string message, params object[] args)
