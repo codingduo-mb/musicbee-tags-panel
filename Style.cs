@@ -20,7 +20,7 @@ namespace MusicBeePlugin
         {
             if (!colorCache.TryGetValue((skinElement, elementComponent), out var color))
             {
-                int colorValue = this.mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
+                int colorValue = mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
                 color = Color.FromArgb(colorValue);
                 colorCache[(skinElement, elementComponent)] = color;
             }
@@ -30,15 +30,9 @@ namespace MusicBeePlugin
 
         public void StyleControl(Control formControl)
         {
-            // apply current skin colors to tag panel
-            var defaultFont = this.mbApiInterface.Setting_GetDefaultFont();
-            var trackAndArtistPanelColor = this.GetElementColor(SkinElement.SkinTrackAndArtistPanel, ElementState.ElementStateDefault, ElementComponent.ComponentBackground);
-            var inputControlColor = this.GetElementColor(SkinElement.SkinInputControl, ElementState.ElementStateDefault, ElementComponent.ComponentForeground);
-
-            formControl.Font = defaultFont;
-            formControl.BackColor = trackAndArtistPanelColor;
-            formControl.ForeColor = inputControlColor;
+            formControl.Font = mbApiInterface.Setting_GetDefaultFont();
+            formControl.BackColor = GetElementColor(SkinElement.SkinTrackAndArtistPanel, ElementState.ElementStateDefault, ElementComponent.ComponentBackground);
+            formControl.ForeColor = GetElementColor(SkinElement.SkinInputControl, ElementState.ElementStateDefault, ElementComponent.ComponentForeground);
         }
-
     }
 }
