@@ -140,7 +140,9 @@ namespace MusicBeePlugin
             {
                 if (tagsPanelSettingsForm.ShowDialog() == DialogResult.OK)
                 {
-                    UpdateSettingsAndPanel(tagsPanelSettingsForm.SettingsStorage);
+                    settingsStorage = tagsPanelSettingsForm.SettingsStorage;
+                    SaveSettings();
+                    UpdatePanelVisibility();
                 }
             }
         }
