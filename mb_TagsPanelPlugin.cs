@@ -186,26 +186,24 @@ namespace MusicBeePlugin
 
         private void AddTagPanelIfVisible(string tagName)
         {
-            var tabPage = GetOrCreateTagPage(tagName);
-
-            if (SettingsStorage.TagsStorages.TryGetValue(tagName, out var tagsStorage))
-            {
-                ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-                checkListBox.AddDataSource(tagsStorage.GetTags());
-
-                checkListBox.Dock = DockStyle.Fill;
-                checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
-
-                if (!tabPage.Controls.Contains(checkListBox))
-                {
-                    tabPage.Controls.Add(checkListBox);
-                }
-                checkListBox.Visible = true;
-            }
-            else
+            if (!SettingsStorage.TagsStorages.TryGetValue(tagName, out var tagsStorage))
             {
                 log.Error("tagsStorage is null");
+                return;
             }
+
+            var tabPage = GetOrCreateTagPage(tagName);
+            ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
+            checkListBox.AddDataSource(tagsStorage.GetTags());
+
+            checkListBox.Dock = DockStyle.Fill;
+            checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
+
+            if (!tabPage.Controls.Contains(checkListBox))
+            {
+                tabPage.Controls.Add(checkListBox);
+            }
+            checkListBox.Visible = true;
         }
 
 
