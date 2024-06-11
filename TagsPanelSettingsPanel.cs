@@ -192,44 +192,42 @@ namespace MusicBeePlugin
                 return;
             }
 
-            if (!this.lstTags.Items.Contains(newTag))
-            {
-                this.tagsStorage.TagList[newTag] = this.tagsStorage.TagList.Count();
-                this.lstTags.Items.Add(newTag);
-            }
-            else
+            if (this.lstTags.Items.Contains(newTag))
             {
                 ShowDialogForDuplicate();
+                return;
             }
 
+            this.tagsStorage.TagList[newTag] = this.tagsStorage.TagList.Count;
+            this.lstTags.Items.Add(newTag);
             this.TxtNewTagInput.Text = string.Empty;
         }
 
         public void RemoveSelectedTagFromList()
         {
-            System.Windows.Forms.ListBox.SelectedObjectCollection selectedItems = new System.Windows.Forms.ListBox.SelectedObjectCollection(lstTags);
-            selectedItems = lstTags.SelectedItems;
-
-            if (lstTags.SelectedIndex != -1 && lstTags.Items.Count != 0)
+            if (lstTags.SelectedIndex == -1 || lstTags.Items.Count == 0)
             {
-                int selectedIndex = lstTags.SelectedIndex; // Store the index of the selected item
+                return;
+            }
 
-                for (int i = selectedItems.Count - 1; i >= 0; i--)
-                {
-                    object selectedItem = selectedItems[i];
-                    lstTags.Items.Remove(selectedItem);
-                    tagsStorage.TagList.Remove((string)selectedItem);
-                }
+            int selectedIndex = lstTags.SelectedIndex; // Store the index of the selected item
 
-                // Select the item above the removed item
-                if (selectedIndex > 0)
-                {
-                    lstTags.SelectedIndex = selectedIndex - 1;
-                }
-                else if (lstTags.Items.Count > 0)
-                {
-                    lstTags.SelectedIndex = 0;
-                }
+            var selectedItems = new List<object>(lstTags.SelectedItems.Cast<object>());
+
+            foreach (var selectedItem in selectedItems)
+            {
+                lstTags.Items.Remove(selectedItem);
+                tagsStorage.TagList.Remove((string)selectedItem);
+            }
+
+            // Select the item above the removed item
+            if (selectedIndex > 0)
+            {
+                lstTags.SelectedIndex = selectedIndex - 1;
+            }
+            else if (lstTags.Items.Count > 0)
+            {
+                lstTags.SelectedIndex = 0;
             }
         }
 
