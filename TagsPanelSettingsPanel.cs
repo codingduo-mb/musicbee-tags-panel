@@ -20,13 +20,22 @@ namespace MusicBeePlugin
         private const string CsvImportSuccessMessage = "CSV import successful";
         private const string CsvImportCancelMessage = "CSV import canceled";
         private const string CsvExportSuccessMessage = "Tags exported in CSV";
-        private const string CsvConfirmationMessage = "Warning: THis will replace all entries of this tag. Do you want to continue with the CSV import?";
+        private const string CsvConfirmationMessage = "Warning: This will replace all entries of this tag. Do you want to continue with the CSV import?";
         private const string CsvConfirmationTitle = "Confirmation";
+
+        private const string EnterTagMessage = "Please enter a tag";
+        private const string TagSortToolTip = "If enabled the Tags are always sorted alphabetically in the tag. Otherwise you can use the up and down buttons to reorder your tag lists.";
+        private const string DuplicateTagMessage = "Tag is already in the list!";
+        private const string DuplicateTagTitle = "Duplicate found!";
+        private const string ClearListMessage = "This will clear your current tag list. Continue?";
+        private const string ClearListTitle = "Warning";
+        private const string SortConfirmationMessage = "Do you really want to sort the tags alphabetically? Your current order will be lost.";
+        private const string SortConfirmationTitle = "Warning";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-       
+
 
         public TagsPanelSettingsPanel(string tagName)
         {
@@ -42,9 +51,8 @@ namespace MusicBeePlugin
             };
 
             // Set up the ToolTip text for the CheckBox.
-            toolTip.SetToolTip(this.cbEnableAlphabeticalTagSort, "If enabled the Tags are always sorted alphabetically in the tag. If not enabled you can use the up and down buttons to reorder your tag lists.");
-
-            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, "Please enter a tag");
+            toolTip.SetToolTip(this.cbEnableAlphabeticalTagSort, TagSortToolTip);
+            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, EnterTagMessage);
 
             tagsStorage = SettingsStorage.GetTagsStorage(tagName);
             UpdateTags();
@@ -73,14 +81,14 @@ namespace MusicBeePlugin
         {
             if (TxtNewTagInput.Text.Length == 0)
             {
-                TxtNewTagInput.Text = "Please enter a tag";
+                TxtNewTagInput.Text = EnterTagMessage;
                 TxtNewTagInput.ForeColor = SystemColors.GrayText;
             }
         }
 
         private void TxtNewTagInput_Enter(object sender, EventArgs e)
         {
-            if (TxtNewTagInput.Text == "Please enter a tag")
+            if (TxtNewTagInput.Text == EnterTagMessage)
             {
                 TxtNewTagInput.Text = "";
                 TxtNewTagInput.ForeColor = SystemColors.WindowText;
@@ -179,7 +187,7 @@ namespace MusicBeePlugin
         public void AddNewTagToList()
         {
             string newTag = this.TxtNewTagInput.Text.Trim();
-            if (string.IsNullOrEmpty(newTag) || newTag == "Please Enter A Tag")
+            if (string.IsNullOrEmpty(newTag) || newTag == EnterTagMessage)
             {
                 return;
             }
@@ -419,7 +427,7 @@ namespace MusicBeePlugin
         ***************************/
         private void ShowConfirmationDialogToSort()
         {
-            DialogResult dialogResult = MessageBox.Show("Do you really want to sort the tags alphabetically? Your current order will be lost.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult dialogResult = MessageBox.Show(SortConfirmationMessage, SortConfirmationTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             bool sort = dialogResult == DialogResult.Yes;
             SortAlphabetically();
             tagsStorage.Sorted = sort;
@@ -429,13 +437,12 @@ namespace MusicBeePlugin
 
         private void ShowDialogForDuplicate()
         {
-            MessageBox.Show("Tag is already in the list!", "Duplicate found!", MessageBoxButtons.OK);
+            MessageBox.Show(DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK);
         }
-
 
         private void ShowDialogToClearList()
         {
-            DialogResult dialogResult = MessageBox.Show("This will clear your current tag list. Continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult dialogResult = MessageBox.Show(ClearListMessage, ClearListTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
