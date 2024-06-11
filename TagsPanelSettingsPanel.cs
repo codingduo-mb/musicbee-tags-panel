@@ -390,14 +390,16 @@ namespace MusicBeePlugin
             if (newIndex < 0 || newIndex >= lstTags.Items.Count)
                 return; // Index out of range - nothing to do
 
-            object selected = lstTags.SelectedItem;
-
             // Removing removable element
+            object selected = lstTags.SelectedItem;
             lstTags.Items.RemoveAt(lstTags.SelectedIndex);
+
             // Insert it in new position
             lstTags.Items.Insert(newIndex, selected);
+
             // Restore selection
             lstTags.SetSelected(newIndex, true);
+
             // Put the selected item to a new position
             tagsStorage.SwapElement(selected.ToString(), newIndex);
         }
@@ -409,10 +411,7 @@ namespace MusicBeePlugin
             lstTags.BeginUpdate(); // Suspend drawing of the ListBox
             lstTags.Items.Clear();
 
-            foreach (var listItem in tagsStorage.GetTags())
-            {
-                lstTags.Items.Add(listItem.Key);
-            }
+            lstTags.Items.AddRange(tagsStorage.GetTags().Keys.ToArray());
 
             lstTags.EndUpdate(); // Resume drawing of the ListBox
         }
@@ -438,10 +437,6 @@ namespace MusicBeePlugin
             if (dialogResult == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
-            }
-            else
-            {
-                return;
             }
         }
     }
