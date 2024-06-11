@@ -44,7 +44,7 @@ namespace MusicBeePlugin
 
         public string GetMetaDataType()
         {
-            return comboBoxTagSelect.SelectedItem as string;
+            return comboBoxTagSelect.SelectedItem?.ToString();
         }
     }
 }
