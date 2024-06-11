@@ -370,21 +370,19 @@ namespace MusicBeePlugin
 
         private void InvokeRefreshTagTableData()
         {
-            if (_panel != null && !_panel.IsDisposed)
-            {
-                try
-                {
-                    _panel.BeginInvoke((Action)RefreshTagsTableData);
-                }
-                catch (Exception ex)
-                {
-                    log.Error($"Error occurred while invoking {nameof(RefreshTagsTableData)}: " + ex.ToString());
-                }
-
-            }
-            else
+            if (_panel == null || _panel.IsDisposed)
             {
                 log.Error($"{nameof(_panel)} is null or disposed");
+                return;
+            }
+
+            try
+            {
+                _panel.BeginInvoke((Action)RefreshTagsTableData);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error occurred while invoking {nameof(RefreshTagsTableData)}: " + ex.ToString());
             }
         }
 
@@ -465,21 +463,23 @@ namespace MusicBeePlugin
 
         private void SetTagsFromFilesInPanel(string[] filenames)
         {
-            if (filenames != null && filenames.Length > 0)
-            {
-                TagsStorage currentTagsStorage = GetCurrentTagsStorage();
-                if (currentTagsStorage != null)
-                {
-                    tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
-                }
-
-                UpdateTagsInPanelOnFileSelection();
-                SetPanelEnabled(true);
-            }
-            else
+            if (filenames == null || filenames.Length == 0)
             {
                 tagsFromFiles.Clear();
+                return;
             }
+
+            TagsStorage currentTagsStorage = GetCurrentTagsStorage();
+            if (currentTagsStorage != null)
+            {
+                tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
+            }
+
+            if (_panel != null)
+            {
+                UpdateTagsInPanelOnFileSelection();
+            }
+            SetPanelEnabled(true);
         }
 
 
@@ -590,7 +590,6 @@ namespace MusicBeePlugin
         /// <param name="type"></param>
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
-            // Return early if the panel is null, the application window has changed, the metaDataType is 0, or ignoreEventFromHandler is true
             if (_panel == null || type == NotificationType.ApplicationWindowChanged || GetActiveTabMetaDataType() == 0 || ignoreEventFromHandler) return;
 
             if (type == NotificationType.TagsChanging)
@@ -601,12 +600,11 @@ namespace MusicBeePlugin
 
             tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
 
-            if (type == NotificationType.TrackChanged || type == NotificationType.TagsChanging)
-            {
-                ignoreForBatchSelect = true;
-                InvokeRefreshTagTableData();
-                ignoreForBatchSelect = false;
-            }
+            if (type != NotificationType.TrackChanged && type != NotificationType.TagsChanging) return;
+
+            ignoreForBatchSelect = true;
+            InvokeRefreshTagTableData();
+            ignoreForBatchSelect = false;
         }
 
         /// <summary>
