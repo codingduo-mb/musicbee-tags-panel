@@ -72,17 +72,19 @@ namespace MusicBeePlugin
 
         private void BtnRemoveTagPage_Click(object sender, EventArgs e)
         {
+            TabPage tabToRemove = tabControlSettings.SelectedTab;
+            if (tabToRemove == null)
+            {
+                return;
+            }
+
             DialogResult dialogResult = MessageBox.Show("This will remove the current tag page and you will lose your current tag list. Continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
-                TabPage tabToRemove = tabControlSettings.SelectedTab;
-                if (tabToRemove != null)
-                {
-                    string tagName = tabToRemove.Text;
-                    tabControlSettings.TabPages.Remove(tabToRemove);
-                    SettingsStorage.RemoveTagStorage(tagName);
-                    tagPanels.Remove(tagName);
-                }
+                string tagName = tabToRemove.Text;
+                tabControlSettings.TabPages.Remove(tabToRemove);
+                SettingsStorage.RemoveTagStorage(tagName);
+                tagPanels.Remove(tagName);
             }
         }
 

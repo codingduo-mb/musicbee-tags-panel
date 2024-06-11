@@ -29,6 +29,11 @@ namespace MusicBeePlugin
 
         public void AddDataSource(Dictionary<String, CheckState> data)
         {
+            if (data == null)
+            {
+                return;
+            }
+
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
 

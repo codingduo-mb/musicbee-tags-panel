@@ -156,8 +156,7 @@ namespace MusicBeePlugin
 
         private void CbEnableTagSort_CheckedChanged(object sender, EventArgs e)
         {
-            CheckBox checkBox = sender as CheckBox;
-            if (checkBox?.Checked == true)
+            if (sender is CheckBox checkBox && checkBox.Checked)
             {
                 ShowConfirmationDialogToSort();
                 SetUpDownButtonsStateDisabled();
@@ -171,17 +170,19 @@ namespace MusicBeePlugin
         }
 
 
-        public bool IsSortEnabled()
-        {
-            return this.cbEnableAlphabeticalTagSort.Checked;
-        }
+        public bool IsSortEnabled() => this.cbEnableAlphabeticalTagSort.Checked;
 
         public void UpdateTags()
         {
-            Dictionary<String, CheckState> tagsDict = tagsStorage.GetTags();
-            string[] tags = tagsDict.Keys.ToArray();
-            Array.Sort(tags); // Sort the tags alphabetically
-            this.lstTags.Items.AddRange(tags);
+            var tagsDict = tagsStorage.GetTags();
+            var tags = tagsDict.Keys.ToList();
+
+            if (IsSortEnabled())
+            {
+                tags = tags.OrderBy(tag => tag).ToList();
+            }
+
+            this.lstTags.Items.AddRange(tags.ToArray());
         }
 
         public void AddNewTagToList()
