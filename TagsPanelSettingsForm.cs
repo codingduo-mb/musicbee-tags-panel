@@ -33,13 +33,12 @@ namespace MusicBeePlugin
             toolTipAddTagPage.SetToolTip(btnAddTabPage, TOOLTIPADDTAGPAGE);
         }
 
-        private bool AddPanel(TagsStorage storage)
+        private void AddPanel(TagsStorage storage)
         {
             string tagName = storage.GetTagName();
             if (tagPanels.ContainsKey(tagName))
             {
-                MessageBox.Show("This Metadata Type was already added", "Tag exists already", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
+                throw new ArgumentException("This Metadata Type was already added");
             }
 
             TagsPanelSettingsPanel tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName);
@@ -48,8 +47,6 @@ namespace MusicBeePlugin
             tabPage.Controls.Add(tagsPanelSettingsPanel);
             tabControlSettings.TabPages.Add(tabPage);
             tagsPanelSettingsPanel.SetUpPanelForFirstUse();
-
-            return true;
         }
 
         private void Btn_AddTagPage_Click(object sender, EventArgs e)
@@ -62,9 +59,17 @@ namespace MusicBeePlugin
                 {
                     TagsStorage storage = new TagsStorage();
                     storage.MetaDataType = form.GetMetaDataType();
-                    if (storage.MetaDataType != null && AddPanel(storage))
+                    if (storage.MetaDataType != null)
                     {
-                        form.Close();
+                        try
+                        {
+                            AddPanel(storage);
+                            form.Close();
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            MessageBox.Show(ex.Message, "Tag exists already", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
                     }
                 }
             }
@@ -73,24 +78,22 @@ namespace MusicBeePlugin
         private void BtnRemoveTagPage_Click(object sender, EventArgs e)
         {
             TabPage tabToRemove = tabControlSettings.SelectedTab;
-            if (tabToRemove == null)
+            if (tabToRemove != null)
             {
-                return;
-            }
-
-            DialogResult dialogResult = MessageBox.Show("This will remove the current tag page and you will lose your current tag list. Continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dialogResult == DialogResult.Yes)
-            {
-                string tagName = tabToRemove.Text;
-                tabControlSettings.TabPages.Remove(tabToRemove);
-                SettingsStorage.RemoveTagStorage(tagName);
-                tagPanels.Remove(tagName);
+                DialogResult dialogResult = MessageBox.Show("This will remove the current tag page and you will lose your current tag list. Continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    string tagName = tabToRemove.Text;
+                    tabControlSettings.TabPages.Remove(tabToRemove);
+                    SettingsStorage.RemoveTagStorage(tagName);
+                    tagPanels.Remove(tagName);
+                }
             }
         }
 
         private void LinkAbout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show("Tags-Panel Plugin " + Environment.NewLine + "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine +
+            MessageBox.Show("Tags-Panel Plugin " + Environment.NewLine + "Version " + VersionLbl.Text + Environment.NewLine +
                 "Visit us on GitHub", "About Tags-Panel Plugin",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
