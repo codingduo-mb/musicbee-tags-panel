@@ -81,6 +81,7 @@ namespace MusicBeePlugin
             {
                 serializer.Serialize(jsonWriter, defaultSettings);
             }
+            log.Info($"{nameof(CreateDefaultSettingsFile)} executed");
         }
 
         public string GetSettingsPath()

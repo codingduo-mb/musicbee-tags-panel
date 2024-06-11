@@ -12,17 +12,28 @@ namespace MusicBeePlugin
     {
         private TagsStorage tagsStorage;
 
+        private const int EM_SETCUEBANNER = 0x1501;
+
+        private const string CsvFileFilter = "csv files (*.csv)|*.csv";
+        private const string CsvDefaultExt = "csv";
+        private const string CsvDialogTitle = "Choose a CSV file";
+        private const string CsvImportSuccessMessage = "CSV import successful";
+        private const string CsvImportCancelMessage = "CSV import canceled";
+        private const string CsvExportSuccessMessage = "Tags exported in CSV";
+        private const string CsvConfirmationMessage = "Warning: THis will replace all entries of this tag. Do you want to continue with the CSV import?";
+        private const string CsvConfirmationTitle = "Confirmation";
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        private const int EM_SETCUEBANNER = 0x1501;
+       
 
         public TagsPanelSettingsPanel(string tagName)
         {
             InitializeComponent();
 
             // Create a new ToolTip instance
-            ToolTip toolTip = new ToolTip
+            var toolTip = new ToolTip
             {
                 AutoPopDelay = 5000,
                 InitialDelay = 1000,
@@ -138,7 +149,7 @@ namespace MusicBeePlugin
         private void CbEnableTagSort_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox checkBox = sender as CheckBox;
-            if (checkBox != null && checkBox.Checked)
+            if (checkBox?.Checked == true)
             {
                 ShowConfirmationDialogToSort();
                 SetUpDownButtonsStateDisabled();
@@ -229,9 +240,9 @@ namespace MusicBeePlugin
                 openFileDialog1.CheckFileExists = true;
                 openFileDialog1.CheckPathExists = true;
 
-                openFileDialog1.Title = "Choose a CSV file";
-                openFileDialog1.Filter = "csv files (*.csv)|*.csv";
-                openFileDialog1.DefaultExt = "csv";
+                openFileDialog1.Title = CsvDialogTitle;
+                openFileDialog1.Filter = CsvFileFilter;
+                openFileDialog1.DefaultExt = CsvDefaultExt;
                 openFileDialog1.Multiselect = false;
 
                 openFileDialog1.RestoreDirectory = true;
@@ -244,7 +255,7 @@ namespace MusicBeePlugin
                         return;
                     }
 
-                    DialogResult dialogResult = MessageBox.Show("Do you want to continue with the CSV import?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult dialogResult = MessageBox.Show(CsvConfirmationMessage, CsvConfirmationTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (dialogResult == DialogResult.Yes)
                     {
                         string[] lines = File.ReadAllLines(importCsvFilename);
@@ -265,11 +276,11 @@ namespace MusicBeePlugin
                             }
                         }
 
-                        MessageBox.Show("CSV import successful");
+                        MessageBox.Show(CsvImportSuccessMessage);
                     }
                     else
                     {
-                        MessageBox.Show("CSV import canceled");
+                        MessageBox.Show(CsvImportCancelMessage);
                     }
                 }
             }
@@ -281,9 +292,9 @@ namespace MusicBeePlugin
             using (SaveFileDialog saveFileDialog1 = new SaveFileDialog())
             {
                 saveFileDialog1.CheckFileExists = false;
-                saveFileDialog1.Title = "Choose a file name";
-                saveFileDialog1.Filter = "csv files (*.csv)|*.csv";
-                saveFileDialog1.DefaultExt = "csv";
+                saveFileDialog1.Title = CsvDialogTitle;
+                saveFileDialog1.Filter = CsvFileFilter;
+                saveFileDialog1.DefaultExt = CsvDefaultExt;
                 saveFileDialog1.RestoreDirectory = true;
 
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
@@ -296,7 +307,7 @@ namespace MusicBeePlugin
                         csvWriter.Write(csvContent);
                     }
 
-                    MessageBox.Show("Tags exported in CSV");
+                    MessageBox.Show(CsvExportSuccessMessage);
                 }
             }
         }

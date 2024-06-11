@@ -93,7 +93,7 @@ namespace MusicBeePlugin
             InitializeMenu();
 
             // Protokolliert eine Information, dass das Plugin gestartet wurde.
-            log.Info("Tags-Panel plugin started");
+            log.Info($"{nameof(InitializePluginComponents)} started");
         }
 
 
@@ -217,7 +217,7 @@ namespace MusicBeePlugin
                 _tabPageList[tagName] = tabPage;
                 tabControl.TabPages.Add(tabPage);
             }
-
+            log.Info($"{nameof(GetOrCreateTagPage)} returned {nameof(tabPage)} for {nameof(tagName)}: {tagName}");
             return tabPage;
         }
 
@@ -308,7 +308,9 @@ namespace MusicBeePlugin
         private TagsStorage GetCurrentTagsStorage()
         {
             MetaDataType metaDataType = GetVisibleTabPageName();
-            return metaDataType != 0 ? SettingsStorage.GetTagsStorage(metaDataType.ToString()) : null;
+            TagsStorage tagsStorage = metaDataType != 0 ? SettingsStorage.GetTagsStorage(metaDataType.ToString()) : null;
+            log.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
+            return tagsStorage;
         }
 
         private void ClearAllTagPages()
