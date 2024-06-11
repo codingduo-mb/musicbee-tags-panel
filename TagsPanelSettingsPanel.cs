@@ -267,7 +267,7 @@ namespace MusicBeePlugin
                     if (dialogResult == DialogResult.Yes)
                     {
                         string[] lines = File.ReadAllLines(importCsvFilename);
-                        List<string> importedTags = new List<string>();
+                        HashSet<string> importedTags = new HashSet<string>();
 
                         foreach (string line in lines)
                         {
@@ -275,10 +275,9 @@ namespace MusicBeePlugin
                             foreach (string value in values)
                             {
                                 string importtag = value.Trim();
-                                if (!string.IsNullOrEmpty(importtag) && !importedTags.Contains(importtag))
+                                if (!string.IsNullOrEmpty(importtag) && importedTags.Add(importtag))
                                 {
-                                    importedTags.Add(importtag);
-                                    this.tagsStorage.TagList[importtag] = this.tagsStorage.TagList.Count();
+                                    this.tagsStorage.TagList[importtag] = this.tagsStorage.TagList.Count;
                                     this.lstTags.Items.Add(importtag);
                                 }
                             }
@@ -311,8 +310,10 @@ namespace MusicBeePlugin
 
                     using (StreamWriter csvWriter = new StreamWriter(exportCSVFilename))
                     {
-                        string csvContent = string.Join(";", lstTags.Items.Cast<string>());
-                        csvWriter.Write(csvContent);
+                        foreach (string tag in lstTags.Items.Cast<string>())
+                        {
+                            csvWriter.WriteLine(tag);
+                        }
                     }
 
                     MessageBox.Show(CsvExportSuccessMessage);
@@ -320,11 +321,6 @@ namespace MusicBeePlugin
             }
         }
 
-
-
-        /***************************
-        BUTTONS
-        ***************************/
         private void BtnAddTag_Click(object sender, EventArgs e)
         {
             AddNewTagToList();
@@ -421,10 +417,6 @@ namespace MusicBeePlugin
             lstTags.EndUpdate(); // Resume drawing of the ListBox
         }
 
-
-        /***************************
-        DIALOGS
-        ***************************/
         private void ShowConfirmationDialogToSort()
         {
             DialogResult dialogResult = MessageBox.Show(SortConfirmationMessage, SortConfirmationTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
