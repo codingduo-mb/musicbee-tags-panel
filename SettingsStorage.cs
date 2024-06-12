@@ -50,12 +50,8 @@ namespace MusicBeePlugin
                 CreateDefaultSettingsFile(filename);
             }
 
-            using (var stream = File.Open(filename, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None))
-            using (var file = new StreamReader(stream, Encoding.UTF8))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                TagsStorages = (Dictionary<string, TagsStorage>)serializer.Deserialize(file, typeof(Dictionary<string, TagsStorage>));
-            }
+            var json = File.ReadAllText(filename, Encoding.UTF8);
+            TagsStorages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(json);
         }
 
         private void CreateDefaultSettingsFile(string filename)
@@ -64,12 +60,9 @@ namespace MusicBeePlugin
             var defaultSettings = new Dictionary<string, TagsStorage>();
 
             // Serialize default settings to JSON
-            var serializer = new JsonSerializer();
-            using (var writer = new StreamWriter(filename))
-            using (var jsonWriter = new JsonTextWriter(writer))
-            {
-                serializer.Serialize(jsonWriter, defaultSettings);
-            }
+            var json = JsonConvert.SerializeObject(defaultSettings);
+            File.WriteAllText(filename, json, Encoding.UTF8);
+
             log.Info($"{nameof(CreateDefaultSettingsFile)} executed");
         }
 
@@ -82,11 +75,9 @@ namespace MusicBeePlugin
         {
             string settingsPath = GetSettingsPath();
 
-            using (var file = new StreamWriter(settingsPath, false, Encoding.UTF8))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, TagsStorages);
-            }
+            var json = JsonConvert.SerializeObject(TagsStorages);
+            File.WriteAllText(settingsPath, json, Encoding.UTF8);
+
             mbApiInterface.MB_SetBackgroundTaskMessage("Settings saved");
         }
 
