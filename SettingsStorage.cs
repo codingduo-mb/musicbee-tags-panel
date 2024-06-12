@@ -61,18 +61,7 @@ namespace MusicBeePlugin
         private void CreateDefaultSettingsFile(string filename)
         {
             // Define default settings
-            var defaultSettings = new Dictionary<string, TagsStorage>
-            {
-                {
-                    "Genre", new TagsStorage
-                    {
-                        EnableAlphabeticalTagSort = false,
-                        Sorted = false,
-                        MetaDataType = "Genre",
-                        TagList = new SortedDictionary<string, int> { { "Please add your own tags here", 0 } }
-                    }
-                }
-            };
+            var defaultSettings = new Dictionary<string, TagsStorage>();
 
             // Serialize default settings to JSON
             var serializer = new JsonSerializer();
