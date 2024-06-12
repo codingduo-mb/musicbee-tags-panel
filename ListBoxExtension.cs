@@ -1,61 +1,50 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
     public static class ListBoxExtension
     {
-        public static void MoveSelectedItemUp(this ListBox listBox)
-        {
-            MoveSelectedItem(listBox, -1);
-        }
+        // Use 'var' for type inference and avoid unnecessary object creations 
+        private static bool IsListBoxNullOrNoSelectedItem(this ListBox listBox) => listBox == null || listBox.SelectedItems.Count == 0;
 
-        public static void MoveSelectedItemDown(this ListBox listBox)
-        {
-            MoveSelectedItem(listBox, 1);
-        }
+        public static void MoveUp(this ListBox listBox) => MoveSelectedItem(listBox, -1);
+
+        public static void MoveDown(this ListBox listBox) => MoveSelectedItem(listBox, 1);
 
         private static void MoveSelectedItem(ListBox listBox, int direction)
         {
-            if (!HasSelectedItem(listBox))
+            if (IsListBoxNullOrNoSelectedItem(listBox)) return;
+
+            // Check whether new index is within ListBox's bounds
+            var selectedIndex = listBox.SelectedIndex + direction;
+
+            if (!IsValidIndexForListBoxItemsCount(selectedIndex, listBox.Items.Count))
                 return;
 
-            int newIndex = listBox.SelectedIndex + direction;
-
-            if (!IsIndexWithinBounds(newIndex, listBox.Items.Count))
-                return;
-
-            object selected = listBox.SelectedItem;
+            object selectedItem = listBox.SelectedItem;
             CheckState checkState = SaveCheckedState(listBox);
 
-            listBox.Items.Remove(selected);
-            listBox.Items.Insert(newIndex, selected);
-            listBox.SetSelected(newIndex, true);
+            // Remove and Insert the selected item at new index location
+            listBox.Items.Remove(selectedItem);
+            listBox.Items.Insert(selectedIndex, selectedItem);
 
-            RestoreCheckedState(listBox, checkState, newIndex);
+            listBox.SetSelected(selectedIndex, true);
+
+            RestoreCheckedState(listBox, checkState, selectedIndex);
         }
 
-        private static bool HasSelectedItem(ListBox listBox)
-        {
-            return listBox.SelectedItem != null;
-        }
+        private static bool IsValidIndexForListBoxItemsCount(int index, int itemCount) => index >= 0 && index < itemCount;
 
-        private static bool IsIndexWithinBounds(int index, int itemCount)
-        {
-            return index >= 0 && index < itemCount;
-        }
-
+        // Save and restore Checked state of the ListBox if it's a CheckedListBox type
         private static CheckState SaveCheckedState(ListBox listBox)
-        {
-            if (listBox is CheckedListBox checkedListBox)
-                return checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
-
-            return CheckState.Unchecked;
-        }
+            => listBox is CheckedListBox checkedListBox ? checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex) : CheckState.Unchecked;
 
         private static void RestoreCheckedState(ListBox listBox, CheckState checkState, int newIndex)
         {
-            if (listBox is CheckedListBox checkedListBox)
-                checkedListBox.SetItemCheckState(newIndex, checkState);
+            if (!(listBox is CheckedListBox checkedListBox)) return;
+
+            checkedListBox.SetItemCheckState(newIndex, checkState);
         }
     }
 }
