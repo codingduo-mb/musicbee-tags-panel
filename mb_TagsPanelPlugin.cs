@@ -459,20 +459,28 @@ namespace MusicBeePlugin
             ignoreForBatchSelect = false;
         }
 
+        /// <summary>
+        /// Sets tags from files contained within a panel based on filenames array
+        /// </summary>
+        /// <param name="filenames"></param>
         private void SetTagsFromFilesInPanel(string[] filenames)
         {
-            if (filenames == null || filenames.Length == 0)
+            // Check if the filenames are null or empty and clear tagsFromFiles if so
+            if (filenames == null || !filenames.Any())
             {
                 tagsFromFiles.Clear();
                 return;
             }
 
             TagsStorage currentTagsStorage = GetCurrentTagsStorage();
+
+            // If there's a current tags storage, combine the new files with it  
             if (currentTagsStorage != null)
             {
                 tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
             }
 
+            // Update tags in panel on file selection if a panel exists
             if (_panel != null)
             {
                 UpdateTagsInPanelOnFileSelection();
