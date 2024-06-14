@@ -374,13 +374,16 @@ namespace MusicBeePlugin
                 return;
             }
 
-            try
+            // Überprüfen, ob der Aufruf auf dem UI-Thread erfolgt
+            if (_panel.InvokeRequired)
             {
-                _panel.BeginInvoke((Action)RefreshTagsTableData);
+                // Wenn nicht, verwenden Sie Invoke, um den Aufruf auf dem UI-Thread auszuführen
+                _panel.Invoke((Action)RefreshTagsTableData);
             }
-            catch (Exception ex)
+            else
             {
-                log.Error($"Error occurred while invoking {nameof(RefreshTagsTableData)}: " + ex.ToString());
+                // Wenn bereits auf dem UI-Thread, führen Sie die Methode direkt aus
+                RefreshTagsTableData();
             }
         }
 
