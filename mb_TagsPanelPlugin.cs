@@ -17,18 +17,19 @@ namespace MusicBeePlugin
         private Logger log;
         private Control _panel;
         private TabControl tabControl;
+        // Vereinfachte Feldinitialisierungen
         private List<MetaDataType> tags = new List<MetaDataType>();
-        private Dictionary<string, ChecklistBoxPanel> checklistBoxList;
-        private Dictionary<string, TabPage> _tabPageList;
-        private Dictionary<string, CheckState> tagsFromFiles;
+        private Dictionary<string, ChecklistBoxPanel> checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
+        private Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
+        private Dictionary<string, CheckState> tagsFromFiles = new Dictionary<string, CheckState>();
         private SettingsStorage settingsStorage;
         private TagsManipulation tagsManipulation;
         private string metaDataTypeName;
-        private bool sortAlphabetically = false;
+        private bool sortAlphabetically = false; // Standardwert für bool ist bereits false, kann also weggelassen werden
         private PluginInfo about = new PluginInfo();
         private string[] selectedFileUrls = Array.Empty<string>();
-        private bool ignoreEventFromHandler = true;
-        private bool ignoreForBatchSelect = true;
+        private bool ignoreEventFromHandler = true; // Klarheit verbessert durch direkte Initialisierung
+        private bool ignoreForBatchSelect = true; // Klarheit verbessert durch direkte Initialisierung
 
         #region Initialise plugin
 
@@ -51,7 +52,7 @@ namespace MusicBeePlugin
         private PluginInfo CreatePluginInfo()
         {
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            var pluginInfo = new PluginInfo
+            return new PluginInfo
             {
                 PluginInfoVersion = PluginInfoVersion,
                 Name = "Tags-Panel",
@@ -64,35 +65,26 @@ namespace MusicBeePlugin
                 Revision = 1,
                 MinInterfaceVersion = MinInterfaceVersion,
                 MinApiRevision = MinApiRevision,
-                ReceiveNotifications = (ReceiveNotificationFlags.PlayerEvents | ReceiveNotificationFlags.TagEvents | ReceiveNotificationFlags.DataStreamEvents),
-                ConfigurationPanelHeight = 20
+                ReceiveNotifications = ReceiveNotificationFlags.PlayerEvents | ReceiveNotificationFlags.TagEvents | ReceiveNotificationFlags.DataStreamEvents,
+                ConfigurationPanelHeight = 0
             };
-            return pluginInfo;
         }
 
         private void InitializePluginComponents()
         {
-            // Initialisiert drei Dictionaries, die im weiteren Verlauf des Plugins verwendet werden.
             checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
             tagsFromFiles = new Dictionary<string, CheckState>();
             _tabPageList = new Dictionary<string, TabPage>();
 
-            // Initialisiert den Logger, der zum Protokollieren von Informationen und Fehlern verwendet wird.
             InitLogger();
 
-            // Initialisiert die settingsStorage und tagsManipulation Instanzen.
-            // settingsStorage ist für die Speicherung der Plugin-Einstellungen verantwortlich.
-            // tagsManipulation ist für die Manipulation von Tags verantwortlich.
             settingsStorage = new SettingsStorage(mbApiInterface, log);
             tagsManipulation = new TagsManipulation(mbApiInterface, settingsStorage);
 
-            // Lädt die Einstellungen des Plugins.
             LoadSettings();
 
-            // Initialisiert das Menü des Plugins.
             InitializeMenu();
 
-            // Protokolliert eine Information, dass das Plugin gestartet wurde.
             log.Info($"{nameof(InitializePluginComponents)} started");
         }
 
@@ -102,8 +94,8 @@ namespace MusicBeePlugin
             // panelHandle will only be set if you set about.ConfigurationPanelHeight to a non-zero value
             // keep in mind the panel width is scaled according to the font the user has selected
             // if about.ConfigurationPanelHeight is set to 0, you can display your own popup window
-
-            return false;
+            OpenSettingsDialog();
+            return true;
         }
 
         private void InitLogger()
