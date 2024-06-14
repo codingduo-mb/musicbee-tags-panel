@@ -140,7 +140,7 @@ namespace MusicBeePlugin
                 if (tagsPanelSettingsForm.ShowDialog() == DialogResult.OK)
                 {
                     settingsStorage = tagsPanelSettingsForm.SettingsStorage;
-                    SaveSettings();
+                    SavePluginConfiguration();
                     UpdatePanelVisibility();
                 }
             }
@@ -154,7 +154,7 @@ namespace MusicBeePlugin
         private void UpdateSettingsAndPanel(SettingsStorage newSettingsStorage)
         {
             settingsStorage = newSettingsStorage;
-            SaveSettings();
+            SavePluginConfiguration();
             UpdatePanelVisibility();
         }
 
@@ -163,7 +163,7 @@ namespace MusicBeePlugin
             tabControl.Visible = tabControl.Controls.Count > 0;
         }
 
-        public void SaveSettings()
+        public void SavePluginConfiguration()
         {
             settingsStorage.SaveAllSettings();
             sortAlphabetically = settingsStorage.GetFirstOne()?.Sorted ?? false;
@@ -195,7 +195,7 @@ namespace MusicBeePlugin
             checkListBox.AddDataSource(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
-            checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
+            checkListBox.AddItemCheckEventHandler(TagCheckStateChangeHandler);
 
             if (!tabPage.Controls.Contains(checkListBox))
             {
@@ -263,7 +263,7 @@ namespace MusicBeePlugin
             checkListBox.AddDataSource(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
-            checkListBox.AddItemCheckEventHandler(CheckedListBox1_ItemCheck);
+            checkListBox.AddItemCheckEventHandler(TagCheckStateChangeHandler);
 
             return checkListBox;
         }
@@ -390,7 +390,7 @@ namespace MusicBeePlugin
             OpenSettingsDialog();
         }
 
-        private void CheckedListBox1_ItemCheck(object sender, ItemCheckEventArgs e)
+        private void TagCheckStateChangeHandler(object sender, ItemCheckEventArgs e)
         {
             if (ignoreForBatchSelect)
             {
@@ -408,7 +408,7 @@ namespace MusicBeePlugin
             ignoreEventFromHandler = false;
         }
 
-        private void TabControl1_Selected(Object sender, TabControlEventArgs e)
+        private void TabSelectionChangedHandler(Object sender, TabControlEventArgs e)
         {
             if (e.TabPage != null && !e.TabPage.IsDisposed)
             {
@@ -418,7 +418,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private void TabControl1_SelectedIndexChanged(Object sender, EventArgs e)
+        private void SelectedTabChangedHandler(Object sender, EventArgs e)
         {
             // Zugriff auf die aktuell ausgewählte TabPage
             TabPage selectedTab = tabControl.SelectedTab;
@@ -511,7 +511,7 @@ namespace MusicBeePlugin
         {
             tabControl = (TabControl)mbApiInterface.MB_AddPanel(_panel, (PluginPanelDock)6);
             tabControl.Dock = DockStyle.Fill;
-            tabControl.Selected += TabControl1_Selected;
+            tabControl.Selected += TabSelectionChangedHandler;
 
             if (tabControl.TabPages.Count == 0)
             {

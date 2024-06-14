@@ -129,6 +129,7 @@
       <DependentUpon>TagsPanelSettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="TagsStorage.cs" />
+    <Compile Include="UIManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
