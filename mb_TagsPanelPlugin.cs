@@ -96,7 +96,6 @@ namespace MusicBeePlugin
             log.Info($"{nameof(InitializePluginComponents)} started");
         }
 
-
         public bool Configure(IntPtr panelHandle)
         {
             // save any persistent settings in a sub-folder of this path
@@ -111,6 +110,7 @@ namespace MusicBeePlugin
         {
             log = new Logger(mbApiInterface);
         }
+
         private void InitializeMenu()
         {
             mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", MenuSettingsClicked);
@@ -131,7 +131,6 @@ namespace MusicBeePlugin
                 sortAlphabetically = tagsStorage.Sorted;
             }
         }
-
 
         private void OpenSettingsDialog()
         {
@@ -177,7 +176,6 @@ namespace MusicBeePlugin
             InvokeRefreshTagTableData();
         }
 
-
         private void ClearAndAddTabPages()
         {
             ClearAllTagPages();
@@ -206,8 +204,6 @@ namespace MusicBeePlugin
             checkListBox.Visible = true;
         }
 
-
-
         private TabPage GetOrCreateTagPage(string tagName)
         {
             if (!_tabPageList.TryGetValue(tagName, out var tabPage))
@@ -232,8 +228,6 @@ namespace MusicBeePlugin
                 }
             }
         }
-
-
 
         /// <summary>
         /// Removes a tab from the panel.
@@ -387,7 +381,7 @@ namespace MusicBeePlugin
             }
         }
 
-        #endregion
+        #endregion Initialise plugin
 
         #region Event handlers
 
@@ -435,13 +429,16 @@ namespace MusicBeePlugin
             if (checkListBoxPanel != null)
             {
                 // Aktualisieren Sie das CheckListBoxPanel hier
+                UpdateTagsInPanelOnFileSelection();
                 SetTagsFromFilesInPanel(selectedFileUrls);
+                checkListBoxPanel.Refresh(); // Add this line to immediately update the checklistboxes
+
+                // Add this line to force the control to redraw itself
+                checkListBoxPanel.Invalidate();
             }
         }
 
-    
-
-        #endregion
+        #endregion Event handlers
 
         #region Controls
 
@@ -477,7 +474,7 @@ namespace MusicBeePlugin
 
             TagsStorage currentTagsStorage = GetCurrentTagsStorage();
 
-            // If there's a current tags storage, combine the new files with it  
+            // If there's a current tags storage, combine the new files with it
             if (currentTagsStorage != null)
             {
                 tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
@@ -491,8 +488,7 @@ namespace MusicBeePlugin
             SetPanelEnabled(true);
         }
 
-
-        void SwitchVisibleTagPanel(string visibleTag)
+        private void SwitchVisibleTagPanel(string visibleTag)
         {
             // Hide checklistBox on all panels
             foreach (var checklistBoxPanel in checklistBoxList.Values)
@@ -500,7 +496,7 @@ namespace MusicBeePlugin
                 checklistBoxPanel.Visible = false;
             }
 
-            // Show checklistBox on visible panel 
+            // Show checklistBox on visible panel
             if (!string.IsNullOrEmpty(visibleTag))
             {
                 if (checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
@@ -590,7 +586,6 @@ namespace MusicBeePlugin
             }
         }
 
-
         /// <summary>
         /// Receive event notifications from MusicBee.
         /// You need to set about.ReceiveNotificationFlags = PlayerEvents to receive all notifications, and not just the startup event.
@@ -669,11 +664,9 @@ namespace MusicBeePlugin
             return new List<ToolStripItem>
             {
                 new ToolStripMenuItem("Tag-Panel Settings", null, MenuSettingsClicked),
-
             };
         }
 
-        #endregion
+        #endregion Controls
     }
-    
 }
