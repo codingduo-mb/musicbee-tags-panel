@@ -35,13 +35,20 @@ namespace MusicBeePlugin
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-
-
         public TagsPanelSettingsPanel(string tagName)
         {
             InitializeComponent();
+            InitializeToolTip();
+            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, EnterTagMessage);
+            tagsStorage = SettingsStorage.GetTagsStorage(tagName);
+            UpdateTags();
+            UpdateSortOption();
+            MakeOwnModifications(); // this must be at the very end to suppress the events
+            TxtNewTagInput.Focus(); // Set focus to the textbox
+        }
 
-            // Create a new ToolTip instance
+        private void InitializeToolTip()
+        {
             var toolTip = new ToolTip
             {
                 AutoPopDelay = 5000,
@@ -49,19 +56,7 @@ namespace MusicBeePlugin
                 ReshowDelay = 500,
                 ShowAlways = true
             };
-
-            // Set up the ToolTip text for the CheckBox.
-            toolTip.SetToolTip(this.cbEnableAlphabeticalTagSort, TagSortToolTip);
-            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, EnterTagMessage);
-
-            tagsStorage = SettingsStorage.GetTagsStorage(tagName);
-            UpdateTags();
-            UpdateSortOption();
-
-            // this must be at the very end to suppress the events
-            MakeOwnModifications();
-
-            TxtNewTagInput.Focus(); // Set focus to the textbox
+            toolTip.SetToolTip(cbEnableAlphabeticalTagSort, TagSortToolTip);
         }
 
         private void SetUpDownButtonsStateDisabled()
@@ -76,6 +71,10 @@ namespace MusicBeePlugin
             this.btnTagDown.Enabled = true;
         }
 
+        private void ShowMessageBox(string message, string title, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.Information)
+        {
+            MessageBox.Show(message, title, buttons, icon);
+        }
 
         private void TxtNewTagInput_Leave(object sender, EventArgs e)
         {
@@ -95,7 +94,6 @@ namespace MusicBeePlugin
             }
         }
 
-
         public void SetUpPanelForFirstUse()
         {
             if (this.lstTags.Items.Count != 0)
@@ -112,7 +110,6 @@ namespace MusicBeePlugin
                 SetUpDownButtonsStateEnabled();
             }
         }
-
 
         private void UpdateSortOption()
         {
@@ -136,7 +133,6 @@ namespace MusicBeePlugin
             this.cbEnableAlphabeticalTagSort.CheckedChanged += CbEnableTagSort_CheckedChanged;
         }
 
-
         private void KeyEventHandler(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter && sender == this.TxtNewTagInput)
@@ -153,7 +149,6 @@ namespace MusicBeePlugin
             }
         }
 
-
         private void CbEnableTagSort_CheckedChanged(object sender, EventArgs e)
         {
             if (sender is CheckBox checkBox && checkBox.Checked)
@@ -168,7 +163,6 @@ namespace MusicBeePlugin
                 this.lstTags.Sorted = false;
             }
         }
-
 
         public bool IsSortEnabled() => this.cbEnableAlphabeticalTagSort.Checked;
 
@@ -187,21 +181,21 @@ namespace MusicBeePlugin
 
         public void AddNewTagToList()
         {
-            string newTag = this.TxtNewTagInput.Text.Trim();
+            string newTag = TxtNewTagInput.Text.Trim();
             if (string.IsNullOrEmpty(newTag) || newTag == EnterTagMessage)
             {
                 return;
             }
 
-            if (this.lstTags.Items.Contains(newTag))
+            if (lstTags.Items.Contains(newTag))
             {
-                ShowDialogForDuplicate();
+                ShowMessageBox(DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            this.tagsStorage.TagList[newTag] = this.tagsStorage.TagList.Count;
-            this.lstTags.Items.Add(newTag);
-            this.TxtNewTagInput.Text = string.Empty;
+            tagsStorage.TagList[newTag] = tagsStorage.TagList.Count;
+            lstTags.Items.Add(newTag);
+            TxtNewTagInput.Text = string.Empty;
         }
 
         public void RemoveSelectedTagFromList()
@@ -231,8 +225,6 @@ namespace MusicBeePlugin
                 lstTags.SelectedIndex = 0;
             }
         }
-
-
 
         public void ClearTagsListInSettings()
         {
@@ -282,11 +274,11 @@ namespace MusicBeePlugin
                             }
                         }
 
-                        MessageBox.Show(CsvImportSuccessMessage);
+                        ShowMessageBox(CsvImportSuccessMessage, CsvDialogTitle);
                     }
                     else
                     {
-                        MessageBox.Show(CsvImportCancelMessage);
+                        ShowMessageBox(CsvImportCancelMessage, CsvDialogTitle);
                     }
                 }
             }
@@ -315,7 +307,7 @@ namespace MusicBeePlugin
                         }
                     }
 
-                    MessageBox.Show(CsvExportSuccessMessage);
+                    ShowMessageBox(CsvExportSuccessMessage, CsvDialogTitle);
                 }
             }
         }
@@ -335,11 +327,11 @@ namespace MusicBeePlugin
             ImportCsv();
         }
 
-
         private void BtnExportCsv_Click(object sender, EventArgs e)
         {
             ExportCsv();
         }
+
         private void BtnClearTagSettings_Click(object sender, EventArgs e)
         {
             if (lstTags.Items.Count != 0)
@@ -354,7 +346,6 @@ namespace MusicBeePlugin
             {
                 MoveUp();
             }
-
         }
 
         private void BtnMoveTagDownSettings_Click(object sender, EventArgs e)
@@ -364,7 +355,6 @@ namespace MusicBeePlugin
                 MoveDown();
             }
         }
-
 
         public void MoveUp()
         {
