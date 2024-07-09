@@ -44,15 +44,15 @@ namespace MusicBeePlugin
 
         public string RemoveTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
-            tagList.Remove(selectedTag);
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries));
+            tagList.Remove(selectedTag.Trim());
             return string.Join(SEPARATOR.ToString(), tagList);
         }
 
         public string AddTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
-            tagList.Add(selectedTag);
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries));
+            tagList.Add(selectedTag.Trim());
             return string.Join(SEPARATOR.ToString(), tagList);
         }
 
@@ -65,6 +65,9 @@ namespace MusicBeePlugin
         public string GetTags(string fileUrl, MetaDataType metaDataType)
         {
             string[] tags = ReadTagsFromFile(fileUrl, metaDataType);
+            // Entfernen von Leerzeichen und Überprüfen auf leere Tags
+            tags = tags.Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
+            // Verbinden der Tags mit Semikolon, ohne ein führendes Semikolon für den ersten Tag
             return string.Join(SEPARATOR.ToString(), tags).Trim();
         }
 
