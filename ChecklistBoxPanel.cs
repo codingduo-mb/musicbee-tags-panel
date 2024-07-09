@@ -10,30 +10,24 @@ namespace MusicBeePlugin
     {
         private readonly MusicBeeApiInterface mbApiInterface;
         private ItemCheckEventHandler eventHandler;
-        private Style style;
+        private readonly Style controlStyle; // Umbenannt für Klarheit
 
-        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, Dictionary<String, CheckState> data = null)
+        private const int PaddingWidth = 5; // Konstante für magische Zahl
+
+        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, Dictionary<string, CheckState> data = null)
         {
             this.mbApiInterface = mbApiInterface;
-            style = new Style(mbApiInterface);
+            controlStyle = new Style(mbApiInterface);
 
             InitializeComponent();
 
-            if (data != null)
-            {
-                AddDataSource(data);
-            }
+            data?.Keys.ToList().ForEach(key => AddDataSource(data)); // Vereinfachte Überprüfung und Iteration
 
             StylePanel();
         }
 
-        public void AddDataSource(Dictionary<String, CheckState> data)
+        public void AddDataSource(Dictionary<string, CheckState> data)
         {
-            if (data == null)
-            {
-                return;
-            }
-
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
 
@@ -42,19 +36,21 @@ namespace MusicBeePlugin
                 checkedListBoxWithTags.Items.Add(entry.Key, entry.Value);
             }
 
-            checkedListBoxWithTags.ColumnWidth = GetLongestStringWidth(data.Keys) + 5;
+            checkedListBoxWithTags.ColumnWidth = GetLongestStringWidth(data.Keys) + PaddingWidth;
             checkedListBoxWithTags.EndUpdate();
         }
 
         private int GetLongestStringWidth(IEnumerable<string> strings)
         {
-            return strings.Any() ? TextRenderer.MeasureText(new string('M', strings.Max(str => str.Length)), checkedListBoxWithTags.Font).Width : 0;
+            // Verwendung von var für lokale Variable
+            var longestString = strings.Any() ? strings.Max(str => str.Length) : 0;
+            return TextRenderer.MeasureText(new string('M', longestString), checkedListBoxWithTags.Font).Width;
         }
 
         private void StylePanel()
         {
-            style.StyleControl(checkedListBoxWithTags);
-            style.StyleControl(this);
+            controlStyle.StyleControl(checkedListBoxWithTags);
+            controlStyle.StyleControl(this);
         }
 
         public void AddItemCheckEventHandler(ItemCheckEventHandler eventHandler)
