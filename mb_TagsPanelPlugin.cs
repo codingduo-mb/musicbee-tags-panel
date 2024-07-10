@@ -126,7 +126,7 @@ namespace MusicBeePlugin
 
         private void OpenSettingsDialog()
         {
-            SettingsStorage settingsCopy = settingsStorage.DeepCopy();
+            var settingsCopy = settingsStorage.DeepCopy();
             using (var tagsPanelSettingsForm = new TagsPanelSettingsForm(settingsCopy))
             {
                 if (tagsPanelSettingsForm.ShowDialog() == DialogResult.OK)
@@ -160,6 +160,7 @@ namespace MusicBeePlugin
             settingsStorage.SaveAllSettings();
             sortAlphabetically = settingsStorage.GetFirstOne()?.Sorted ?? false;
             UpdatePanelData();
+            log.Info($"{nameof(SavePluginConfiguration)} completed.");
         }
 
         private void UpdatePanelData()
