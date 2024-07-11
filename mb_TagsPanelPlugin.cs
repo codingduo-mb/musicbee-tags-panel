@@ -431,16 +431,16 @@ namespace MusicBeePlugin
             }
         }
 
-        #endregion Event handlers
-
-        #region Controls
-
         private void SetPanelEnabled(bool enabled = true)
         {
-            _panel.Invoke(new Action(() =>
+            if (_panel.InvokeRequired)
+            {
+                _panel.Invoke(new Action(() => _panel.Enabled = enabled));
+            }
+            else
             {
                 _panel.Enabled = enabled;
-            }));
+            }
         }
 
         private void UpdateTagsInPanelOnFileSelection()
