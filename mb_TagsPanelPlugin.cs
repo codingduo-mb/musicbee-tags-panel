@@ -458,22 +458,19 @@ namespace MusicBeePlugin
         /// <param name="filenames"></param>
         private void SetTagsFromFilesInPanel(string[] filenames)
         {
-            // Check if the filenames are null or empty and clear tagsFromFiles if so
-            if (filenames == null || !filenames.Any())
+            tagsFromFiles.Clear();
+
+            if (filenames == null || filenames.Length == 0)
             {
-                tagsFromFiles.Clear();
                 return;
             }
 
-            TagsStorage currentTagsStorage = GetCurrentTagsStorage();
-
-            // If there's a current tags storage, combine the new files with it
+            var currentTagsStorage = GetCurrentTagsStorage();
             if (currentTagsStorage != null)
             {
                 tagsFromFiles = tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
             }
 
-            // Update tags in panel on file selection if a panel exists
             if (_panel != null)
             {
                 UpdateTagsInPanelOnFileSelection();
@@ -660,10 +657,11 @@ namespace MusicBeePlugin
         /// <returns>Returns the list of ToolStripMenuItems that will be displayed.</returns>
         public List<ToolStripItem> GetMenuItems()
         {
-            return new List<ToolStripItem>
+            var menuItems = new List<ToolStripItem>
             {
                 new ToolStripMenuItem("Tag-Panel Settings", null, MenuSettingsClicked),
             };
+            return menuItems;
         }
 
         #endregion Controls
