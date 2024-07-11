@@ -447,7 +447,14 @@ namespace MusicBeePlugin
         {
             ignoreEventFromHandler = true;
             ignoreForBatchSelect = true;
-            _panel.Invoke((Action)InvokeRefreshTagTableData);
+            if (_panel.InvokeRequired)
+            {
+                _panel.Invoke((Action)InvokeRefreshTagTableData);
+            }
+            else
+            {
+                InvokeRefreshTagTableData();
+            }
             ignoreEventFromHandler = false;
             ignoreForBatchSelect = false;
         }
