@@ -589,18 +589,21 @@ namespace MusicBeePlugin
         {
             if (_panel == null || type == NotificationType.ApplicationWindowChanged || GetActiveTabMetaDataType() == 0 || ignoreEventFromHandler) return;
 
-            if (type == NotificationType.TagsChanging)
+            bool isTagsChanging = type == NotificationType.TagsChanging;
+            bool isTrackChanged = type == NotificationType.TrackChanged;
+
+            if (isTagsChanging)
             {
                 ignoreForBatchSelect = true;
                 mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
-            tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
+            if (isTagsChanging || isTrackChanged)
+            {
+                tagsFromFiles = tagsManipulation.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
+                InvokeRefreshTagTableData();
+            }
 
-            if (type != NotificationType.TrackChanged && type != NotificationType.TagsChanging) return;
-
-            ignoreForBatchSelect = true;
-            InvokeRefreshTagTableData();
             ignoreForBatchSelect = false;
         }
 
