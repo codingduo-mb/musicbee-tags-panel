@@ -407,26 +407,20 @@ namespace MusicBeePlugin
             {
                 metaDataTypeName = e.TabPage.Text;
                 SwitchVisibleTagPanel(metaDataTypeName);
-                SetTagsFromFilesInPanel(selectedFileUrls); // Aktualisieren Sie das ChecklistBoxPanel, wenn die TabPage geändert wird
+                SetTagsFromFilesInPanel(selectedFileUrls);
             }
         }
 
         private void SelectedTabChangedHandler(Object sender, EventArgs e)
         {
-            // Zugriff auf die aktuell ausgewählte TabPage
             TabPage selectedTab = tabControl.SelectedTab;
-
-            // Überprüfen, ob die ausgewählte TabPage eine CheckListBoxPanel enthält
-            ChecklistBoxPanel checkListBoxPanel = selectedTab.Controls.OfType<ChecklistBoxPanel>().FirstOrDefault();
+            ChecklistBoxPanel checkListBoxPanel = selectedTab?.Controls.OfType<ChecklistBoxPanel>().FirstOrDefault();
 
             if (checkListBoxPanel != null)
             {
-                // Aktualisieren Sie das CheckListBoxPanel hier
                 UpdateTagsInPanelOnFileSelection();
                 SetTagsFromFilesInPanel(selectedFileUrls);
-                checkListBoxPanel.Refresh(); // Add this line to immediately update the checklistboxes
-
-                // Add this line to force the control to redraw itself
+                checkListBoxPanel.Refresh();
                 checkListBoxPanel.Invalidate();
             }
         }
