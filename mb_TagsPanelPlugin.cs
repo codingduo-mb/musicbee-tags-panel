@@ -641,13 +641,16 @@ namespace MusicBeePlugin
         /// <param name="filenames">List of selected files.</param>
         public void OnSelectedFilesChanged(string[] filenames)
         {
-            // Speichern Sie die ausgewählten Dateien
-            selectedFileUrls = filenames;
+            selectedFileUrls = filenames ?? Array.Empty<string>();
 
-            // Aktualisieren Sie die CheckedListBoxen basierend auf den ausgewählten Dateien
-            if (selectedFileUrls.Length > 0) // Überprüfen, ob selectedFileUrls nicht leer ist
+            if (selectedFileUrls.Any())
             {
-                SetTagsFromFilesInPanel(selectedFileUrls); // Aktualisieren Sie das ChecklistBoxPanel, wenn die Dateiauswahl geändert wird
+                SetTagsFromFilesInPanel(selectedFileUrls);
+            }
+            else
+            {
+                tagsFromFiles.Clear();
+                UpdateTagsInPanelOnFileSelection();
             }
         }
 
