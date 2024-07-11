@@ -512,6 +512,12 @@ namespace MusicBeePlugin
 
         private void AddSettingsLabel()
         {
+            if (_panel.InvokeRequired)
+            {
+                _panel.Invoke(new Action(AddSettingsLabel));
+                return;
+            }
+
             Label emptyPanelText = new Label
             {
                 AutoSize = true,
@@ -521,20 +527,17 @@ namespace MusicBeePlugin
                 Text = "Please add a tag in the settings dialog first."
             };
 
-            _panel.BeginInvoke(new Action(() =>
+            _panel.SuspendLayout();
+            _panel.Controls.Add(emptyPanelText);
+            _panel.Controls.SetChildIndex(emptyPanelText, 1);
+            _panel.Controls.SetChildIndex(tabControl, 0);
+
+            if (tabControl.TabPages.Count == 0)
             {
-                _panel.SuspendLayout();
-                _panel.Controls.Add(emptyPanelText);
-                _panel.Controls.SetChildIndex(emptyPanelText, 1);
-                _panel.Controls.SetChildIndex(tabControl, 0);
+                tabControl.Visible = false;
+            }
 
-                if (tabControl.TabPages.Count == 0)
-                {
-                    tabControl.Visible = false;
-                }
-
-                _panel.ResumeLayout();
-            }));
+            _panel.ResumeLayout();
         }
 
         private void AddControls()
