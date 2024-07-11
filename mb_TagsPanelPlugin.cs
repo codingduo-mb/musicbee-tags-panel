@@ -385,20 +385,24 @@ namespace MusicBeePlugin
 
         private void TagCheckStateChangeHandler(object sender, ItemCheckEventArgs e)
         {
-            if (ignoreForBatchSelect)
+            if (ignoreForBatchSelect || ignoreEventFromHandler)
             {
                 return;
             }
 
-            int index = e.Index;
-            CheckState state = e.NewValue;
-            string name = ((CheckedListBox)sender).Items[index].ToString();
+            CheckState newState = e.NewValue;
+            CheckState currentState = ((CheckedListBox)sender).GetItemCheckState(e.Index);
 
-            ignoreEventFromHandler = true;
-            SetTagsInPanel(selectedFileUrls, state, name);
+            // Nur fortfahren, wenn sich der Zustand tatsächlich ändert
+            if (newState != currentState)
+            {
+                string name = ((CheckedListBox)sender).Items[e.Index].ToString();
 
-            mbApiInterface.MB_RefreshPanels();
-            ignoreEventFromHandler = false;
+                ignoreEventFromHandler = true;
+                SetTagsInPanel(selectedFileUrls, newState, name);
+                mbApiInterface.MB_RefreshPanels();
+                ignoreEventFromHandler = false;
+            }
         }
 
         private void TabSelectionChangedHandler(Object sender, TabControlEventArgs e)
