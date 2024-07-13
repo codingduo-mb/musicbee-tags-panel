@@ -55,7 +55,7 @@ namespace MusicBeePlugin
 
         public void AddItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            this.eventHandler = eventHandler;
+            checkedListBoxWithTags.ItemCheck -= eventHandler; // Entfernen des Event Handlers, um Duplikate zu vermeiden
             checkedListBoxWithTags.ItemCheck += eventHandler;
         }
 
@@ -64,8 +64,8 @@ namespace MusicBeePlugin
             if (this.eventHandler != null)
             {
                 checkedListBoxWithTags.ItemCheck -= this.eventHandler;
-                this.eventHandler = null;
             }
+            this.eventHandler = null;
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
