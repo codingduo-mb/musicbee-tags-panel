@@ -14,7 +14,6 @@ namespace MusicBeePlugin
 
     public class SettingsStorage
     {
-        //checke
         private const char SettingsSeparator = ';';
         private static Dictionary<string, TagsStorage> storages;
         private const string SettingsFileName = "mb_tags-panel.Settings.json";
