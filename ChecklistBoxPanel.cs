@@ -10,9 +10,9 @@ namespace MusicBeePlugin
     {
         private readonly MusicBeeApiInterface mbApiInterface;
         private ItemCheckEventHandler eventHandler;
-        private readonly Style controlStyle; // Umbenannt für Klarheit
+        private readonly Style controlStyle;
 
-        private const int PaddingWidth = 5; // Konstante für magische Zahl
+        private const int PaddingWidth = 5;
 
         public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, Dictionary<string, CheckState> data = null)
         {
@@ -21,7 +21,10 @@ namespace MusicBeePlugin
 
             InitializeComponent();
 
-            data?.Keys.ToList().ForEach(key => AddDataSource(data)); // Vereinfachte Überprüfung und Iteration
+            if (data != null)
+            {
+                AddDataSource(data);
+            }
 
             StylePanel();
         }
@@ -42,7 +45,6 @@ namespace MusicBeePlugin
 
         private int GetLongestStringWidth(IEnumerable<string> strings)
         {
-            // Verwendung von var für lokale Variable
             var longestString = strings.Any() ? strings.Max(str => str.Length) : 0;
             return TextRenderer.MeasureText(new string('M', longestString), checkedListBoxWithTags.Font).Width;
         }
@@ -55,17 +57,14 @@ namespace MusicBeePlugin
 
         public void AddItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            checkedListBoxWithTags.ItemCheck -= eventHandler; // Entfernen des Event Handlers, um Duplikate zu vermeiden
+            checkedListBoxWithTags.ItemCheck -= eventHandler;
             checkedListBoxWithTags.ItemCheck += eventHandler;
         }
 
         public void RemoveItemCheckEventHandler()
         {
-            if (this.eventHandler != null)
-            {
-                checkedListBoxWithTags.ItemCheck -= this.eventHandler;
-            }
-            this.eventHandler = null;
+            checkedListBoxWithTags.ItemCheck -= eventHandler;
+            eventHandler = null;
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
