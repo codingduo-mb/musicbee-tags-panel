@@ -80,7 +80,8 @@ namespace MusicBeePlugin
         {
             bool isSorted = tagsStorage.Sorted;
             cbEnableAlphabeticalTagSort.Checked = isSorted;
-            lstTags.Sorted = isSorted;
+            // Stellen Sie sicher, dass lstTags.Sorted basierend auf dem Zustand der Checkbox gesetzt wird
+            lstTags.Sorted = cbEnableAlphabeticalTagSort.Checked;
             SetUpDownButtonsState(!isSorted);
         }
 
@@ -116,13 +117,16 @@ namespace MusicBeePlugin
             if (sender is CheckBox checkBox && checkBox.Checked)
             {
                 ShowConfirmationDialogToSort();
+
                 SetUpDownButtonsState(false);
+                UpdateTags();
             }
             else
             {
                 SetUpDownButtonsState(true);
                 tagsStorage.Sorted = false;
                 lstTags.Sorted = false;
+                UpdateTags();
             }
         }
 
@@ -130,21 +134,20 @@ namespace MusicBeePlugin
 
         public void UpdateTags()
         {
-            var tagsDict = tagsStorage.GetTags();
-            var tags = tagsDict.Keys.ToList();
+            var tags = tagsStorage.GetTags().Keys;
 
-            if (IsSortEnabled())
-            {
-                tags = tags.OrderBy(tag => tag).ToList();
-            }
+            // Konvertieren beider Seiten des bedingten Ausdrucks in List<string>
+            var sortedOrUnsortedTags = IsSortEnabled() ? tags.OrderBy(tag => tag).ToList() : tags.ToList();
 
+            lstTags.BeginUpdate(); // Suspend drawing of the ListBox
             lstTags.Items.Clear(); // Clear the existing items
 
-            // Add the tags in the user-defined order
-            foreach (var tag in tags)
+            foreach (var tag in sortedOrUnsortedTags)
             {
                 lstTags.Items.Add(tag);
             }
+
+            lstTags.EndUpdate(); // Resume drawing of the ListBox
         }
 
         public void AddNewTagToList()
@@ -380,16 +383,13 @@ namespace MusicBeePlugin
         private void ShowConfirmationDialogToSort()
         {
             DialogResult dialogResult = MessageBox.Show(Messages.TagListSortConfirmationMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            bool sort = dialogResult == DialogResult.Yes;
-            SortAlphabetically();
-            tagsStorage.Sorted = sort;
-            lstTags.Sorted = sort;
-            cbEnableAlphabeticalTagSort.Checked = sort;
-        }
-
-        private void ShowDialogForDuplicate()
-        {
-            MessageBox.Show(Messages.TagListAddDuplicateTagMessage, Messages.WarningTitle, MessageBoxButtons.OK);
+            if (dialogResult == DialogResult.Yes && IsSortEnabled())
+            {
+                SortAlphabetically(); // Sortiert die Tags alphabetisch
+                tagsStorage.Sorted = true; // Aktualisiert den Sortierungszustand im tagsStorage
+                lstTags.Sorted = true; // Stellt sicher, dass die ListBox weiß, dass sie sortiert ist
+                cbEnableAlphabeticalTagSort.Checked = true; // Stellt sicher, dass die Checkbox markiert bleibt
+            }
         }
 
         private void ShowDialogToClearList()
