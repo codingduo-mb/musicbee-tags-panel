@@ -226,7 +226,7 @@ namespace MusicBeePlugin
             tagsStorage.Clear();
         }
 
-        public void ImportCsv()
+        public void ImportTagsFromCsv()
         {
             using (var openFileDialog1 = new OpenFileDialog())
             {
@@ -278,7 +278,7 @@ namespace MusicBeePlugin
             }
         }
 
-        public void ExportCsv()
+        public void ExportTagsToCsv()
         {
             using (var saveFileDialog1 = new SaveFileDialog())
             {
@@ -317,12 +317,12 @@ namespace MusicBeePlugin
 
         private void BtnImportCsv_Click(object sender, EventArgs e)
         {
-            ImportCsv();
+            ImportTagsFromCsv();
         }
 
         private void BtnExportCsv_Click(object sender, EventArgs e)
         {
-            ExportCsv();
+            ExportTagsToCsv();
         }
 
         private void BtnClearTagSettings_Click(object sender, EventArgs e)
