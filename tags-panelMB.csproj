@@ -91,6 +91,11 @@
     <Compile Include="ChecklistBoxPanel.Designer.cs">
       <DependentUpon>ChecklistBoxPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Messages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
     <Compile Include="TagsManipulation.cs" />
     <Compile Include="ListBoxExtension.cs" />
     <Compile Include="Logger.cs" />
@@ -123,7 +128,7 @@
       <DependentUpon>TagsPanelSettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="TagsStorage.cs" />
-    <Compile Include="UIManager.cs" />
+    <Compile Include="UiManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -160,6 +165,10 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="TabPageSelector.resx">
       <DependentUpon>TabPageSelector.cs</DependentUpon>

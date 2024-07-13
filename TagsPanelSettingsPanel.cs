@@ -16,7 +16,7 @@ namespace MusicBeePlugin
 
         private const string CsvFileFilter = "csv files (*.csv)|*.csv";
         private const string CsvDefaultExt = "csv";
-        private const string CsvDialogTitle = "Choose a CSV file";
+        // private const string CsvDialogTitle = Messages.CsvDialogTitle;
         private const string CsvImportSuccessMessage = "CSV import successful";
         private const string CsvImportCancelMessage = "CSV import canceled";
         private const string CsvExportSuccessMessage = "Tags exported in CSV";
@@ -222,7 +222,7 @@ namespace MusicBeePlugin
                 openFileDialog1.CheckFileExists = true;
                 openFileDialog1.CheckPathExists = true;
 
-                openFileDialog1.Title = CsvDialogTitle;
+                openFileDialog1.Title = Messages.CsvDialogTitle;
                 openFileDialog1.Filter = CsvFileFilter;
                 openFileDialog1.DefaultExt = CsvDefaultExt;
                 openFileDialog1.Multiselect = false;
@@ -266,17 +266,17 @@ namespace MusicBeePlugin
                                     lstTags.Items.Add(tag);
                                 }
                             }
-                            ShowMessageBox($"{importedTags.Count} Tags imported successfully.", CsvDialogTitle);
+                            ShowMessageBox($"{importedTags.Count} Tags imported successfully.", Messages.CsvDialogTitle);
 
                         }
                         else
                         {
-                            ShowMessageBox("Not tags found to import.", CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            ShowMessageBox("Not tags found to import.", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                     else
                     {
-                        ShowMessageBox(CsvImportCancelMessage, CsvDialogTitle);
+                        ShowMessageBox(CsvImportCancelMessage, Messages.CsvDialogTitle);
                     }
                 }
             }
@@ -287,7 +287,7 @@ namespace MusicBeePlugin
             using (var saveFileDialog1 = new SaveFileDialog())
             {
                 saveFileDialog1.CheckFileExists = false;
-                saveFileDialog1.Title = CsvDialogTitle;
+                saveFileDialog1.Title = Messages.CsvDialogTitle;
                 saveFileDialog1.Filter = CsvFileFilter;
                 saveFileDialog1.DefaultExt = CsvDefaultExt;
                 saveFileDialog1.RestoreDirectory = true;
@@ -304,7 +304,7 @@ namespace MusicBeePlugin
                         }
                     }
 
-                    ShowMessageBox(CsvExportSuccessMessage, CsvDialogTitle);
+                    ShowMessageBox(CsvExportSuccessMessage, Messages.CsvDialogTitle);
                 }
             }
         }

@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
-    public class UIManager
+    public class UiManager
     {
         // Beispiel für eine Methode, die eine neue TabPage hinzufügt
         public void AddTabPages(TabControl tabControl, string title)
