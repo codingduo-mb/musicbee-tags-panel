@@ -10,7 +10,7 @@ namespace MusicBeePlugin
     {
         private const string GitHubLink = "https://github.com/mat-st/musicbee-tags-panel";
         private const string TooltipAddTagPage = "Add & select a new tag and a new tabpage";
-        private const string TagExistsWarning = "Tag exists already";
+        private const string TagExistsWarning = "Tag already exists";
         private const string RemoveTagPageWarning = "This will remove the current tag page and you will lose your current tag list. Continue?";
         private const string WarningCaption = "Warning";
         private const string AboutMessage = "Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub";
@@ -43,7 +43,7 @@ namespace MusicBeePlugin
             var tagName = storage.GetTagName();
             if (tagPanels.ContainsKey(tagName))
             {
-                ShowMessageBox($"This Metadata Type was already added", TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessageBox($"This Metadata Type has already been added", TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
