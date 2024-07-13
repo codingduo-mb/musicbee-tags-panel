@@ -179,13 +179,13 @@ namespace MusicBeePlugin
                 return;
             }
 
-            if (lstTags.Items.Contains(newTag))
+            if (tagsStorage.TagList.ContainsKey(newTag))
             {
                 ShowMessageBox(DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            tagsStorage.TagList[newTag] = tagsStorage.TagList.Count;
+            tagsStorage.TagList.Add(newTag, tagsStorage.TagList.Count);
             lstTags.Items.Add(newTag);
             TxtNewTagInput.Text = string.Empty;
         }
