@@ -185,10 +185,10 @@ namespace MusicBeePlugin
 
             var tabPage = GetOrCreateTagPage(tagName);
             ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-            checkListBox.AddDataSource(tagsStorage.GetTags());
+            checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
-            checkListBox.AddItemCheckEventHandler(TagCheckStateChangeHandler);
+            checkListBox.RegisterItemCheckEventHandler(TagCheckStateChangeHandler);
 
             if (!tabPage.Controls.Contains(checkListBox))
             {
@@ -253,10 +253,10 @@ namespace MusicBeePlugin
             }
 
             ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-            checkListBox.AddDataSource(tagsStorage.GetTags());
+            checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
-            checkListBox.AddItemCheckEventHandler(TagCheckStateChangeHandler);
+            checkListBox.RegisterItemCheckEventHandler(TagCheckStateChangeHandler);
 
             return checkListBox;
         }
@@ -312,7 +312,7 @@ namespace MusicBeePlugin
         {
             if (checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
             {
-                checklistBoxPanel.AddDataSource(tags);
+                checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
             }
         }
 

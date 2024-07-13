@@ -23,13 +23,13 @@ namespace MusicBeePlugin
 
             if (data != null)
             {
-                AddDataSource(data);
+                PopulateChecklistBoxesFromData(data);
             }
 
             StylePanel();
         }
 
-        public void AddDataSource(Dictionary<string, CheckState> data)
+        public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
@@ -39,11 +39,11 @@ namespace MusicBeePlugin
                 checkedListBoxWithTags.Items.Add(entry.Key, entry.Value);
             }
 
-            checkedListBoxWithTags.ColumnWidth = GetLongestStringWidth(data.Keys) + PaddingWidth;
+            checkedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;
             checkedListBoxWithTags.EndUpdate();
         }
 
-        private int GetLongestStringWidth(IEnumerable<string> strings)
+        private int CalculateMaxStringPixelWidth(IEnumerable<string> strings)
         {
             var longestString = strings.Any() ? strings.Max(str => str.Length) : 0;
             return TextRenderer.MeasureText(new string('M', longestString), checkedListBoxWithTags.Font).Width;
@@ -55,13 +55,13 @@ namespace MusicBeePlugin
             controlStyle.StyleControl(this);
         }
 
-        public void AddItemCheckEventHandler(ItemCheckEventHandler eventHandler)
+        public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
             checkedListBoxWithTags.ItemCheck -= eventHandler;
             checkedListBoxWithTags.ItemCheck += eventHandler;
         }
 
-        public void RemoveItemCheckEventHandler()
+        public void UnregisterItemCheckEventHandler()
         {
             checkedListBoxWithTags.ItemCheck -= eventHandler;
             eventHandler = null;
