@@ -24,7 +24,7 @@ namespace MusicBeePlugin
         private const string CsvConfirmationTitle = "Confirmation";
 
         private const string EnterTagMessage = "Please enter a tag";
-        private const string TagSortToolTip = "If enabled the Tags are always sorted alphabetically in the tag. Otherwise you can use the up and down buttons to reorder your tag lists.";
+        private const string TagSortToolTip = "If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists.";
         private const string DuplicateTagMessage = "Tag is already in the list!";
         private const string DuplicateTagTitle = "Duplicate found!";
         private const string ClearListMessage = "This will clear your current tag list. Continue?";
