@@ -48,7 +48,7 @@ namespace MusicBeePlugin
             }
 
             var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName);
-            tagPanels[tagName] = tagsPanelSettingsPanel;
+            tagPanels.Add(tagName, tagsPanelSettingsPanel);
             var tabPage = new TabPage(tagName) { Controls = { tagsPanelSettingsPanel } };
             tabControlSettings.TabPages.Add(tabPage);
             tagsPanelSettingsPanel.SetUpPanelForFirstUse();
@@ -63,16 +63,13 @@ namespace MusicBeePlugin
                 if (result == DialogResult.OK)
                 {
                     var storage = new TagsStorage { MetaDataType = form.GetMetaDataType() };
-                    if (storage.MetaDataType != null)
+                    if (storage.MetaDataType != null && !tagPanels.ContainsKey(storage.GetTagName()))
                     {
-                        try
-                        {
-                            AddPanel(storage);
-                        }
-                        catch (ArgumentException ex)
-                        {
-                            ShowMessageBox(ex.Message, TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        }
+                        AddPanel(storage);
+                    }
+                    else
+                    {
+                        ShowMessageBox(TagExistsWarning, TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
