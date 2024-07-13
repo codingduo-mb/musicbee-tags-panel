@@ -108,7 +108,7 @@
     <Compile Include="SettingsStorage.cs" />
     <Compile Include="mb_TagsPanelPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Style.cs" />
+    <Compile Include="UIManager.cs" />
     <Compile Include="TabPageSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,7 +128,6 @@
       <DependentUpon>TagsPanelSettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="TagsStorage.cs" />
-    <Compile Include="UiManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -10,14 +10,14 @@ namespace MusicBeePlugin
     {
         private readonly MusicBeeApiInterface mbApiInterface;
         private ItemCheckEventHandler eventHandler;
-        private readonly Style controlStyle;
+        private readonly UIManager controlStyle;
 
         private const int PaddingWidth = 5;
 
         public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, Dictionary<string, CheckState> data = null)
         {
             this.mbApiInterface = mbApiInterface;
-            controlStyle = new Style(mbApiInterface);
+            controlStyle = new UIManager(mbApiInterface);
 
             InitializeComponent();
 

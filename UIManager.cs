@@ -1,49 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Forms;
+using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public class UiManager
+    public class UIManager
     {
-        // Beispiel für eine Methode, die eine neue TabPage hinzufügt
-        public void AddTabPages(TabControl tabControl, string title)
+        private const SkinElement DefaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
+        private const ElementState DefaultElementState = ElementState.ElementStateDefault;
+        private readonly MusicBeeApiInterface _mbApiInterface;
+        private Dictionary<int, Color> _colorCache;
+        private Font _defaultFont;
+
+        public UIManager(MusicBeeApiInterface mbApiInterface)
         {
-            var tabPage = new TabPage(title);
-            tabControl.TabPages.Add(tabPage);
+            _mbApiInterface = mbApiInterface;
+            _colorCache = new Dictionary<int, Color>();
         }
 
-        // Beispiel für eine Methode, die eine TagPage erstellt oder abruft, falls sie bereits existiert
-        public TabPage GetOrCreateTagPage(TabControl tabControl, string title)
+        // Replace Tuple with custom struct to improve performance and readability
+        private struct KeyStruct
         {
-            foreach (TabPage page in tabControl.TabPages)
+            public SkinElement SkinElement { get; set; }
+            public ElementComponent Component { get; set; }
+
+            public KeyStruct(SkinElement skinElement, ElementComponent component)
             {
-                if (page.Text == title)
-                {
-                    return page;
-                }
-            }
-
-            var newPage = new TabPage(title);
-            tabControl.TabPages.Add(newPage);
-            return newPage;
-        }
-
-        // Beispiel für eine Methode, die ein TagPanel hinzufügt, wenn es sichtbar sein soll
-        public void AddTagPanelIfVisible(TabPage tabPage, Control tagPanel)
-        {
-            // Logik zur Bestimmung, ob das Panel sichtbar sein soll
-            bool shouldBeVisible = true; // Beispielbedingung
-
-            if (shouldBeVisible)
-            {
-                tabPage.Controls.Add(tagPanel);
+                SkinElement = skinElement;
+                Component = component;
             }
         }
 
-        // Weitere Methoden zur Verwaltung der UI-Elemente...
+        private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
+        {
+            return (int)(((int)skinElement & 0x7F) << 24) | (((int)elementState & 0xFF) << 16) | ((int)elementComponent & 0xFFFF);
+        }
+
+        public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
+        {
+            int key = GetKeyFromArgs(skinElement, elementState, elementComponent);
+
+            if (!_colorCache.TryGetValue(key, out var color))
+            {
+                int colorValue = _mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
+                color = Color.FromArgb(colorValue);
+                _colorCache[key] = color;
+            }
+
+            return color;
+        }
+
+
+        public void StyleControl(Control formControl)
+        {
+            if (_defaultFont == null)
+                _defaultFont = _mbApiInterface.Setting_GetDefaultFont();
+
+            formControl.Font = _defaultFont;
+            formControl.BackColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentBackground);
+            formControl.ForeColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentForeground);
+        }
     }
 }
