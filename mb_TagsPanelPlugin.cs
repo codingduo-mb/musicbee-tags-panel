@@ -409,9 +409,13 @@ namespace MusicBeePlugin
         {
             if (e.TabPage != null && !e.TabPage.IsDisposed)
             {
-                metaDataTypeName = e.TabPage.Text;
-                SwitchVisibleTagPanel(metaDataTypeName);
-                RefreshPanelTagsFromFiles(selectedFileUrls);
+                string newMetaDataTypeName = e.TabPage.Text;
+                if (metaDataTypeName != newMetaDataTypeName)
+                {
+                    metaDataTypeName = newMetaDataTypeName;
+                    SwitchVisibleTagPanel(metaDataTypeName);
+                    RefreshPanelTagsFromFiles(selectedFileUrls); // Aktualisiert die Tags nur, wenn notwendig
+                }
             }
         }
 
