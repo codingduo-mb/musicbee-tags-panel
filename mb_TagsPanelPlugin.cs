@@ -411,7 +411,7 @@ namespace MusicBeePlugin
             {
                 metaDataTypeName = e.TabPage.Text;
                 SwitchVisibleTagPanel(metaDataTypeName);
-                SetTagsFromFilesInPanel(selectedFileUrls);
+                RefreshPanelTagsFromFiles(selectedFileUrls);
             }
         }
 
@@ -423,7 +423,7 @@ namespace MusicBeePlugin
             if (checkListBoxPanel != null)
             {
                 UpdateTagsInPanelOnFileSelection();
-                SetTagsFromFilesInPanel(selectedFileUrls);
+                RefreshPanelTagsFromFiles(selectedFileUrls);
                 checkListBoxPanel.Refresh();
                 checkListBoxPanel.Invalidate();
             }
@@ -461,7 +461,7 @@ namespace MusicBeePlugin
         /// Sets tags from files contained within a panel based on filenames array
         /// </summary>
         /// <param name="filenames"></param>
-        private void SetTagsFromFilesInPanel(string[] filenames)
+        private void RefreshPanelTagsFromFiles(string[] filenames)
         {
             tagsFromFiles.Clear();
 
@@ -498,7 +498,7 @@ namespace MusicBeePlugin
                 {
                     visibleChecklistBoxPanel.Visible = true;
                 }
-                SetTagsFromFilesInPanel(selectedFileUrls);
+                RefreshPanelTagsFromFiles(selectedFileUrls);
             }
         }
 
@@ -514,11 +514,11 @@ namespace MusicBeePlugin
             }
         }
 
-        private void AddSettingsLabel()
+        private void DisplaySettingsPromptLabel()
         {
             if (_panel.InvokeRequired)
             {
-                _panel.Invoke(new Action(AddSettingsLabel));
+                _panel.Invoke(new Action(DisplaySettingsPromptLabel));
                 return;
             }
 
@@ -631,7 +631,7 @@ namespace MusicBeePlugin
             }
 
             AddControls();
-            AddSettingsLabel();
+            DisplaySettingsPromptLabel();
             if (_panel.IsHandleCreated)
             {
                 InvokeRefreshTagTableData();
@@ -650,7 +650,7 @@ namespace MusicBeePlugin
 
             if (selectedFileUrls.Any())
             {
-                SetTagsFromFilesInPanel(selectedFileUrls);
+                RefreshPanelTagsFromFiles(selectedFileUrls);
             }
             else
             {
