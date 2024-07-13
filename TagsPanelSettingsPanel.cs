@@ -96,16 +96,10 @@ namespace MusicBeePlugin
 
         private void UpdateSortOption()
         {
-            cbEnableAlphabeticalTagSort.Checked = tagsStorage.Sorted;
-            lstTags.Sorted = tagsStorage.Sorted;
-            if (tagsStorage.Sorted)
-            {
-                SetUpDownButtonsState(false);
-            }
-            else
-            {
-                SetUpDownButtonsState(true);
-            }
+            bool isSorted = tagsStorage.Sorted;
+            cbEnableAlphabeticalTagSort.Checked = isSorted;
+            lstTags.Sorted = isSorted;
+            SetUpDownButtonsState(!isSorted);
         }
 
         private void AttachEventHandlers()
@@ -174,14 +168,9 @@ namespace MusicBeePlugin
         public void AddNewTagToList()
         {
             var newTag = TxtNewTagInput.Text.Trim();
-            if (string.IsNullOrWhiteSpace(newTag))
+            if (string.IsNullOrWhiteSpace(newTag) || tagsStorage.TagList.ContainsKey(newTag))
             {
-                return;
-            }
-
-            if (tagsStorage.TagList.ContainsKey(newTag))
-            {
-                ShowMessageBox(DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessageBox(string.IsNullOrWhiteSpace(newTag) ? "Tag cannot be empty." : DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -259,16 +248,31 @@ namespace MusicBeePlugin
                             var values = line.Split(';');
                             foreach (var value in values)
                             {
-                                var importtag = value.Trim();
-                                if (!string.IsNullOrEmpty(importtag) && importedTags.Add(importtag))
+                                var importTag = value.Trim();
+                                if (!string.IsNullOrEmpty(importTag))
                                 {
-                                    tagsStorage.TagList[importtag] = tagsStorage.TagList.Count;
-                                    lstTags.Items.Add(importtag);
+                                    importedTags.Add(importTag);
                                 }
                             }
                         }
 
-                        ShowMessageBox(CsvImportSuccessMessage, CsvDialogTitle);
+                        if (importedTags.Count > 0)
+                        {
+                            foreach (var tag in importedTags)
+                            {
+                                if (!tagsStorage.TagList.ContainsKey(tag))
+                                {
+                                    tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
+                                    lstTags.Items.Add(tag);
+                                }
+                            }
+                            ShowMessageBox($"{importedTags.Count} Tags imported successfully.", CsvDialogTitle);
+
+                        }
+                        else
+                        {
+                            ShowMessageBox("Not tags found to import.", CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                     else
                     {
@@ -335,18 +339,12 @@ namespace MusicBeePlugin
 
         private void BtnMoveTagUpSettings_Click(object sender, EventArgs e)
         {
-            if (lstTags.Items.Count != 0)
-            {
-                MoveUp();
-            }
+            MoveItem(-1);
         }
 
         private void BtnMoveTagDownSettings_Click(object sender, EventArgs e)
         {
-            if (lstTags.Items.Count != 0)
-            {
-                MoveDown();
-            }
+            MoveItem(1);
         }
 
         public void MoveUp()
@@ -390,11 +388,11 @@ namespace MusicBeePlugin
         {
             SetUpDownButtonsState(false);
             tagsStorage.Sort();
+            var tags = tagsStorage.GetTags().Keys.ToList();
+            tags.Sort();
             lstTags.BeginUpdate(); // Suspend drawing of the ListBox
             lstTags.Items.Clear();
-
-            lstTags.Items.AddRange(tagsStorage.GetTags().Keys.ToArray());
-
+            lstTags.Items.AddRange(tags.ToArray());
             lstTags.EndUpdate(); // Resume drawing of the ListBox
         }
 
