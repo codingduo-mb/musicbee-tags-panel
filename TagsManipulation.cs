@@ -28,8 +28,14 @@ namespace MusicBeePlugin
                 string[] tagsFromFile = ReadTagsFromFile(filename, tagsStorage.GetMetaDataType());
                 foreach (var tag in tagsFromFile)
                 {
-                    stateOfSelection.TryGetValue(tag, out int count);
-                    stateOfSelection[tag] = count + 1;
+                    if (stateOfSelection.ContainsKey(tag))
+                    {
+                        stateOfSelection[tag]++;
+                    }
+                    else
+                    {
+                        stateOfSelection[tag] = 1;
+                    }
                 }
             }
 
@@ -65,10 +71,8 @@ namespace MusicBeePlugin
         public string GetTags(string fileUrl, MetaDataType metaDataType)
         {
             string[] tags = ReadTagsFromFile(fileUrl, metaDataType);
-            // Entfernen von Leerzeichen und Überprüfen auf leere Tags
             tags = tags.Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
-            // Verbinden der Tags mit Semikolon, ohne ein führendes Semikolon für den ersten Tag
-            return string.Join(SEPARATOR.ToString(), tags).Trim();
+            return string.Join(SEPARATOR.ToString(), tags).TrimStart(SEPARATOR);
         }
 
         public void SetTagsInFile(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
