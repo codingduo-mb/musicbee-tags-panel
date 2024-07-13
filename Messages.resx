@@ -117,7 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ClearAllCurrentTagsInLIstMessage" xml:space="preserve">
+    <value>This will clear your current tag list. Continue?</value>
+  </data>
+  <data name="CsvDefaultExt" xml:space="preserve">
+    <value>csv</value>
+  </data>
   <data name="CsvDialogTitle" xml:space="preserve">
     <value>Choose a CSV file</value>
+  </data>
+  <data name="CsvExportSuccessMessage" xml:space="preserve">
+    <value>Tags succesfully exported in CSV file</value>
+  </data>
+  <data name="CsvFileFilter" xml:space="preserve">
+    <value>csv files (*.csv)|*.csv</value>
+  </data>
+  <data name="CsvImportCancelMessage" xml:space="preserve">
+    <value>CSV import canceled</value>
+  </data>
+  <data name="CsvImportNoTagsFoundMessage" xml:space="preserve">
+    <value>No tags found to import.</value>
+  </data>
+  <data name="CsvImportTagImportSuccesfullMessage" xml:space="preserve">
+    <value>Tags imported successfully</value>
+  </data>
+  <data name="CsvImportWarningReplaceMessage" xml:space="preserve">
+    <value>Warning: This will replace all entries of this tag. Do you want to continue with the CSV import?</value>
+  </data>
+  <data name="EnterTagMessagePlaceholder" xml:space="preserve">
+    <value>Please enter a tag</value>
+  </data>
+  <data name="TagInputBoxEmptyMessage" xml:space="preserve">
+    <value>Tag cannot be empty.</value>
+  </data>
+  <data name="TagListAddDuplicateTagMessage" xml:space="preserve">
+    <value>Tag is already in the list!</value>
+  </data>
+  <data name="TagListSortConfirmationMessage" xml:space="preserve">
+    <value>Do you really want to sort the tags alphabetically? Your current order will be lost!</value>
+  </data>
+  <data name="TagSortTooltip" xml:space="preserve">
+    <value>If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists.</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning!</value>
   </data>
 </root>

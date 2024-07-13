@@ -61,11 +61,137 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This will clear your current tag list. Continue? ähnelt.
+        /// </summary>
+        internal static string ClearAllCurrentTagsInLIstMessage {
+            get {
+                return ResourceManager.GetString("ClearAllCurrentTagsInLIstMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die csv ähnelt.
+        /// </summary>
+        internal static string CsvDefaultExt {
+            get {
+                return ResourceManager.GetString("CsvDefaultExt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Choose a CSV file ähnelt.
         /// </summary>
         internal static string CsvDialogTitle {
             get {
                 return ResourceManager.GetString("CsvDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tags succesfully exported in CSV file ähnelt.
+        /// </summary>
+        internal static string CsvExportSuccessMessage {
+            get {
+                return ResourceManager.GetString("CsvExportSuccessMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die csv files (*.csv)|*.csv ähnelt.
+        /// </summary>
+        internal static string CsvFileFilter {
+            get {
+                return ResourceManager.GetString("CsvFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die CSV import canceled ähnelt.
+        /// </summary>
+        internal static string CsvImportCancelMessage {
+            get {
+                return ResourceManager.GetString("CsvImportCancelMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No tags found to import. ähnelt.
+        /// </summary>
+        internal static string CsvImportNoTagsFoundMessage {
+            get {
+                return ResourceManager.GetString("CsvImportNoTagsFoundMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tags imported successfully ähnelt.
+        /// </summary>
+        internal static string CsvImportTagImportSuccesfullMessage {
+            get {
+                return ResourceManager.GetString("CsvImportTagImportSuccesfullMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Warning: This will replace all entries of this tag. Do you want to continue with the CSV import? ähnelt.
+        /// </summary>
+        internal static string CsvImportWarningReplaceMessage {
+            get {
+                return ResourceManager.GetString("CsvImportWarningReplaceMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a tag ähnelt.
+        /// </summary>
+        internal static string EnterTagMessagePlaceholder {
+            get {
+                return ResourceManager.GetString("EnterTagMessagePlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tag cannot be empty. ähnelt.
+        /// </summary>
+        internal static string TagInputBoxEmptyMessage {
+            get {
+                return ResourceManager.GetString("TagInputBoxEmptyMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tag is already in the list! ähnelt.
+        /// </summary>
+        internal static string TagListAddDuplicateTagMessage {
+            get {
+                return ResourceManager.GetString("TagListAddDuplicateTagMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Do you really want to sort the tags alphabetically? Your current order will be lost! ähnelt.
+        /// </summary>
+        internal static string TagListSortConfirmationMessage {
+            get {
+                return ResourceManager.GetString("TagListSortConfirmationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists. ähnelt.
+        /// </summary>
+        internal static string TagSortTooltip {
+            get {
+                return ResourceManager.GetString("TagSortTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Warning! ähnelt.
+        /// </summary>
+        internal static string WarningTitle {
+            get {
+                return ResourceManager.GetString("WarningTitle", resourceCulture);
             }
         }
     }

@@ -14,24 +14,6 @@ namespace MusicBeePlugin
 
         private const int EM_SETCUEBANNER = 0x1501;
 
-        private const string CsvFileFilter = "csv files (*.csv)|*.csv";
-        private const string CsvDefaultExt = "csv";
-        // private const string CsvDialogTitle = Messages.CsvDialogTitle;
-        private const string CsvImportSuccessMessage = "CSV import successful";
-        private const string CsvImportCancelMessage = "CSV import canceled";
-        private const string CsvExportSuccessMessage = "Tags exported in CSV";
-        private const string CsvConfirmationMessage = "Warning: This will replace all entries of this tag. Do you want to continue with the CSV import?";
-        private const string CsvConfirmationTitle = "Confirmation";
-
-        private const string EnterTagMessage = "Please enter a tag";
-        private const string TagSortToolTip = "If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists.";
-        private const string DuplicateTagMessage = "Tag is already in the list!";
-        private const string DuplicateTagTitle = "Duplicate found!";
-        private const string ClearListMessage = "This will clear your current tag list. Continue?";
-        private const string ClearListTitle = "Warning";
-        private const string SortConfirmationMessage = "Do you really want to sort the tags alphabetically? Your current order will be lost.";
-        private const string SortConfirmationTitle = "Warning";
-
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
@@ -39,7 +21,7 @@ namespace MusicBeePlugin
         {
             InitializeComponent();
             InitializeToolTip();
-            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, EnterTagMessage);
+            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
             tagsStorage = SettingsStorage.GetTagsStorage(tagName);
             UpdateTags();
             UpdateSortOption();
@@ -56,7 +38,7 @@ namespace MusicBeePlugin
                 ReshowDelay = 500,
                 ShowAlways = true
             };
-            toolTip.SetToolTip(cbEnableAlphabeticalTagSort, TagSortToolTip);
+            toolTip.SetToolTip(cbEnableAlphabeticalTagSort, Messages.TagSortTooltip);
         }
 
         private void SetUpDownButtonsState(bool enabled)
@@ -74,14 +56,14 @@ namespace MusicBeePlugin
         {
             if (string.IsNullOrEmpty(TxtNewTagInput.Text))
             {
-                TxtNewTagInput.Text = EnterTagMessage;
+                TxtNewTagInput.Text = Messages.EnterTagMessagePlaceholder;
                 TxtNewTagInput.ForeColor = SystemColors.GrayText;
             }
         }
 
         private void TxtNewTagInput_Enter(object sender, EventArgs e)
         {
-            if (TxtNewTagInput.Text == EnterTagMessage)
+            if (TxtNewTagInput.Text == Messages.EnterTagMessagePlaceholder)
             {
                 TxtNewTagInput.Text = string.Empty;
                 TxtNewTagInput.ForeColor = SystemColors.WindowText;
@@ -170,7 +152,7 @@ namespace MusicBeePlugin
             var newTag = TxtNewTagInput.Text.Trim();
             if (string.IsNullOrWhiteSpace(newTag) || tagsStorage.TagList.ContainsKey(newTag))
             {
-                ShowMessageBox(string.IsNullOrWhiteSpace(newTag) ? "Tag cannot be empty." : DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessageBox(string.IsNullOrWhiteSpace(newTag) ? Messages.TagInputBoxEmptyMessage : Messages.TagListAddDuplicateTagMessage, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -223,8 +205,8 @@ namespace MusicBeePlugin
                 openFileDialog1.CheckPathExists = true;
 
                 openFileDialog1.Title = Messages.CsvDialogTitle;
-                openFileDialog1.Filter = CsvFileFilter;
-                openFileDialog1.DefaultExt = CsvDefaultExt;
+                openFileDialog1.Filter = Messages.CsvFileFilter;
+                openFileDialog1.DefaultExt = Messages.CsvDefaultExt;
                 openFileDialog1.Multiselect = false;
 
                 openFileDialog1.RestoreDirectory = true;
@@ -237,7 +219,7 @@ namespace MusicBeePlugin
                         return;
                     }
 
-                    var dialogResult = MessageBox.Show(CsvConfirmationMessage, CsvConfirmationTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    var dialogResult = MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (dialogResult == DialogResult.Yes)
                     {
                         var lines = File.ReadAllLines(importCsvFilename);
@@ -266,17 +248,16 @@ namespace MusicBeePlugin
                                     lstTags.Items.Add(tag);
                                 }
                             }
-                            ShowMessageBox($"{importedTags.Count} Tags imported successfully.", Messages.CsvDialogTitle);
-
+                            ShowMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccesfullMessage}", Messages.CsvDialogTitle);
                         }
                         else
                         {
-                            ShowMessageBox("Not tags found to import.", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            ShowMessageBox(Messages.CsvImportNoTagsFoundMessage, Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                     else
                     {
-                        ShowMessageBox(CsvImportCancelMessage, Messages.CsvDialogTitle);
+                        ShowMessageBox(Messages.CsvImportCancelMessage, Messages.CsvDialogTitle);
                     }
                 }
             }
@@ -288,8 +269,8 @@ namespace MusicBeePlugin
             {
                 saveFileDialog1.CheckFileExists = false;
                 saveFileDialog1.Title = Messages.CsvDialogTitle;
-                saveFileDialog1.Filter = CsvFileFilter;
-                saveFileDialog1.DefaultExt = CsvDefaultExt;
+                saveFileDialog1.Filter = Messages.CsvFileFilter;
+                saveFileDialog1.DefaultExt = Messages.CsvDefaultExt;
                 saveFileDialog1.RestoreDirectory = true;
 
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
@@ -304,7 +285,7 @@ namespace MusicBeePlugin
                         }
                     }
 
-                    ShowMessageBox(CsvExportSuccessMessage, Messages.CsvDialogTitle);
+                    ShowMessageBox($"{Messages.CsvExportSuccessMessage} {exportCSVFilename}", Messages.CsvDialogTitle);
                 }
             }
         }
@@ -398,7 +379,7 @@ namespace MusicBeePlugin
 
         private void ShowConfirmationDialogToSort()
         {
-            DialogResult dialogResult = MessageBox.Show(SortConfirmationMessage, SortConfirmationTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult dialogResult = MessageBox.Show(Messages.TagListSortConfirmationMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             bool sort = dialogResult == DialogResult.Yes;
             SortAlphabetically();
             tagsStorage.Sorted = sort;
@@ -408,12 +389,12 @@ namespace MusicBeePlugin
 
         private void ShowDialogForDuplicate()
         {
-            MessageBox.Show(DuplicateTagMessage, DuplicateTagTitle, MessageBoxButtons.OK);
+            MessageBox.Show(Messages.TagListAddDuplicateTagMessage, Messages.WarningTitle, MessageBoxButtons.OK);
         }
 
         private void ShowDialogToClearList()
         {
-            DialogResult dialogResult = MessageBox.Show(ClearListMessage, ClearListTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult dialogResult = MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
