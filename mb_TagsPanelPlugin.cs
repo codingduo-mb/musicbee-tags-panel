@@ -370,15 +370,12 @@ namespace MusicBeePlugin
                 return;
             }
 
-            // Überprüfen, ob der Aufruf auf dem UI-Thread erfolgt
             if (_panel.InvokeRequired)
             {
-                // Wenn nicht, verwenden Sie Invoke, um den Aufruf auf dem UI-Thread auszuführen
                 _panel.Invoke((Action)UpdateTagsDisplayFromStorage);
             }
             else
             {
-                // Wenn bereits auf dem UI-Thread, führen Sie die Methode direkt aus
                 UpdateTagsDisplayFromStorage();
             }
         }
@@ -402,7 +399,6 @@ namespace MusicBeePlugin
             CheckState newState = e.NewValue;
             CheckState currentState = ((CheckedListBox)sender).GetItemCheckState(e.Index);
 
-            // Nur fortfahren, wenn sich der Zustand tatsächlich ändert
             if (newState != currentState)
             {
                 string name = ((CheckedListBox)sender).Items[e.Index].ToString();
@@ -418,15 +414,22 @@ namespace MusicBeePlugin
         {
             if (e.TabPage != null && !e.TabPage.IsDisposed)
             {
-                string newMetaDataTypeName = e.TabPage.Text;
+                var newMetaDataTypeName = e.TabPage.Text;
                 if (_metaDataTypeName != newMetaDataTypeName)
                 {
                     _metaDataTypeName = newMetaDataTypeName;
                     SwitchVisibleTagPanel(_metaDataTypeName);
-                    RefreshPanelTagsFromFiles(_selectedFileUrls); // Aktualisiert die Tags nur, wenn notwendig
+                    UpdateTagsForActiveTab(); // Call the new method
                 }
             }
         }
+
+        private void UpdateTagsForActiveTab()
+        {
+            // Update the tags in the panel for the currently active tab
+            InvokeRefreshTagTableData();
+        }
+
 
         private void SelectedTabPageChanged(Object sender, EventArgs e)
         {
