@@ -8,18 +8,17 @@ namespace MusicBeePlugin
 {
     public partial class ChecklistBoxPanel : UserControl
     {
-        private readonly MusicBeeApiInterface mbApiInterface;
-        private ItemCheckEventHandler eventHandler;
-        private readonly UIManager controlStyle;
-        private readonly TagsStorage tagsStorage;
-
         private const int PaddingWidth = 5;
+
+        private readonly MusicBeeApiInterface _mbApiInterface;
+        private readonly UIManager _controlStyle;
+        private readonly TagsStorage _tagsStorage;
 
         public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, string tagName, Dictionary<string, CheckState> data = null)
         {
-            this.mbApiInterface = mbApiInterface;
-            controlStyle = new UIManager(mbApiInterface);
-            tagsStorage = SettingsStorage.GetTagsStorage(tagName);
+            _mbApiInterface = mbApiInterface;
+            _controlStyle = new UIManager(mbApiInterface);
+            _tagsStorage = SettingsStorage.GetTagsStorage(tagName);
 
             InitializeComponent();
 
@@ -37,8 +36,8 @@ namespace MusicBeePlugin
             checkedListBoxWithTags.Items.Clear();
 
             // Retrieve tags from settings and sort them if necessary.
-            var tagsFromSettings = tagsStorage.GetTags().Keys;
-            var sortedTagsFromSettings = tagsStorage.Sorted ? tagsFromSettings.OrderBy(tag => tag).ToList() : tagsFromSettings.ToList();
+            var tagsFromSettings = _tagsStorage.GetTags().Keys;
+            var sortedTagsFromSettings = _tagsStorage.Sorted ? tagsFromSettings.OrderBy(tag => tag).ToList() : tagsFromSettings.ToList();
 
             // Add tags from settings to the checklist box.
             foreach (var tag in sortedTagsFromSettings)
@@ -70,8 +69,8 @@ namespace MusicBeePlugin
 
         private void StylePanel()
         {
-            controlStyle.StyleControl(checkedListBoxWithTags);
-            controlStyle.StyleControl(this);
+            _controlStyle.StyleControl(checkedListBoxWithTags);
+            _controlStyle.StyleControl(this);
         }
 
         public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
@@ -80,10 +79,9 @@ namespace MusicBeePlugin
             checkedListBoxWithTags.ItemCheck += eventHandler;
         }
 
-        public void UnregisterItemCheckEventHandler()
+        public void UnregisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
             checkedListBoxWithTags.ItemCheck -= eventHandler;
-            eventHandler = null;
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
