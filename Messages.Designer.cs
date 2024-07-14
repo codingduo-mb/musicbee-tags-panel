@@ -115,7 +115,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die No tags found to import. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die No _availableMetaTags found to import. ähnelt.
         /// </summary>
         internal static string CsvImportNoTagsFoundMessage {
             get {
@@ -169,7 +169,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Do you really want to sort the tags alphabetically? Your current order will be lost! ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Do you really want to sort the _availableMetaTags alphabetically? Your current order will be lost! ähnelt.
         /// </summary>
         internal static string TagListSortConfirmationMessage {
             get {
@@ -178,7 +178,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die If enabled, the tags will always be _isAlphabeticallySorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die If enabled, the _availableMetaTags will always be _isAlphabeticallySorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists. ähnelt.
         /// </summary>
         internal static string TagSortTooltip {
             get {
