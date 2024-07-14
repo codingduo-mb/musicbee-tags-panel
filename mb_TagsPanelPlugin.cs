@@ -17,7 +17,6 @@ namespace MusicBeePlugin
         private Logger log;
         private Control _panel;
         private TabControl tabControl;
-        // Vereinfachte Feldinitialisierungen
         private List<MetaDataType> tags = new List<MetaDataType>();
         private Dictionary<string, ChecklistBoxPanel> checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
         private Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
@@ -25,11 +24,11 @@ namespace MusicBeePlugin
         private SettingsStorage settingsStorage;
         private TagsManipulation tagsManipulation;
         private string metaDataTypeName;
-        private bool sortAlphabetically = false; // Standardwert für bool ist bereits false, kann also weggelassen werden
+        private bool sortAlphabetically;
         private PluginInfo about = new PluginInfo();
         private string[] selectedFileUrls = Array.Empty<string>();
-        private bool ignoreEventFromHandler = true; // Klarheit verbessert durch direkte Initialisierung
-        private bool ignoreForBatchSelect = true; // Klarheit verbessert durch direkte Initialisierung
+        private bool ignoreEventFromHandler = true;
+        private bool ignoreForBatchSelect = true;
 
         #region Initialise plugin
 
@@ -105,7 +104,7 @@ namespace MusicBeePlugin
 
         private void InitializeMenu()
         {
-            mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", MenuSettingsClicked);
+            mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", OnMenuSettingsClicked);
         }
 
         private void LoadSettings()
@@ -155,13 +154,25 @@ namespace MusicBeePlugin
             tabControl.Visible = tabControl.Controls.Count > 0;
         }
 
+        // Example of method refactoring for clarity
         public void SavePluginConfiguration()
         {
             settingsStorage.SaveAllSettings();
-            sortAlphabetically = settingsStorage.GetFirstOne()?.Sorted ?? false;
+            UpdateSortOrderFromSettings();
             UpdatePanelData();
-            log.Info($"{nameof(SavePluginConfiguration)} completed.");
+            LogConfigurationSaved();
         }
+
+        private void UpdateSortOrderFromSettings()
+        {
+            sortAlphabetically = settingsStorage.GetFirstOne()?.Sorted ?? false;
+        }
+
+        private void LogConfigurationSaved()
+        {
+            log.Info("Plugin configuration saved.");
+        }
+
 
         private void UpdatePanelData()
         {
@@ -378,7 +389,7 @@ namespace MusicBeePlugin
 
         #region Event handlers
 
-        public void MenuSettingsClicked(object sender, EventArgs args)
+        public void OnMenuSettingsClicked(object sender, EventArgs args)
         {
             OpenSettingsDialog();
         }
@@ -671,7 +682,7 @@ namespace MusicBeePlugin
         {
             var menuItems = new List<ToolStripItem>
             {
-                new ToolStripMenuItem("Tag-Panel Settings", null, MenuSettingsClicked),
+                new ToolStripMenuItem("Tag-Panel Settings", null, OnMenuSettingsClicked),
             };
             return menuItems;
         }
