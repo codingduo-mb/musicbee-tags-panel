@@ -11,13 +11,15 @@ namespace MusicBeePlugin
         private readonly MusicBeeApiInterface mbApiInterface;
         private ItemCheckEventHandler eventHandler;
         private readonly UIManager controlStyle;
+        private readonly TagsStorage tagsStorage;
 
         private const int PaddingWidth = 5;
 
-        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, Dictionary<string, CheckState> data = null)
+        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, string tagName, Dictionary<string, CheckState> data = null)
         {
             this.mbApiInterface = mbApiInterface;
             controlStyle = new UIManager(mbApiInterface);
+            tagsStorage = SettingsStorage.GetTagsStorage(tagName);
 
             InitializeComponent();
 
@@ -34,9 +36,12 @@ namespace MusicBeePlugin
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
 
-            foreach (var entry in data)
+            // Sort the tags based on the settings
+            var sortedTags = tagsStorage.Sorted ? data.Keys.OrderBy(tag => tag).ToList() : data.Keys.ToList();
+
+            foreach (var tag in sortedTags)
             {
-                checkedListBoxWithTags.Items.Add(entry.Key, entry.Value);
+                checkedListBoxWithTags.Items.Add(tag, data[tag]);
             }
 
             checkedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;

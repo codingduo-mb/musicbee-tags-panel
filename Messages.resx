@@ -147,6 +147,9 @@
   <data name="EnterTagMessagePlaceholder" xml:space="preserve">
     <value>Please enter a tag</value>
   </data>
+  <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
+    <value>Please add a tag in the settings dialog.</value>
+  </data>
   <data name="TagInputBoxEmptyMessage" xml:space="preserve">
     <value>Tag cannot be empty.</value>
   </data>

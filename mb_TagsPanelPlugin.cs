@@ -274,7 +274,8 @@ namespace MusicBeePlugin
         {
             if (!_checklistBoxList.TryGetValue(tagName, out var checkListBox) || checkListBox.IsDisposed)
             {
-                checkListBox = new ChecklistBoxPanel(_mbApiInterface);
+                // Fixed by adding the missing 'tagName' parameter
+                checkListBox = new ChecklistBoxPanel(_mbApiInterface, tagName);
                 _checklistBoxList[tagName] = checkListBox;
             }
 
@@ -544,7 +545,7 @@ namespace MusicBeePlugin
                 Location = new System.Drawing.Point(14, 30),
                 Size = new System.Drawing.Size(38, 13),
                 TabIndex = 2,
-                Text = "Please add a tag in the settings dialog first."
+                Text = $"{Messages.PleaseAddTagsInSettingsMessage}"
             };
 
             _panel.SuspendLayout();
