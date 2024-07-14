@@ -9,10 +9,6 @@ namespace MusicBeePlugin
     public partial class TagsPanelSettingsForm : Form
     {
         private const string GitHubLink = "https://github.com/mat-st/musicbee-tags-panel";
-        private const string TooltipAddTagPage = "Add & select a new tag and a new tabpage";
-        private const string TagExistsWarning = "Tag already exists";
-        private const string RemoveTagPageWarning = "This will remove the current tag page and you will lose your current tag list. Continue?";
-        private const string WarningCaption = "Warning";
         private const string AboutMessage = "Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub";
         private const string AboutCaption = "About Tags-Panel Plugin";
 
@@ -35,7 +31,7 @@ namespace MusicBeePlugin
                 AddPanel(storage);
             }
 
-            toolTipAddTagPage.SetToolTip(btnAddTabPage, TooltipAddTagPage);
+            toolTipAddTagPage.SetToolTip(btnAddTabPage, Messages.AddTagPageTooltip);
         }
 
         private void AddPanel(TagsStorage storage)
@@ -43,7 +39,7 @@ namespace MusicBeePlugin
             var tagName = storage.GetTagName();
             if (_tagPanels.ContainsKey(tagName))
             {
-                ShowMessageBox($"This Metadata Type has already been added", TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowMessageBox($"This Metadata Type has already been added", Messages.TagListTagAlreadyExistsMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -62,14 +58,14 @@ namespace MusicBeePlugin
                 var result = form.ShowDialog(this);
                 if (result == DialogResult.OK)
                 {
-                    var storage = new TagsStorage { MetaDataType = form.GetMetaDataType() };
+                    var storage = new TagsStorage { MetaDataType = form.GetSelectedMetaDataType() };
                     if (storage.MetaDataType != null && !_tagPanels.ContainsKey(storage.GetTagName()))
                     {
                         AddPanel(storage);
                     }
                     else
                     {
-                        ShowMessageBox(TagExistsWarning, TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        ShowMessageBox(Messages.TagListTagAlreadyExistsMessage, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
@@ -80,7 +76,7 @@ namespace MusicBeePlugin
             var tabToRemove = tabControlSettings.SelectedTab;
             if (tabToRemove != null)
             {
-                var dialogResult = MessageBox.Show(RemoveTagPageWarning, WarningCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                var dialogResult = MessageBox.Show(Messages.TagListRemoveTagPageWarning, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (dialogResult == DialogResult.Yes)
                 {
                     var tagName = tabToRemove.Text;

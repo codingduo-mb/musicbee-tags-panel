@@ -61,6 +61,15 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add &amp; select a new tag and a new tabpage.
+        /// </summary>
+        internal static string AddTagPageTooltip {
+            get {
+                return ResourceManager.GetString("AddTagPageTooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This will clear your current tag list. Continue?.
         /// </summary>
         internal static string ClearAllCurrentTagsInLIstMessage {
@@ -178,11 +187,29 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This will remove the current tag page and you will lose your current tag list. Continue?.
+        /// </summary>
+        internal static string TagListRemoveTagPageWarning {
+            get {
+                return ResourceManager.GetString("TagListRemoveTagPageWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do you really want to sort the tags alphabetically? Your current order will be lost!.
         /// </summary>
         internal static string TagListSortConfirmationMessage {
             get {
                 return ResourceManager.GetString("TagListSortConfirmationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag already exists.
+        /// </summary>
+        internal static string TagListTagAlreadyExistsMessage {
+            get {
+                return ResourceManager.GetString("TagListTagAlreadyExistsMessage", resourceCulture);
             }
         }
         

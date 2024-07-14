@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddTagPageTooltip" xml:space="preserve">
+    <value>Add &amp; select a new tag and a new tabpage</value>
+  </data>
   <data name="ClearAllCurrentTagsInLIstMessage" xml:space="preserve">
     <value>This will clear your current tag list. Continue?</value>
   </data>
@@ -156,8 +159,14 @@
   <data name="TagListAddDuplicateTagMessage" xml:space="preserve">
     <value>Tag is already in the list!</value>
   </data>
+  <data name="TagListRemoveTagPageWarning" xml:space="preserve">
+    <value>This will remove the current tag page and you will lose your current tag list. Continue?</value>
+  </data>
   <data name="TagListSortConfirmationMessage" xml:space="preserve">
     <value>Do you really want to sort the tags alphabetically? Your current order will be lost!</value>
+  </data>
+  <data name="TagListTagAlreadyExistsMessage" xml:space="preserve">
+    <value>Tag already exists</value>
   </data>
   <data name="TagSortTooltip" xml:space="preserve">
     <value>If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists.</value>
