@@ -7,56 +7,40 @@ namespace MusicBeePlugin
 {
     public class Logger : IDisposable
     {
-        private const string LOG_FILE_NAME = "mb_tags-panel.log";
-
+        private const string LogFileName = "mb_tags-panel.log";
         private readonly MusicBeeApiInterface _musicBeeApiInterface;
-
         private readonly FileInfo _fileInfo;
         private StreamWriter _writer;
 
         public Logger(MusicBeeApiInterface musicBeeApiInterface)
         {
-            this._musicBeeApiInterface = musicBeeApiInterface;
+            _musicBeeApiInterface = musicBeeApiInterface;
             _fileInfo = new FileInfo(GetLogFilePath());
             _writer = new StreamWriter(_fileInfo.FullName, true, Encoding.UTF8);
         }
 
-        private void Write(string type, string message, params object[] args)
+        private void WriteLog(string type, string message, params object[] args)
         {
-            DateTime utcTime = DateTime.UtcNow;
-            _writer.WriteLine($"{utcTime:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {message}", args);
+            var formattedMessage = string.Format(message, args);
+            var logEntry = $"{DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {formattedMessage}";
+            _writer.WriteLine(logEntry);
             _writer.Flush();
         }
+
+        public void Debug(string message, params object[] args) => WriteLog("debug", message, args);
+
+        public void Info(string message, params object[] args) => WriteLog("info", message, args);
+
+        public void Warn(string message, params object[] args) => WriteLog("warn", message, args);
+
+        public void Error(string message, params object[] args) => WriteLog("error", message, args);
+
+        public string GetLogFilePath() => Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), LogFileName);
 
         public void Dispose()
         {
             _writer?.Dispose();
             _writer = null;
-        }
-
-        public void Debug(string message, params object[] args)
-        {
-            Write("debug", message, args);
-        }
-
-        public void Info(string message, params object[] args)
-        {
-            Write("info", message, args);
-        }
-
-        public void Warn(string message, params object[] args)
-        {
-            Write("warn", message, args);
-        }
-
-        public void Error(string message, params object[] args)
-        {
-            Write("error", message, args);
-        }
-
-        public string GetLogFilePath()
-        {
-            return Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), LOG_FILE_NAME);
         }
     }
 }
