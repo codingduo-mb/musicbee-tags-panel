@@ -13,6 +13,7 @@ namespace MusicBeePlugin
         private bool _isAlphabeticallySorted = true;
 
         private bool _enableAlphabeticalSorting;
+        public bool ShowTagsNotInList { get; set; }
 
         public void Clear()
         {

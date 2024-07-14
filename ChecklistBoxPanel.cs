@@ -36,10 +36,24 @@ namespace MusicBeePlugin
             checkedListBoxWithTags.BeginUpdate();
             checkedListBoxWithTags.Items.Clear();
 
-            // Sort the tags based on the settings
-            var sortedTags = tagsStorage.Sorted ? data.Keys.OrderBy(tag => tag).ToList() : data.Keys.ToList();
+            // Retrieve tags from settings and sort them if necessary.
+            var tagsFromSettings = tagsStorage.GetTags().Keys;
+            var sortedTagsFromSettings = tagsStorage.Sorted ? tagsFromSettings.OrderBy(tag => tag).ToList() : tagsFromSettings.ToList();
 
-            foreach (var tag in sortedTags)
+            // Add tags from settings to the checklist box.
+            foreach (var tag in sortedTagsFromSettings)
+            {
+                if (data.ContainsKey(tag))
+                {
+                    checkedListBoxWithTags.Items.Add(tag, data[tag]);
+                }
+            }
+
+            // Now, handle tags not in settings. Filter out tags already added.
+            var additionalTags = data.Keys.Except(tagsFromSettings).OrderBy(tag => tag); // Ensure additional tags are sorted alphabetically.
+
+            // Add the additional tags to the checklist box.
+            foreach (var tag in additionalTags)
             {
                 checkedListBoxWithTags.Items.Add(tag, data[tag]);
             }

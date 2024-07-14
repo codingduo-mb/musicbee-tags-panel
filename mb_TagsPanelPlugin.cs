@@ -24,6 +24,7 @@ namespace MusicBeePlugin
         private SettingsStorage _settingsStorage;
         private TagsManipulation _tagsManipulation;
         private UIManager _uiManager;
+        private bool _showTagsNotInList = false; // Add a new field to store the checkbox state
         private string _metaDataTypeName;
         private bool _sortAlphabetically;
         private PluginInfo _about = new PluginInfo();
@@ -76,6 +77,7 @@ namespace MusicBeePlugin
             _checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
             _tagsFromFiles = new Dictionary<string, CheckState>();
             _tabPageList = new Dictionary<string, TabPage>();
+            _showTagsNotInList = false;
 
             InitializeLogger();
 
@@ -197,7 +199,16 @@ namespace MusicBeePlugin
 
             var tabPage = GetOrCreateTagPage(tagName);
             ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-            checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
+            // Populate the checklistbox based on the checkbox state
+            if (_showTagsNotInList)
+            {
+                checkListBox.PopulateChecklistBoxesFromData(GetCombinedTags(tagsStorage));
+            }
+            else
+            {
+                checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
+            }
+
 
             checkListBox.Dock = DockStyle.Fill;
             checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
@@ -232,6 +243,21 @@ namespace MusicBeePlugin
                     AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
                 }
             }
+        }
+
+        private Dictionary<string, CheckState> GetCombinedTags(TagsStorage tagsStorage)
+        {
+            // Combine tags from settings and files
+            var combinedTags = new Dictionary<string, CheckState>(tagsStorage.GetTags());
+            foreach (var tagFromFile in _tagsFromFiles)
+            {
+                if (!combinedTags.ContainsKey(tagFromFile.Key))
+                {
+                    combinedTags[tagFromFile.Key] = tagFromFile.Value;
+                }
+            }
+
+            return combinedTags;
         }
 
         /// <summary>
@@ -340,6 +366,16 @@ namespace MusicBeePlugin
 
             currentTagsStorage.SortByIndex();
             var allTagsFromSettings = currentTagsStorage.GetTags();
+
+            // Update the checklistbox based on the checkbox state
+            if (_showTagsNotInList)
+            {
+                AddTagsToChecklistBoxPanel(currentTagsStorage.GetTagName(), GetCombinedTags(currentTagsStorage));
+            }
+            else
+            {
+                AddTagsToChecklistBoxPanel(currentTagsStorage.GetTagName(), allTagsFromSettings);
+            }
 
             Dictionary<string, CheckState> data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
             foreach (var tagFromSettings in allTagsFromSettings)
@@ -597,7 +633,14 @@ namespace MusicBeePlugin
             if (isTagsChanging || isTrackChanged)
             {
                 _tagsFromFiles = _tagsManipulation.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
-                InvokeRefreshTagTableData();
+                if (_showTagsNotInList)
+                {
+                    InvokeRefreshTagTableData();
+                }
+                else
+                {
+                    UpdateTagsForActiveTab();
+                }
             }
 
             ignoreForBatchSelect = false;
@@ -648,6 +691,11 @@ namespace MusicBeePlugin
                 _tagsFromFiles.Clear();
                 UpdateTagsInPanelOnFileSelection();
             }
+            if (_panel != null)
+            {
+                UpdateTagsInPanelOnFileSelection();
+            }
+            SetPanelEnabled(true);
         }
 
         /// <summary>
