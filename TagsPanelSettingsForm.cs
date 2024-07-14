@@ -17,20 +17,36 @@ namespace MusicBeePlugin
 
         public TagsPanelSettingsForm(SettingsStorage settingsStorage)
         {
-            SettingsStorage = settingsStorage;
             InitializeComponent();
+            InitializeDialogResults();
+            InitializeVersionLabel();
+            SettingsStorage = settingsStorage;
+            PopulatePanelsFromSettings();
+            InitializeToolTip();
+        }
 
+        private void InitializeDialogResults()
+        {
             Btn_Save.DialogResult = DialogResult.OK;
             Btn_Cancel.DialogResult = DialogResult.Cancel;
+        }
 
+        private void InitializeVersionLabel()
+        {
             VersionLbl.Text = $"Version: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
             VersionLbl.ForeColor = Color.Black;
+        }
 
+        private void PopulatePanelsFromSettings()
+        {
             foreach (var storage in SettingsStorage.TagsStorages.Values)
             {
                 AddPanel(storage);
             }
+        }
 
+        private void InitializeToolTip()
+        {
             toolTipAddTagPage.SetToolTip(btnAddTabPage, Messages.AddTagPageTooltip);
         }
 
@@ -39,7 +55,7 @@ namespace MusicBeePlugin
             var tagName = storage.GetTagName();
             if (_tagPanels.ContainsKey(tagName))
             {
-                ShowMessageBox($"This Metadata Type has already been added", Messages.TagListTagAlreadyExistsMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Messages.TagListTagAlreadyExistsMessage);
                 return;
             }
 
@@ -55,36 +71,46 @@ namespace MusicBeePlugin
             var usedTags = _tagPanels.Keys.ToList();
             using (var form = new TabPageSelectorForm(usedTags))
             {
-                var result = form.ShowDialog(this);
-                if (result == DialogResult.OK)
+                if (form.ShowDialog(this) == DialogResult.OK)
                 {
-                    var storage = new TagsStorage { MetaDataType = form.GetSelectedMetaDataType() };
-                    if (storage.MetaDataType != null && !_tagPanels.ContainsKey(storage.GetTagName()))
-                    {
-                        AddPanel(storage);
-                    }
-                    else
-                    {
-                        ShowMessageBox(Messages.TagListTagAlreadyExistsMessage, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    TryToAddPanel(form.GetSelectedMetaDataType());
                 }
+            }
+        }
+
+        private void TryToAddPanel(string metaDataType)
+        {
+            var storage = new TagsStorage { MetaDataType = metaDataType };
+            if (storage.MetaDataType != null && !_tagPanels.ContainsKey(storage.GetTagName()))
+            {
+                AddPanel(storage);
+            }
+            else
+            {
+                ShowWarning(Messages.TagListTagAlreadyExistsMessage);
             }
         }
 
         private void BtnRemoveTagPage_Click(object sender, EventArgs e)
         {
             var tabToRemove = tabControlSettings.SelectedTab;
-            if (tabToRemove != null)
+            if (tabToRemove != null && ConfirmTagPageRemoval())
             {
-                var dialogResult = MessageBox.Show(Messages.TagListRemoveTagPageWarning, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    var tagName = tabToRemove.Text;
-                    tabControlSettings.TabPages.Remove(tabToRemove);
-                    SettingsStorage.RemoveTagStorage(tagName);
-                    _tagPanels.Remove(tagName);
-                }
+                RemoveSelectedTab(tabToRemove);
             }
+        }
+
+        private bool ConfirmTagPageRemoval()
+        {
+            return MessageBox.Show(Messages.TagListRemoveTagPageWarning, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes;
+        }
+
+        private void RemoveSelectedTab(TabPage tabToRemove)
+        {
+            var tagName = tabToRemove.Text;
+            tabControlSettings.TabPages.Remove(tabToRemove);
+            SettingsStorage.RemoveTagStorage(tagName);
+            _tagPanels.Remove(tagName);
         }
 
         private void LinkAbout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -95,6 +121,11 @@ namespace MusicBeePlugin
         private void LinkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(GitHubLink);
+        }
+
+        private void ShowWarning(string message)
+        {
+            MessageBox.Show(message, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void ShowMessageBox(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
