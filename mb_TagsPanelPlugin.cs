@@ -590,7 +590,7 @@ namespace MusicBeePlugin
                 System.IO.File.Delete(settingsStorage.GetSettingsPath());
             }
 
-            // Delete log file
+            // Delete _log file
             if (System.IO.File.Exists(log.GetLogFilePath()))
             {
                 System.IO.File.Delete(log.GetLogFilePath());

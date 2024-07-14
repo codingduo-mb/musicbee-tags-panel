@@ -16,7 +16,7 @@ namespace MusicBeePlugin
         private const string AboutMessage = "Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub";
         private const string AboutCaption = "About Tags-Panel Plugin";
 
-        private Dictionary<string, TagsPanelSettingsPanel> tagPanels = new Dictionary<string, TagsPanelSettingsPanel>();
+        private Dictionary<string, TagsPanelSettingsPanel> _tagPanels = new Dictionary<string, TagsPanelSettingsPanel>();
         public SettingsStorage SettingsStorage { get; set; }
 
         public TagsPanelSettingsForm(SettingsStorage settingsStorage)
@@ -41,14 +41,14 @@ namespace MusicBeePlugin
         private void AddPanel(TagsStorage storage)
         {
             var tagName = storage.GetTagName();
-            if (tagPanels.ContainsKey(tagName))
+            if (_tagPanels.ContainsKey(tagName))
             {
                 ShowMessageBox($"This Metadata Type has already been added", TagExistsWarning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName);
-            tagPanels.Add(tagName, tagsPanelSettingsPanel);
+            _tagPanels.Add(tagName, tagsPanelSettingsPanel);
             var tabPage = new TabPage(tagName) { Controls = { tagsPanelSettingsPanel } };
             tabControlSettings.TabPages.Add(tabPage);
             tagsPanelSettingsPanel.SetUpPanelForFirstUse();
@@ -56,14 +56,14 @@ namespace MusicBeePlugin
 
         private void Btn_AddTagPage_Click(object sender, EventArgs e)
         {
-            var usedTags = tagPanels.Keys.ToList();
+            var usedTags = _tagPanels.Keys.ToList();
             using (var form = new TabPageSelectorForm(usedTags))
             {
                 var result = form.ShowDialog(this);
                 if (result == DialogResult.OK)
                 {
                     var storage = new TagsStorage { MetaDataType = form.GetMetaDataType() };
-                    if (storage.MetaDataType != null && !tagPanels.ContainsKey(storage.GetTagName()))
+                    if (storage.MetaDataType != null && !_tagPanels.ContainsKey(storage.GetTagName()))
                     {
                         AddPanel(storage);
                     }
@@ -86,7 +86,7 @@ namespace MusicBeePlugin
                     var tagName = tabToRemove.Text;
                     tabControlSettings.TabPages.Remove(tabToRemove);
                     SettingsStorage.RemoveTagStorage(tagName);
-                    tagPanels.Remove(tagName);
+                    _tagPanels.Remove(tagName);
                 }
             }
         }

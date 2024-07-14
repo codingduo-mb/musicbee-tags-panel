@@ -8,79 +8,79 @@ namespace MusicBeePlugin
 {
     public class TagsStorage
     {
-        private string metaDataType;
-        private SortedDictionary<string, int> tagList = new SortedDictionary<string, int>();
-        private bool sorted = true;
+        private string _tagMetaDataType;
+        private SortedDictionary<string, int> _tagList = new SortedDictionary<string, int>();
+        private bool _isAlphabeticallySorted = true;
 
-        private bool enableAlphabeticalTagSort;
+        private bool _enableAlphabeticalSorting;
 
         public void Clear()
         {
-            tagList.Clear();
+            _tagList.Clear();
         }
 
         public Dictionary<string, CheckState> GetTags()
         {
-            return tagList.ToDictionary(item => item.Key, item => CheckState.Unchecked);
+            return _tagList.ToDictionary(item => item.Key, item => CheckState.Unchecked);
         }
 
         public string GetTagName()
         {
-            return metaDataType;
+            return _tagMetaDataType;
         }
 
         public MetaDataType GetMetaDataType()
         {
-            return Enum.TryParse(metaDataType, true, out MetaDataType result) ? result : default;
+            return Enum.TryParse(_tagMetaDataType, true, out MetaDataType result) ? result : default;
         }
 
         public bool EnableAlphabeticalTagSort
         {
-            get { return enableAlphabeticalTagSort; }
-            set { enableAlphabeticalTagSort = value; }
+            get { return _enableAlphabeticalSorting; }
+            set { _enableAlphabeticalSorting = value; }
         }
 
         public void Sort()
         {
-            if (!sorted && enableAlphabeticalTagSort)
+            if (!_isAlphabeticallySorted && _enableAlphabeticalSorting)
             {
-                var sortedTagList = tagList.OrderBy(item => item.Key).ToDictionary(item => item.Key, item => item.Value);
-                tagList = new SortedDictionary<string, int>(sortedTagList);
-                sorted = true;
+                var sortedTagList = _tagList.OrderBy(item => item.Key).ToDictionary(item => item.Key, item => item.Value);
+                _tagList = new SortedDictionary<string, int>(sortedTagList);
+                _isAlphabeticallySorted = true;
             }
         }
 
         public void SortByIndex()
         {
-            if (!enableAlphabeticalTagSort)
+            if (!_enableAlphabeticalSorting)
             {
-                var sortedTagList = tagList.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
-                tagList = new SortedDictionary<string, int>(sortedTagList);
+                var sortedTagList = _tagList.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
+                _tagList = new SortedDictionary<string, int>(sortedTagList);
             }
         }
 
         public void SwapElement(string key, int position)
         {
-            if (tagList.TryGetValue(key, out int oldPosition))
+            if (_tagList.TryGetValue(key, out int oldPosition))
             {
-                tagList[key] = position;
+                _tagList[key] = position;
 
-                var items = tagList.Where(x => x.Value == position && x.Key != key).ToList();
+                var items = _tagList.Where(x => x.Value == position && x.Key != key).ToList();
                 foreach (var item in items)
                 {
-                    tagList[item.Key] = oldPosition;
+                    _tagList[item.Key] = oldPosition;
                 }
             }
         }
 
         public bool Sorted
         {
-            get { return sorted; }
+            get { return _isAlphabeticallySorted; }
             set
             {
-                if (value != sorted)
+                if (value != _isAlphabeticallySorted)
                 {
-                    sorted = value;
+                    _isAlphabeticallySorted = value;
                     Sort();
                 }
             }
@@ -88,14 +88,14 @@ namespace MusicBeePlugin
 
         public string MetaDataType
         {
-            get { return metaDataType; }
-            set { metaDataType = value; }
+            get { return _tagMetaDataType; }
+            set { _tagMetaDataType = value; }
         }
 
         public SortedDictionary<string, int> TagList
         {
-            get { return tagList; }
-            set { tagList = value; }
+            get { return _tagList; }
+            set { _tagList = value; }
         }
     }
 }

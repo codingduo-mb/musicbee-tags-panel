@@ -15,17 +15,17 @@ namespace MusicBeePlugin
     public class SettingsStorage
     {
         private const char SettingsSeparator = ';';
-        private static Dictionary<string, TagsStorage> storages;
+        private static Dictionary<string, TagsStorage> _storages;
         private const string SettingsFileName = "mb_tags-panel.Settings.json";
-        private readonly MusicBeeApiInterface mbApiInterface;
-        private readonly Logger log;
+        private readonly MusicBeeApiInterface _mbApiInterface;
+        private readonly Logger _log;
 
         public static Dictionary<string, TagsStorage> TagsStorages { get; set; }
 
         public SettingsStorage(MusicBeeApiInterface mbApiInterface, Logger log)
         {
-            this.mbApiInterface = mbApiInterface;
-            this.log = log;
+            this._mbApiInterface = mbApiInterface;
+            this._log = log;
             TagsStorages = new Dictionary<string, TagsStorage>();
         }
 
@@ -62,12 +62,12 @@ namespace MusicBeePlugin
             var json = JsonConvert.SerializeObject(defaultSettings);
             File.WriteAllText(filename, json, Encoding.UTF8);
 
-            log.Info($"{nameof(CreateDefaultSettingsFile)} executed");
+            _log.Info($"{nameof(CreateDefaultSettingsFile)} executed");
         }
 
         public string GetSettingsPath()
         {
-            return Path.Combine(mbApiInterface.Setting_GetPersistentStoragePath(), SettingsFileName);
+            return Path.Combine(_mbApiInterface.Setting_GetPersistentStoragePath(), SettingsFileName);
         }
 
         public void SaveAllSettings()
@@ -77,7 +77,7 @@ namespace MusicBeePlugin
             var json = JsonConvert.SerializeObject(TagsStorages);
             File.WriteAllText(settingsPath, json, Encoding.UTF8);
 
-            mbApiInterface.MB_SetBackgroundTaskMessage("Settings saved");
+            _mbApiInterface.MB_SetBackgroundTaskMessage("Settings saved");
         }
 
         public TagsStorage GetFirstTagsStorage()
@@ -117,7 +117,7 @@ namespace MusicBeePlugin
         public SettingsStorage DeepCopy()
         {
             SettingsStorage other = (SettingsStorage)this.MemberwiseClone();
-            storages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(JsonConvert.SerializeObject(TagsStorages));
+            _storages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(JsonConvert.SerializeObject(TagsStorages));
             return other;
         }
 

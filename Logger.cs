@@ -9,29 +9,29 @@ namespace MusicBeePlugin
     {
         private const string LOG_FILE_NAME = "mb_tags-panel.log";
 
-        private readonly MusicBeeApiInterface musicBeeApiInterface;
+        private readonly MusicBeeApiInterface _musicBeeApiInterface;
 
-        private readonly FileInfo fileInfo;
-        private StreamWriter writer;
+        private readonly FileInfo _fileInfo;
+        private StreamWriter _writer;
 
         public Logger(MusicBeeApiInterface musicBeeApiInterface)
         {
-            this.musicBeeApiInterface = musicBeeApiInterface;
-            fileInfo = new FileInfo(GetLogFilePath());
-            writer = new StreamWriter(fileInfo.FullName, true, Encoding.UTF8);
+            this._musicBeeApiInterface = musicBeeApiInterface;
+            _fileInfo = new FileInfo(GetLogFilePath());
+            _writer = new StreamWriter(_fileInfo.FullName, true, Encoding.UTF8);
         }
 
         private void Write(string type, string message, params object[] args)
         {
             DateTime utcTime = DateTime.UtcNow;
-            writer.WriteLine($"{utcTime:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {message}", args);
-            writer.Flush();
+            _writer.WriteLine($"{utcTime:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {message}", args);
+            _writer.Flush();
         }
 
         public void Dispose()
         {
-            writer?.Dispose();
-            writer = null;
+            _writer?.Dispose();
+            _writer = null;
         }
 
         public void Debug(string message, params object[] args)
@@ -56,7 +56,7 @@ namespace MusicBeePlugin
 
         public string GetLogFilePath()
         {
-            return Path.Combine(musicBeeApiInterface.Setting_GetPersistentStoragePath(), LOG_FILE_NAME);
+            return Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), LOG_FILE_NAME);
         }
     }
 }

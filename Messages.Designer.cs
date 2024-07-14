@@ -178,7 +178,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die If enabled, the tags will always be _isAlphabeticallySorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists. ähnelt.
         /// </summary>
         internal static string TagSortTooltip {
             get {
