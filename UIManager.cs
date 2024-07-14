@@ -19,6 +19,38 @@ namespace MusicBeePlugin
             _mbApiInterface = mbApiInterface;
         }
 
+        public void DisplaySettingsPromptLabel(Control panel, TabControl tabControl, string message)
+        {
+            if (panel.InvokeRequired)
+            {
+                panel.Invoke(new Action(() => DisplaySettingsPromptLabel(panel, tabControl, message)));
+                return;
+            }
+
+            Label emptyPanelText = new Label
+            {
+                AutoSize = true,
+                Location = new Point(14, 30),
+                Size = new Size(38, 13),
+                TabIndex = 2,
+                Text = message
+            };
+
+            panel.SuspendLayout();
+            panel.Controls.Add(emptyPanelText);
+            panel.Controls.SetChildIndex(emptyPanelText, 1);
+            panel.Controls.SetChildIndex(tabControl, 0);
+
+            if (tabControl.TabPages.Count == 0)
+            {
+                tabControl.Visible = false;
+            }
+
+            panel.ResumeLayout();
+        }
+
+
+
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
             return ((int)skinElement & 0x7F) << 24 | ((int)elementState & 0xFF) << 16 | (int)elementComponent & 0xFFFF;

@@ -14,7 +14,7 @@ namespace MusicBeePlugin
     public partial class Plugin
     {
         private MusicBeeApiInterface _mbApiInterface;
-        private Logger _log;
+        private Logger _logger;
         private Control _panel;
         private TabControl _tabControl;
         private List<MetaDataType> _availableMetaTags = new List<MetaDataType>();
@@ -23,12 +23,14 @@ namespace MusicBeePlugin
         private Dictionary<string, CheckState> _tagsFromFiles = new Dictionary<string, CheckState>();
         private SettingsStorage _settingsStorage;
         private TagsManipulation _tagsManipulation;
+        private UIManager _uiManager;
         private string _metaDataTypeName;
-        private bool sortAlphabetically;
+        private bool _sortAlphabetically;
         private PluginInfo _about = new PluginInfo();
         private string[] _selectedFileUrls = Array.Empty<string>();
         private bool ignoreEventFromHandler = true;
         private bool ignoreForBatchSelect = true;
+
 
         #region Initialise plugin
 
@@ -77,14 +79,15 @@ namespace MusicBeePlugin
 
             InitializeLogger();
 
-            _settingsStorage = new SettingsStorage(_mbApiInterface, _log);
+            _settingsStorage = new SettingsStorage(_mbApiInterface, _logger);
             _tagsManipulation = new TagsManipulation(_mbApiInterface, _settingsStorage);
+            _uiManager = new UIManager(_mbApiInterface);
 
             LoadPluginSettings();
 
             InitializeMenu();
 
-            _log.Info($"{nameof(InitializePluginComponents)} started");
+            _logger.Info($"{nameof(InitializePluginComponents)} started");
         }
 
         public bool Configure(IntPtr panelHandle)
@@ -99,7 +102,7 @@ namespace MusicBeePlugin
 
         private void InitializeLogger()
         {
-            _log = new Logger(_mbApiInterface);
+            _logger = new Logger(_mbApiInterface);
         }
 
         private void InitializeMenu()
@@ -115,11 +118,11 @@ namespace MusicBeePlugin
 
         private void UpdateSettingsFromTagsStorage()
         {
-            TagsStorage tagsStorage = _settingsStorage.GetFirstOne();
+            var tagsStorage = _settingsStorage.GetFirstOne();
             if (tagsStorage != null)
             {
                 _metaDataTypeName = tagsStorage.MetaDataType;
-                sortAlphabetically = tagsStorage.Sorted;
+                _sortAlphabetically = tagsStorage.Sorted;
             }
         }
 
@@ -164,12 +167,12 @@ namespace MusicBeePlugin
 
         private void ApplySortOrderFromSettings()
         {
-            sortAlphabetically = _settingsStorage.GetFirstOne()?.Sorted ?? false;
+            _sortAlphabetically = _settingsStorage.GetFirstOne()?.Sorted ?? false;
         }
 
         private void LogConfigurationSaved()
         {
-            _log.Info("Plugin configuration saved.");
+            _logger.Info("Plugin configuration saved.");
         }
 
         private void RefreshPanelContent()
@@ -188,7 +191,7 @@ namespace MusicBeePlugin
         {
             if (!SettingsStorage.TagsStorages.TryGetValue(tagName, out var tagsStorage))
             {
-                _log.Error("tagsStorage is null");
+                _logger.Error("tagsStorage is null");
                 return;
             }
 
@@ -214,7 +217,7 @@ namespace MusicBeePlugin
                 _tabPageList[tagName] = tabPage;
                 _tabControl.TabPages.Add(tabPage);
             }
-            _log.Info($"{nameof(GetOrCreateTagPage)} returned {nameof(tabPage)} for {nameof(tagName)}: {tagName}");
+            _logger.Info($"{nameof(GetOrCreateTagPage)} returned {nameof(tabPage)} for {nameof(tagName)}: {tagName}");
             return tabPage;
         }
 
@@ -257,7 +260,7 @@ namespace MusicBeePlugin
             var tagsStorage = SettingsStorage.GetTagsStorage(tagName);
             if (tagsStorage == null)
             {
-                _log.Error("tagsStorage is null"); // Log the error
+                _logger.Error("tagsStorage is null"); // Log the error
                 return null;
             }
 
@@ -305,7 +308,7 @@ namespace MusicBeePlugin
         {
             MetaDataType metaDataType = GetActiveTabMetaDataType();
             TagsStorage tagsStorage = metaDataType != 0 ? SettingsStorage.GetTagsStorage(metaDataType.ToString()) : null;
-            _log.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
+            _logger.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
             return tagsStorage;
         }
 
@@ -331,7 +334,7 @@ namespace MusicBeePlugin
             TagsStorage currentTagsStorage = GetCurrentTagsStorage();
             if (currentTagsStorage == null)
             {
-                _log.Error($"{nameof(currentTagsStorage)} is null");
+                _logger.Error($"{nameof(currentTagsStorage)} is null");
                 return;
             }
 
@@ -367,7 +370,7 @@ namespace MusicBeePlugin
         {
             if (_panel == null || _panel.IsDisposed)
             {
-                _log.Error($"{nameof(_panel)} is null or disposed");
+                _logger.Error($"{nameof(_panel)} is null or disposed");
                 return;
             }
 
@@ -531,35 +534,6 @@ namespace MusicBeePlugin
             }
         }
 
-        private void DisplaySettingsPromptLabel()
-        {
-            if (_panel.InvokeRequired)
-            {
-                _panel.Invoke(new Action(DisplaySettingsPromptLabel));
-                return;
-            }
-
-            Label emptyPanelText = new Label
-            {
-                AutoSize = true,
-                Location = new System.Drawing.Point(14, 30),
-                Size = new System.Drawing.Size(38, 13),
-                TabIndex = 2,
-                Text = $"{Messages.PleaseAddTagsInSettingsMessage}"
-            };
-
-            _panel.SuspendLayout();
-            _panel.Controls.Add(emptyPanelText);
-            _panel.Controls.SetChildIndex(emptyPanelText, 1);
-            _panel.Controls.SetChildIndex(_tabControl, 0);
-
-            if (_tabControl.TabPages.Count == 0)
-            {
-                _tabControl.Visible = false;
-            }
-
-            _panel.ResumeLayout();
-        }
 
         private void AddControls()
         {
@@ -576,11 +550,11 @@ namespace MusicBeePlugin
         /// <param name="reason">The reason why MusicBee has closed the plugin.</param>
         public void Close(PluginCloseReason reason)
         {
-            _log?.Info(reason.ToString("G"));
-            _log?.Dispose();
+            _logger?.Info(reason.ToString("G"));
+            _logger?.Dispose();
             _panel?.Dispose();
             _panel = null;
-            _log = null;
+            _logger = null;
         }
 
         /// <summary>
@@ -594,10 +568,10 @@ namespace MusicBeePlugin
                 System.IO.File.Delete(_settingsStorage.GetSettingsPath());
             }
 
-            // Delete _log file
-            if (System.IO.File.Exists(_log.GetLogFilePath()))
+            // Delete _logger file
+            if (System.IO.File.Exists(_logger.GetLogFilePath()))
             {
-                System.IO.File.Delete(_log.GetLogFilePath());
+                System.IO.File.Delete(_logger.GetLogFilePath());
             }
         }
 
@@ -648,7 +622,7 @@ namespace MusicBeePlugin
             }
 
             AddControls();
-            DisplaySettingsPromptLabel();
+            _uiManager.DisplaySettingsPromptLabel(_panel, _tabControl, "No tags available. Please add tags in the settings.");
             if (_panel.IsHandleCreated)
             {
                 InvokeRefreshTagTableData();
