@@ -14,11 +14,13 @@ namespace MusicBeePlugin
         private readonly UIManager _controlStyle;
         private readonly TagsStorage _tagsStorage;
 
-        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, string tagName, Dictionary<string, CheckState> data = null)
+        // Add SettingsManager parameter to the constructor
+        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
         {
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface);
-            _tagsStorage = SettingsManager.RetrieveTagsStorageByTagName(tagName);
+            // Use the provided SettingsManager instance to retrieve TagsStorage
+            _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
 
             InitializeComponent();
 
@@ -29,7 +31,6 @@ namespace MusicBeePlugin
 
             StylePanel();
         }
-
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
             checkedListBoxWithTags.BeginUpdate();

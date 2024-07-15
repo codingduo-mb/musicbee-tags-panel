@@ -80,7 +80,7 @@ namespace MusicBeePlugin
             foreach (string fileUrl in fileUrls)
             {
                 string tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
-                string sortedTags = SettingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
+                string sortedTags = settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile; // Now it works!
 
                 mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
                 mbApiInterface.Library_CommitTagsToFile(fileUrl);

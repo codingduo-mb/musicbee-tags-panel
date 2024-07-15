@@ -7,20 +7,13 @@ using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public class SavedSettingsType
-    {
-        public Dictionary<string, TagsStorage> TagStorages { get; set; }
-    }
-
     public class SettingsManager
     {
-        private const char SettingsSeparator = ';';
-        private static Dictionary<string, TagsStorage> _storages;
         private const string SettingsFileName = "mb_tags-panel.Settings.json";
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly Logger _logger;
 
-        public static Dictionary<string, TagsStorage> TagsStorages { get; set; }
+        public Dictionary<string, TagsStorage> TagsStorages { get; private set; }
 
         public SettingsManager(MusicBeeApiInterface mbApiInterface, Logger log)
         {
@@ -33,6 +26,7 @@ namespace MusicBeePlugin
         {
             LoadSettings();
 
+            // Ensure TagsStorages is populated with the correct key (tag name)
             if (TagsStorages != null)
             {
                 TagsStorages = TagsStorages.ToDictionary(storage => storage.Value.GetTagName(), storage => storage.Value);
@@ -97,7 +91,7 @@ namespace MusicBeePlugin
             return TagsStorages.FirstOrDefault().Value;
         }
 
-        public static TagsStorage RetrieveTagsStorageByTagName(string tagName)
+        public TagsStorage RetrieveTagsStorageByTagName(string tagName)
         {
             if (!TagsStorages.TryGetValue(tagName, out TagsStorage tagStorage))
             {
@@ -128,11 +122,10 @@ namespace MusicBeePlugin
 
         public SettingsManager DeepCopy()
         {
-            SettingsManager other = (SettingsManager)this.MemberwiseClone();
-            _storages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(JsonConvert.SerializeObject(TagsStorages));
+            // Use a deep copy to avoid modifying the original settings
+            var other = new SettingsManager(_mbApiInterface, _logger);
+            other.TagsStorages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(JsonConvert.SerializeObject(TagsStorages));
             return other;
         }
-
-       
     }
 }

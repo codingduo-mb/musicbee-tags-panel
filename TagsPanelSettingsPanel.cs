@@ -10,19 +10,26 @@ namespace MusicBeePlugin
 {
     public partial class TagsPanelSettingsPanel : UserControl
     {
-        private TagsStorage tagsStorage;
+        private TagsStorage _tagsStorage;
 
         private const int EM_SETCUEBANNER = 0x1501;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        public TagsPanelSettingsPanel(string tagName)
+        private SettingsManager _settingsManager;
+        private TagsStorage tagsStorage;
+
+        public TagsPanelSettingsPanel(string tagName, SettingsManager settingsManager)
         {
             InitializeComponent();
             InitializeToolTip();
             SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
-            tagsStorage = SettingsManager.RetrieveTagsStorageByTagName(tagName);
+
+            // Use the provided SettingsManager instance
+            _settingsManager = settingsManager;
+            tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
+
             UpdateTags();
             UpdateSortOption();
             AttachEventHandlers(); // this must be at the very end to suppress the events
@@ -386,7 +393,7 @@ namespace MusicBeePlugin
             if (dialogResult == DialogResult.Yes && IsSortEnabled())
             {
                 SortAlphabetically(); // Sortiert die Tags alphabetisch
-                tagsStorage.Sorted = true; // Aktualisiert den Sortierungszustand im tagsStorage
+                tagsStorage.Sorted = true; // Aktualisiert den Sortierungszustand im _tagsStorage
                 lstTags.Sorted = true; // Stellt sicher, dass die ListBox weiß, dass sie sortiert ist
                 cbEnableAlphabeticalTagSort.Checked = true; // Stellt sicher, dass die Checkbox markiert bleibt
             }

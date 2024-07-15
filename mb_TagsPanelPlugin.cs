@@ -191,7 +191,8 @@ namespace MusicBeePlugin
 
         private void AddTagPanelForVisibleTags(string tagName)
         {
-            if (!SettingsManager.TagsStorages.TryGetValue(tagName, out var tagsStorage))
+            // Use _settingsStorage instance to access TagsStorages
+            if (!_settingsStorage.TagsStorages.TryGetValue(tagName, out var tagsStorage))
             {
                 _logger.Error("tagsStorage is null");
                 return;
@@ -208,7 +209,6 @@ namespace MusicBeePlugin
             {
                 checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
             }
-
 
             checkListBox.Dock = DockStyle.Fill;
             checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
@@ -238,7 +238,8 @@ namespace MusicBeePlugin
             if (_tabControl != null && _tabControl.TabPages != null)
             {
                 _tabControl.TabPages.Clear();
-                foreach (var tagsStorage in SettingsManager.TagsStorages.Values)
+                // Use the instance _settingsStorage to access TagsStorages
+                foreach (var tagsStorage in _settingsStorage.TagsStorages.Values)
                 {
                     AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
                 }
@@ -283,7 +284,8 @@ namespace MusicBeePlugin
 
         private ChecklistBoxPanel CreateCheckListBoxPanelForTag(string tagName)
         {
-            var tagsStorage = SettingsManager.RetrieveTagsStorageByTagName(tagName);
+            // Use the instance _settingsStorage to access RetrieveTagsStorageByTagName
+            var tagsStorage = _settingsStorage.RetrieveTagsStorageByTagName(tagName);
             if (tagsStorage == null)
             {
                 _logger.Error("tagsStorage is null"); // Log the error
@@ -303,8 +305,7 @@ namespace MusicBeePlugin
         {
             if (!_checklistBoxList.TryGetValue(tagName, out var checkListBox) || checkListBox.IsDisposed)
             {
-                // Fixed by adding the missing 'tagName' parameter
-                checkListBox = new ChecklistBoxPanel(_mbApiInterface, tagName);
+                checkListBox = new ChecklistBoxPanel(_mbApiInterface, _settingsStorage, tagName, _tagsFromFiles);
                 _checklistBoxList[tagName] = checkListBox;
             }
 
@@ -333,7 +334,7 @@ namespace MusicBeePlugin
         private TagsStorage GetCurrentTagsStorage()
         {
             MetaDataType metaDataType = GetActiveTabMetaDataType();
-            TagsStorage tagsStorage = metaDataType != 0 ? SettingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
+            TagsStorage tagsStorage = metaDataType != 0 ? _settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
             _logger.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
             return tagsStorage;
         }

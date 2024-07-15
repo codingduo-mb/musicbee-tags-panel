@@ -39,7 +39,7 @@ namespace MusicBeePlugin
 
         private void PopulatePanelsFromSettings()
         {
-            foreach (var storage in SettingsManager.TagsStorages.Values)
+            foreach (var storage in SettingsStorage.TagsStorages.Values)
             {
                 AddPanel(storage);
             }
@@ -59,7 +59,7 @@ namespace MusicBeePlugin
                 return;
             }
 
-            var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName);
+            var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName, SettingsStorage);
             _tagPanels.Add(tagName, tagsPanelSettingsPanel);
             var tabPage = new TabPage(tagName) { Controls = { tagsPanelSettingsPanel } };
             tabControlSettings.TabPages.Add(tabPage);
