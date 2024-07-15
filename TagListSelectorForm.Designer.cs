@@ -80,7 +80,7 @@ namespace MusicBeePlugin
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Select a MetaData Type";
+            this.Text = "Select A MetaData Type";
             this.ResumeLayout(false);
 
         }
