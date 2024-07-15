@@ -10,9 +10,9 @@ namespace MusicBeePlugin
     {
         public const char SEPARATOR = ';';
         private readonly MusicBeeApiInterface mbApiInterface;
-        private readonly SettingsStorage settingsStorage;
+        private readonly SettingsManager settingsStorage;
 
-        public TagsManipulation(MusicBeeApiInterface mbApiInterface, SettingsStorage settingsStorage)
+        public TagsManipulation(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage)
         {
             this.mbApiInterface = mbApiInterface;
             this.settingsStorage = settingsStorage;
@@ -80,7 +80,7 @@ namespace MusicBeePlugin
             foreach (string fileUrl in fileUrls)
             {
                 string tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
-                string sortedTags = SettingsStorage.GetTagsStorage(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
+                string sortedTags = SettingsManager.GetTagsStorage(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
 
                 mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
                 mbApiInterface.Library_CommitTagsToFile(fileUrl);

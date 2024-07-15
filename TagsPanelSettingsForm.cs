@@ -13,9 +13,9 @@ namespace MusicBeePlugin
         private const string AboutCaption = "About Tags-Panel Plugin";
 
         private Dictionary<string, TagsPanelSettingsPanel> _tagPanels = new Dictionary<string, TagsPanelSettingsPanel>();
-        public SettingsStorage SettingsStorage { get; set; }
+        public SettingsManager SettingsStorage { get; set; }
 
-        public TagsPanelSettingsForm(SettingsStorage settingsStorage)
+        public TagsPanelSettingsForm(SettingsManager settingsStorage)
         {
             InitializeComponent();
             InitializeDialogResults();
@@ -39,7 +39,7 @@ namespace MusicBeePlugin
 
         private void PopulatePanelsFromSettings()
         {
-            foreach (var storage in SettingsStorage.TagsStorages.Values)
+            foreach (var storage in SettingsManager.TagsStorages.Values)
             {
                 AddPanel(storage);
             }

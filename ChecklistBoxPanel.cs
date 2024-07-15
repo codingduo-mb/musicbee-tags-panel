@@ -18,7 +18,7 @@ namespace MusicBeePlugin
         {
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface);
-            _tagsStorage = SettingsStorage.GetTagsStorage(tagName);
+            _tagsStorage = SettingsManager.GetTagsStorage(tagName);
 
             InitializeComponent();
 
