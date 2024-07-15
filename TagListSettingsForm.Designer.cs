@@ -56,7 +56,7 @@ namespace MusicBeePlugin
             // VersionLbl
             // 
             this.VersionLbl.AutoSize = true;
-            this.VersionLbl.Location = new System.Drawing.Point(512, 889);
+            this.VersionLbl.Location = new System.Drawing.Point(469, 925);
             this.VersionLbl.Name = "VersionLbl";
             this.VersionLbl.Size = new System.Drawing.Size(0, 19);
             this.VersionLbl.TabIndex = 7;
@@ -65,7 +65,7 @@ namespace MusicBeePlugin
             // 
             this.BtnDiscardSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardSettings.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnDiscardSettings.Location = new System.Drawing.Point(429, 854);
+            this.BtnDiscardSettings.Location = new System.Drawing.Point(428, 852);
             this.BtnDiscardSettings.Name = "BtnDiscardSettings";
             this.BtnDiscardSettings.Size = new System.Drawing.Size(181, 50);
             this.BtnDiscardSettings.TabIndex = 4;
@@ -74,7 +74,7 @@ namespace MusicBeePlugin
             // 
             // BtnSaveSettings
             // 
-            this.BtnSaveSettings.Location = new System.Drawing.Point(12, 854);
+            this.BtnSaveSettings.Location = new System.Drawing.Point(12, 852);
             this.BtnSaveSettings.Name = "BtnSaveSettings";
             this.BtnSaveSettings.Size = new System.Drawing.Size(181, 50);
             this.BtnSaveSettings.TabIndex = 3;
