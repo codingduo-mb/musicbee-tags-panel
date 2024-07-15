@@ -18,14 +18,14 @@ namespace MusicBeePlugin
         private static Dictionary<string, TagsStorage> _storages;
         private const string SettingsFileName = "mb_tags-panel.Settings.json";
         private readonly MusicBeeApiInterface _mbApiInterface;
-        private readonly Logger _log;
+        private readonly Logger _logger;
 
         public static Dictionary<string, TagsStorage> TagsStorages { get; set; }
 
         public SettingsManager(MusicBeeApiInterface mbApiInterface, Logger log)
         {
-            this._mbApiInterface = mbApiInterface;
-            this._log = log;
+            _mbApiInterface = mbApiInterface;
+            _logger = log;
             TagsStorages = new Dictionary<string, TagsStorage>();
         }
 
@@ -33,10 +33,10 @@ namespace MusicBeePlugin
         {
             LoadSettings();
 
-            if (TagsStorages == null)
-                return;
-
-            TagsStorages = TagsStorages.ToDictionary(storage => storage.Value.GetTagName(), storage => storage.Value);
+            if (TagsStorages != null)
+            {
+                TagsStorages = TagsStorages.ToDictionary(storage => storage.Value.GetTagName(), storage => storage.Value);
+            }
         }
 
         private void LoadSettings()
@@ -47,10 +47,15 @@ namespace MusicBeePlugin
             {
                 // Create a default settings file
                 InitializeEmptySettingsFile(filename);
+                return;
             }
 
-            var json = File.ReadAllText(filename, Encoding.UTF8);
-            TagsStorages = JsonConvert.DeserializeObject<Dictionary<string, TagsStorage>>(json);
+            using (var streamReader = new StreamReader(filename, Encoding.UTF8))
+            using (var jsonReader = new JsonTextReader(streamReader))
+            {
+                var serializer = new JsonSerializer();
+                TagsStorages = serializer.Deserialize<Dictionary<string, TagsStorage>>(jsonReader);
+            }
         }
 
         private void InitializeEmptySettingsFile(string filename)
@@ -65,12 +70,13 @@ namespace MusicBeePlugin
                 writer.Write(json);
             }
 
-            _log.Info($"{nameof(InitializeEmptySettingsFile)} executed");
+            _logger.Info($"{nameof(InitializeEmptySettingsFile)} executed");
         }
 
         public string GetSettingsPath()
         {
-            return Path.Combine(_mbApiInterface.Setting_GetPersistentStoragePath(), SettingsFileName);
+            string persistentStoragePath = _mbApiInterface.Setting_GetPersistentStoragePath();
+            return Path.Combine(persistentStoragePath, SettingsFileName);
         }
 
         public void SaveAllSettings()
@@ -78,17 +84,20 @@ namespace MusicBeePlugin
             string settingsPath = GetSettingsPath();
 
             var json = JsonConvert.SerializeObject(TagsStorages);
-            File.WriteAllText(settingsPath, json, Encoding.UTF8);
+            using (var writer = new StreamWriter(settingsPath, false, Encoding.UTF8))
+            {
+                writer.Write(json);
+            }
 
             _mbApiInterface.MB_SetBackgroundTaskMessage("Settings saved");
         }
 
-        public TagsStorage GetFirstTagsStorage()
+        public TagsStorage RetrieveFirstTagsStorage()
         {
             return TagsStorages.FirstOrDefault().Value;
         }
 
-        public static TagsStorage GetTagsStorage(string tagName)
+        public static TagsStorage RetrieveTagsStorageByTagName(string tagName)
         {
             if (!TagsStorages.TryGetValue(tagName, out TagsStorage tagStorage))
             {

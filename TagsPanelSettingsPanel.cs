@@ -22,7 +22,7 @@ namespace MusicBeePlugin
             InitializeComponent();
             InitializeToolTip();
             SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
-            tagsStorage = SettingsManager.GetTagsStorage(tagName);
+            tagsStorage = SettingsManager.RetrieveTagsStorageByTagName(tagName);
             UpdateTags();
             UpdateSortOption();
             AttachEventHandlers(); // this must be at the very end to suppress the events

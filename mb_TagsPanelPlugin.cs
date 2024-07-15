@@ -283,7 +283,7 @@ namespace MusicBeePlugin
 
         private ChecklistBoxPanel CreateCheckListBoxPanelForTag(string tagName)
         {
-            var tagsStorage = SettingsManager.GetTagsStorage(tagName);
+            var tagsStorage = SettingsManager.RetrieveTagsStorageByTagName(tagName);
             if (tagsStorage == null)
             {
                 _logger.Error("tagsStorage is null"); // Log the error
@@ -333,7 +333,7 @@ namespace MusicBeePlugin
         private TagsStorage GetCurrentTagsStorage()
         {
             MetaDataType metaDataType = GetActiveTabMetaDataType();
-            TagsStorage tagsStorage = metaDataType != 0 ? SettingsManager.GetTagsStorage(metaDataType.ToString()) : null;
+            TagsStorage tagsStorage = metaDataType != 0 ? SettingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
             _logger.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
             return tagsStorage;
         }
