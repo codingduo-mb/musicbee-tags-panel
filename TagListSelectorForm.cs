@@ -27,9 +27,9 @@ namespace MusicBeePlugin
         public TagListSelectorForm(IEnumerable<string> usedTags)
         {
             InitializeComponent();
-            Btn_ComboBoxAddTag.DialogResult = DialogResult.OK;
-            Btn_ComboBoxCancel.DialogResult = DialogResult.Cancel;
-            comboBoxTagSelect.DataSource = GetAvailableMetaDataTypes(usedTags);
+            BtnComboBoxAddMetaDataType.DialogResult = DialogResult.OK;
+            BtnComboBoxMetaDataTypCancel.DialogResult = DialogResult.Cancel;
+            ComboBoxTagSelect.DataSource = GetAvailableMetaDataTypes(usedTags);
         }
 
         private static IEnumerable<string> GetAvailableMetaDataTypes(IEnumerable<string> usedTags)
@@ -45,7 +45,7 @@ namespace MusicBeePlugin
 
         public string GetSelectedMetaDataType()
         {
-            return comboBoxTagSelect.SelectedItem?.ToString();
+            return ComboBoxTagSelect.SelectedItem?.ToString();
         }
     }
 }

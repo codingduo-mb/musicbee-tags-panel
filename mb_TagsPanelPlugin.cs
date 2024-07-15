@@ -22,7 +22,7 @@ namespace MusicBeePlugin
         private Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
         private Dictionary<string, CheckState> _tagsFromFiles = new Dictionary<string, CheckState>();
         private SettingsManager _settingsStorage;
-        private TagsManipulation _tagsManipulation;
+        private TagManager _tagsManipulation;
         private UIManager _uiManager;
         private bool _showTagsNotInList = false; // Add a new field to store the checkbox state
         private string _metaDataTypeName;
@@ -82,7 +82,7 @@ namespace MusicBeePlugin
             InitializeLogger();
 
             _settingsStorage = new SettingsManager(_mbApiInterface, _logger);
-            _tagsManipulation = new TagsManipulation(_mbApiInterface, _settingsStorage);
+            _tagsManipulation = new TagManager(_mbApiInterface, _settingsStorage);
             _uiManager = new UIManager(_mbApiInterface);
 
             LoadPluginSettings();

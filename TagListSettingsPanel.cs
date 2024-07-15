@@ -324,7 +324,7 @@ namespace MusicBeePlugin
         {
             if (LstTags.Items.Count != 0)
             {
-                ShowDialogToClearList();
+                PromptClearTagsConfirmation();
             }
         }
 
@@ -399,7 +399,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private void ShowDialogToClearList()
+        private void PromptClearTagsConfirmation()
         {
             DialogResult dialogResult = MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)

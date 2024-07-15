@@ -96,7 +96,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
-    <Compile Include="TagsManipulation.cs" />
+    <Compile Include="TagManager.cs" />
     <Compile Include="TagListBoxExtensions.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MusicBeeInterface.cs" />

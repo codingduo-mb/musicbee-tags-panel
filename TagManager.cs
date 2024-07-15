@@ -6,13 +6,13 @@ using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public class TagsManipulation
+    public class TagManager
     {
         public const char SEPARATOR = ';';
         private readonly MusicBeeApiInterface mbApiInterface;
         private readonly SettingsManager settingsStorage;
 
-        public TagsManipulation(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage)
+        public TagManager(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage)
         {
             this.mbApiInterface = mbApiInterface;
             this.settingsStorage = settingsStorage;
