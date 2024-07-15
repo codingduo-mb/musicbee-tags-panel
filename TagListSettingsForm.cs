@@ -62,7 +62,7 @@ namespace MusicBeePlugin
             tagsPanelSettingsPanel.SetUpPanelForFirstUse();
         }
 
-        private void Btn_AddTagPage_Click(object sender, EventArgs e)
+        private void OnAddTagPageButtonClick(object sender, EventArgs e)
         {
             var usedTags = _tagPanels.Keys.ToList();
             using (var form = new TagListSelectorForm(usedTags))
@@ -87,7 +87,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private void BtnRemoveTagPage_Click(object sender, EventArgs e)
+        private void OnRemoveTagPageButtonClick(object sender, EventArgs e)
         {
             var tabToRemove = TabControlSettings.SelectedTab;
             if (tabToRemove != null && ConfirmTagPageRemoval())

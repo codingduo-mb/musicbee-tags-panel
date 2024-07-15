@@ -89,7 +89,7 @@ namespace MusicBeePlugin
             this.BtnRemoveMetaDataTypeTabPage.TabIndex = 2;
             this.BtnRemoveMetaDataTypeTabPage.Text = "Remove Tag";
             this.BtnRemoveMetaDataTypeTabPage.UseVisualStyleBackColor = true;
-            this.BtnRemoveMetaDataTypeTabPage.Click += new System.EventHandler(this.BtnRemoveTagPage_Click);
+            this.BtnRemoveMetaDataTypeTabPage.Click += new System.EventHandler(this.OnRemoveTagPageButtonClick);
             // 
             // BtnAddMetaDataTypeTabPage
             // 
@@ -99,7 +99,7 @@ namespace MusicBeePlugin
             this.BtnAddMetaDataTypeTabPage.TabIndex = 1;
             this.BtnAddMetaDataTypeTabPage.Text = "Add Metadata Type";
             this.BtnAddMetaDataTypeTabPage.UseVisualStyleBackColor = true;
-            this.BtnAddMetaDataTypeTabPage.Click += new System.EventHandler(this.Btn_AddTagPage_Click);
+            this.BtnAddMetaDataTypeTabPage.Click += new System.EventHandler(this.OnAddTagPageButtonClick);
             // 
             // linkGitHub
             // 
