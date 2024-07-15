@@ -8,8 +8,8 @@ namespace MusicBeePlugin
 {
     public class UIManager
     {
-        private const SkinElement DefaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
-        private const ElementState DefaultElementState = ElementState.ElementStateDefault;
+        private const SkinElement _defaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
+        private const ElementState _defaultElementState = ElementState.ElementStateDefault;
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
         private Font _defaultFont;
@@ -78,8 +78,8 @@ namespace MusicBeePlugin
             }
 
             formControl.Font = _defaultFont;
-            formControl.BackColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentBackground);
-            formControl.ForeColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentForeground);
+            formControl.BackColor = GetElementColor(_defaultSkinElement, _defaultElementState, ElementComponent.ComponentBackground);
+            formControl.ForeColor = GetElementColor(_defaultSkinElement, _defaultElementState, ElementComponent.ComponentForeground);
         }
     }
 }

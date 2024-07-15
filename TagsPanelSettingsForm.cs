@@ -8,10 +8,6 @@ namespace MusicBeePlugin
 {
     public partial class TagsPanelSettingsForm : Form
     {
-        private const string GitHubLink = "https://github.com/mat-st/musicbee-tags-panel";
-        private const string AboutMessage = "Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub";
-        private const string AboutCaption = "About Tags-Panel Plugin";
-
         private Dictionary<string, TagsPanelSettingsPanel> _tagPanels = new Dictionary<string, TagsPanelSettingsPanel>();
         public SettingsManager SettingsStorage { get; set; }
 
@@ -27,13 +23,13 @@ namespace MusicBeePlugin
 
         private void InitializeDialogResults()
         {
-            Btn_Save.DialogResult = DialogResult.OK;
-            Btn_Cancel.DialogResult = DialogResult.Cancel;
+            BtnSaveSettings.DialogResult = DialogResult.OK;
+            BtnDiscardSettings.DialogResult = DialogResult.Cancel;
         }
 
         private void InitializeVersionLabel()
         {
-            VersionLbl.Text = $"Version: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+            VersionLbl.Text = $"Version: {typeof(TagsPanelSettingsForm).Assembly.GetName().Version}";
             VersionLbl.ForeColor = Color.Black;
         }
 
@@ -47,7 +43,7 @@ namespace MusicBeePlugin
 
         private void InitializeToolTip()
         {
-            toolTipAddTagPage.SetToolTip(btnAddTabPage, Messages.AddTagPageTooltip);
+            toolTipAddTagPage.SetToolTip(BtnAddMetaDataTypeTabPage, Messages.AddTagPageTooltip);
         }
 
         private void AddPanel(TagsStorage storage)
@@ -62,7 +58,7 @@ namespace MusicBeePlugin
             var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName, SettingsStorage);
             _tagPanels.Add(tagName, tagsPanelSettingsPanel);
             var tabPage = new TabPage(tagName) { Controls = { tagsPanelSettingsPanel } };
-            tabControlSettings.TabPages.Add(tabPage);
+            TabControlSettings.TabPages.Add(tabPage);
             tagsPanelSettingsPanel.SetUpPanelForFirstUse();
         }
 
@@ -93,7 +89,7 @@ namespace MusicBeePlugin
 
         private void BtnRemoveTagPage_Click(object sender, EventArgs e)
         {
-            var tabToRemove = tabControlSettings.SelectedTab;
+            var tabToRemove = TabControlSettings.SelectedTab;
             if (tabToRemove != null && ConfirmTagPageRemoval())
             {
                 RemoveSelectedTab(tabToRemove);
@@ -108,19 +104,19 @@ namespace MusicBeePlugin
         private void RemoveSelectedTab(TabPage tabToRemove)
         {
             var tagName = tabToRemove.Text;
-            tabControlSettings.TabPages.Remove(tabToRemove);
+            TabControlSettings.TabPages.Remove(tabToRemove);
             SettingsStorage.RemoveTagStorage(tagName);
             _tagPanels.Remove(tagName);
         }
 
         private void LinkAbout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ShowMessageBox(string.Format(AboutMessage, VersionLbl.Text), AboutCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ShowMessageBox(string.Format(Messages.AboutMessage, VersionLbl.Text), Messages.AboutCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void LinkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start(GitHubLink);
+            System.Diagnostics.Process.Start(Messages.GitHubLinkSettings);
         }
 
         private void ShowWarning(string message)

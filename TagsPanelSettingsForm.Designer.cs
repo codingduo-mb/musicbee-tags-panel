@@ -30,45 +30,45 @@ namespace MusicBeePlugin
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.tabControlSettings = new System.Windows.Forms.TabControl();
-            this.btnAddTabPage = new System.Windows.Forms.Button();
-            this.btnRemoveTabPage = new System.Windows.Forms.Button();
+            this.TabControlSettings = new System.Windows.Forms.TabControl();
+            this.BtnAddMetaDataTypeTabPage = new System.Windows.Forms.Button();
+            this.BtnRemoveMetaDataTypeTabPage = new System.Windows.Forms.Button();
             this.linkGitHub = new System.Windows.Forms.LinkLabel();
-            this.Btn_Save = new System.Windows.Forms.Button();
-            this.Btn_Cancel = new System.Windows.Forms.Button();
+            this.BtnSaveSettings = new System.Windows.Forms.Button();
+            this.BtnDiscardSettings = new System.Windows.Forms.Button();
             this.toolTipAddTagPage = new System.Windows.Forms.ToolTip(this.components);
             this.VersionLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // tabControlSettings
+            // TabControlSettings
             // 
-            this.tabControlSettings.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tabControlSettings.Location = new System.Drawing.Point(0, 0);
-            this.tabControlSettings.Name = "tabControlSettings";
-            this.tabControlSettings.Padding = new System.Drawing.Point(3, 3);
-            this.tabControlSettings.SelectedIndex = 0;
-            this.tabControlSettings.Size = new System.Drawing.Size(621, 760);
-            this.tabControlSettings.TabIndex = 0;
+            this.TabControlSettings.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TabControlSettings.Location = new System.Drawing.Point(0, 0);
+            this.TabControlSettings.Name = "TabControlSettings";
+            this.TabControlSettings.Padding = new System.Drawing.Point(3, 3);
+            this.TabControlSettings.SelectedIndex = 0;
+            this.TabControlSettings.Size = new System.Drawing.Size(621, 760);
+            this.TabControlSettings.TabIndex = 0;
             // 
-            // btnAddTabPage
+            // BtnAddMetaDataTypeTabPage
             // 
-            this.btnAddTabPage.Location = new System.Drawing.Point(72, 777);
-            this.btnAddTabPage.Name = "btnAddTabPage";
-            this.btnAddTabPage.Size = new System.Drawing.Size(111, 33);
-            this.btnAddTabPage.TabIndex = 1;
-            this.btnAddTabPage.Text = "Add Tag";
-            this.btnAddTabPage.UseVisualStyleBackColor = true;
-            this.btnAddTabPage.Click += new System.EventHandler(this.Btn_AddTagPage_Click);
+            this.BtnAddMetaDataTypeTabPage.Location = new System.Drawing.Point(102, 780);
+            this.BtnAddMetaDataTypeTabPage.Name = "BtnAddMetaDataTypeTabPage";
+            this.BtnAddMetaDataTypeTabPage.Size = new System.Drawing.Size(180, 33);
+            this.BtnAddMetaDataTypeTabPage.TabIndex = 1;
+            this.BtnAddMetaDataTypeTabPage.Text = "Add Metadata Type";
+            this.BtnAddMetaDataTypeTabPage.UseVisualStyleBackColor = true;
+            this.BtnAddMetaDataTypeTabPage.Click += new System.EventHandler(this.Btn_AddTagPage_Click);
             // 
-            // btnRemoveTabPage
+            // BtnRemoveMetaDataTypeTabPage
             // 
-            this.btnRemoveTabPage.Location = new System.Drawing.Point(243, 777);
-            this.btnRemoveTabPage.Name = "btnRemoveTabPage";
-            this.btnRemoveTabPage.Size = new System.Drawing.Size(111, 33);
-            this.btnRemoveTabPage.TabIndex = 2;
-            this.btnRemoveTabPage.Text = "Remove Tag";
-            this.btnRemoveTabPage.UseVisualStyleBackColor = true;
-            this.btnRemoveTabPage.Click += new System.EventHandler(this.BtnRemoveTagPage_Click);
+            this.BtnRemoveMetaDataTypeTabPage.Location = new System.Drawing.Point(312, 780);
+            this.BtnRemoveMetaDataTypeTabPage.Name = "BtnRemoveMetaDataTypeTabPage";
+            this.BtnRemoveMetaDataTypeTabPage.Size = new System.Drawing.Size(180, 33);
+            this.BtnRemoveMetaDataTypeTabPage.TabIndex = 2;
+            this.BtnRemoveMetaDataTypeTabPage.Text = "Remove Tag";
+            this.BtnRemoveMetaDataTypeTabPage.UseVisualStyleBackColor = true;
+            this.BtnRemoveMetaDataTypeTabPage.Click += new System.EventHandler(this.BtnRemoveTagPage_Click);
             // 
             // linkGitHub
             // 
@@ -81,24 +81,24 @@ namespace MusicBeePlugin
             this.linkGitHub.Text = "Visit me on GitHub";
             this.linkGitHub.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkGitHub_LinkClicked);
             // 
-            // Btn_Save
+            // BtnSaveSettings
             // 
-            this.Btn_Save.Location = new System.Drawing.Point(73, 824);
-            this.Btn_Save.Name = "Btn_Save";
-            this.Btn_Save.Size = new System.Drawing.Size(111, 33);
-            this.Btn_Save.TabIndex = 3;
-            this.Btn_Save.Text = "Save";
-            this.Btn_Save.UseVisualStyleBackColor = true;
+            this.BtnSaveSettings.Location = new System.Drawing.Point(103, 827);
+            this.BtnSaveSettings.Name = "BtnSaveSettings";
+            this.BtnSaveSettings.Size = new System.Drawing.Size(180, 33);
+            this.BtnSaveSettings.TabIndex = 3;
+            this.BtnSaveSettings.Text = "Save Settings";
+            this.BtnSaveSettings.UseVisualStyleBackColor = true;
             // 
-            // Btn_Cancel
+            // BtnDiscardSettings
             // 
-            this.Btn_Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.Btn_Cancel.Location = new System.Drawing.Point(243, 824);
-            this.Btn_Cancel.Name = "Btn_Cancel";
-            this.Btn_Cancel.Size = new System.Drawing.Size(111, 33);
-            this.Btn_Cancel.TabIndex = 4;
-            this.Btn_Cancel.Text = "Cancel";
-            this.Btn_Cancel.UseVisualStyleBackColor = true;
+            this.BtnDiscardSettings.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.BtnDiscardSettings.Location = new System.Drawing.Point(312, 827);
+            this.BtnDiscardSettings.Name = "BtnDiscardSettings";
+            this.BtnDiscardSettings.Size = new System.Drawing.Size(180, 33);
+            this.BtnDiscardSettings.TabIndex = 4;
+            this.BtnDiscardSettings.Text = "Discard";
+            this.BtnDiscardSettings.UseVisualStyleBackColor = true;
             // 
             // toolTipAddTagPage
             // 
@@ -117,15 +117,15 @@ namespace MusicBeePlugin
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.CancelButton = this.Btn_Cancel;
+            this.CancelButton = this.BtnDiscardSettings;
             this.ClientSize = new System.Drawing.Size(621, 917);
             this.Controls.Add(this.VersionLbl);
-            this.Controls.Add(this.Btn_Cancel);
-            this.Controls.Add(this.Btn_Save);
+            this.Controls.Add(this.BtnDiscardSettings);
+            this.Controls.Add(this.BtnSaveSettings);
             this.Controls.Add(this.linkGitHub);
-            this.Controls.Add(this.btnRemoveTabPage);
-            this.Controls.Add(this.btnAddTabPage);
-            this.Controls.Add(this.tabControlSettings);
+            this.Controls.Add(this.BtnRemoveMetaDataTypeTabPage);
+            this.Controls.Add(this.BtnAddMetaDataTypeTabPage);
+            this.Controls.Add(this.TabControlSettings);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
@@ -141,12 +141,12 @@ namespace MusicBeePlugin
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControlSettings;
-        private System.Windows.Forms.Button btnAddTabPage;
-        private System.Windows.Forms.Button btnRemoveTabPage;
+        private System.Windows.Forms.TabControl TabControlSettings;
+        private System.Windows.Forms.Button BtnAddMetaDataTypeTabPage;
+        private System.Windows.Forms.Button BtnRemoveMetaDataTypeTabPage;
         private System.Windows.Forms.LinkLabel linkGitHub;
-        private System.Windows.Forms.Button Btn_Save;
-        private System.Windows.Forms.Button Btn_Cancel;
+        private System.Windows.Forms.Button BtnSaveSettings;
+        private System.Windows.Forms.Button BtnDiscardSettings;
         private System.Windows.Forms.ToolTip toolTipAddTagPage;
         private System.Windows.Forms.Label VersionLbl;
     }

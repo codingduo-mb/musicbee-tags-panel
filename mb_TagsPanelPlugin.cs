@@ -29,8 +29,8 @@ namespace MusicBeePlugin
         private bool _sortAlphabetically;
         private PluginInfo _about = new PluginInfo();
         private string[] _selectedFileUrls = Array.Empty<string>();
-        private bool ignoreEventFromHandler = true;
-        private bool ignoreForBatchSelect = true;
+        private bool _ignoreEventFromHandler = true;
+        private bool _excludeFromBatchSelection = true;
 
 
         #region Initialise plugin
@@ -432,7 +432,7 @@ namespace MusicBeePlugin
 
         private void TagCheckStateChanged(object sender, ItemCheckEventArgs e)
         {
-            if (ignoreForBatchSelect || ignoreEventFromHandler)
+            if (_excludeFromBatchSelection || _ignoreEventFromHandler)
             {
                 return;
             }
@@ -444,10 +444,10 @@ namespace MusicBeePlugin
             {
                 string name = ((CheckedListBox)sender).Items[e.Index].ToString();
 
-                ignoreEventFromHandler = true;
+                _ignoreEventFromHandler = true;
                 ApplyTagsToSelectedFiles(_selectedFileUrls, newState, name);
                 _mbApiInterface.MB_RefreshPanels();
-                ignoreEventFromHandler = false;
+                _ignoreEventFromHandler = false;
             }
         }
 
@@ -500,8 +500,8 @@ namespace MusicBeePlugin
 
         private void UpdateTagsInPanelOnFileSelection()
         {
-            ignoreEventFromHandler = true;
-            ignoreForBatchSelect = true;
+            _ignoreEventFromHandler = true;
+            _excludeFromBatchSelection = true;
             if (_panel.InvokeRequired)
             {
                 _panel.Invoke((Action)InvokeRefreshTagTableData);
@@ -510,8 +510,8 @@ namespace MusicBeePlugin
             {
                 InvokeRefreshTagTableData();
             }
-            ignoreEventFromHandler = false;
-            ignoreForBatchSelect = false;
+            _ignoreEventFromHandler = false;
+            _excludeFromBatchSelection = false;
         }
 
         /// <summary>
@@ -620,14 +620,14 @@ namespace MusicBeePlugin
         /// <param name="type"></param>
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
-            if (_panel == null || type == NotificationType.ApplicationWindowChanged || GetActiveTabMetaDataType() == 0 || ignoreEventFromHandler) return;
+            if (_panel == null || type == NotificationType.ApplicationWindowChanged || GetActiveTabMetaDataType() == 0 || _ignoreEventFromHandler) return;
 
             bool isTagsChanging = type == NotificationType.TagsChanging;
             bool isTrackChanged = type == NotificationType.TrackChanged;
 
             if (isTagsChanging)
             {
-                ignoreForBatchSelect = true;
+                _excludeFromBatchSelection = true;
                 _mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
@@ -644,7 +644,7 @@ namespace MusicBeePlugin
                 }
             }
 
-            ignoreForBatchSelect = false;
+            _excludeFromBatchSelection = false;
         }
 
         /// <summary>

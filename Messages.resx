@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutCaption" xml:space="preserve">
+    <value>About Tags-Panel Plugin</value>
+  </data>
+  <data name="AboutMessage" xml:space="preserve">
+    <value>Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub</value>
+  </data>
   <data name="AddTagPageTooltip" xml:space="preserve">
     <value>Add &amp; select a new tag and a new tabpage</value>
   </data>
@@ -150,8 +156,14 @@
   <data name="EnterTagMessagePlaceholder" xml:space="preserve">
     <value>Please enter a tag</value>
   </data>
+  <data name="GitHubLinkSettings" xml:space="preserve">
+    <value>https://github.com/kn9ff/musicbee-tags-panel</value>
+  </data>
   <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
     <value>Please add a tag in the settings dialog.</value>
+  </data>
+  <data name="SettingsFileName" xml:space="preserve">
+    <value>mb_tags-panel.settings.json</value>
   </data>
   <data name="TagInputBoxEmptyMessage" xml:space="preserve">
     <value>Tag cannot be empty.</value>

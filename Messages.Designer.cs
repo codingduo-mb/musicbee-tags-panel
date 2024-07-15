@@ -61,6 +61,24 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About Tags-Panel Plugin.
+        /// </summary>
+        internal static string AboutCaption {
+            get {
+                return ResourceManager.GetString("AboutCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub.
+        /// </summary>
+        internal static string AboutMessage {
+            get {
+                return ResourceManager.GetString("AboutMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add &amp; select a new tag and a new tabpage.
         /// </summary>
         internal static string AddTagPageTooltip {
@@ -160,11 +178,29 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://github.com/kn9ff/musicbee-tags-panel.
+        /// </summary>
+        internal static string GitHubLinkSettings {
+            get {
+                return ResourceManager.GetString("GitHubLinkSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please add a tag in the settings dialog..
         /// </summary>
         internal static string PleaseAddTagsInSettingsMessage {
             get {
                 return ResourceManager.GetString("PleaseAddTagsInSettingsMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to mb_tags-panel.settings.json.
+        /// </summary>
+        internal static string SettingsFileName {
+            get {
+                return ResourceManager.GetString("SettingsFileName", resourceCulture);
             }
         }
         

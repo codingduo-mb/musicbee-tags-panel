@@ -9,7 +9,6 @@ namespace MusicBeePlugin
 {
     public class SettingsManager
     {
-        private const string SettingsFileName = "mb_tags-panel.Settings.json";
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly Logger _logger;
 
@@ -70,7 +69,7 @@ namespace MusicBeePlugin
         public string GetSettingsPath()
         {
             string persistentStoragePath = _mbApiInterface.Setting_GetPersistentStoragePath();
-            return Path.Combine(persistentStoragePath, SettingsFileName);
+            return Path.Combine(persistentStoragePath, Messages.SettingsFileName);
         }
 
         public void SaveAllSettings()

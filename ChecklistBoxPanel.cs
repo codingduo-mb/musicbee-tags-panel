@@ -33,8 +33,8 @@ namespace MusicBeePlugin
         }
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
-            checkedListBoxWithTags.BeginUpdate();
-            checkedListBoxWithTags.Items.Clear();
+            CheckedListBoxWithTags.BeginUpdate();
+            CheckedListBoxWithTags.Items.Clear();
 
             // Retrieve tags from settings and sort them if necessary.
             var tagsFromSettings = _tagsStorage.GetTags().Keys;
@@ -45,7 +45,7 @@ namespace MusicBeePlugin
             {
                 if (data.ContainsKey(tag))
                 {
-                    checkedListBoxWithTags.Items.Add(tag, data[tag]);
+                    CheckedListBoxWithTags.Items.Add(tag, data[tag]);
                 }
             }
 
@@ -55,44 +55,44 @@ namespace MusicBeePlugin
             // Add the additional tags to the checklist box.
             foreach (var tag in additionalTags)
             {
-                checkedListBoxWithTags.Items.Add(tag, data[tag]);
+                CheckedListBoxWithTags.Items.Add(tag, data[tag]);
             }
 
-            checkedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;
-            checkedListBoxWithTags.EndUpdate();
+            CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;
+            CheckedListBoxWithTags.EndUpdate();
         }
 
         private int CalculateMaxStringPixelWidth(IEnumerable<string> strings)
         {
             var longestString = strings.Any() ? strings.Max(str => str.Length) : 0;
-            return TextRenderer.MeasureText(new string('M', longestString), checkedListBoxWithTags.Font).Width;
+            return TextRenderer.MeasureText(new string('M', longestString), CheckedListBoxWithTags.Font).Width;
         }
 
         private void StylePanel()
         {
-            _controlStyle.StyleControl(checkedListBoxWithTags);
+            _controlStyle.StyleControl(CheckedListBoxWithTags);
             _controlStyle.StyleControl(this);
         }
 
         public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            checkedListBoxWithTags.ItemCheck -= eventHandler;
-            checkedListBoxWithTags.ItemCheck += eventHandler;
+            CheckedListBoxWithTags.ItemCheck -= eventHandler;
+            CheckedListBoxWithTags.ItemCheck += eventHandler;
         }
 
         public void UnregisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            checkedListBoxWithTags.ItemCheck -= eventHandler;
+            CheckedListBoxWithTags.ItemCheck -= eventHandler;
         }
 
         private void CheckedListBox1_KeyUp(object sender, KeyEventArgs e)
         {
-            checkedListBoxWithTags.CheckOnClick = true;
+            CheckedListBoxWithTags.CheckOnClick = true;
         }
 
         private void CheckedListBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            checkedListBoxWithTags.CheckOnClick = false;
+            CheckedListBoxWithTags.CheckOnClick = false;
         }
     }
 }

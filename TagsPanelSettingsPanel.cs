@@ -45,13 +45,13 @@ namespace MusicBeePlugin
                 ReshowDelay = 500,
                 ShowAlways = true
             };
-            toolTip.SetToolTip(cbEnableAlphabeticalTagSort, Messages.TagSortTooltip);
+            toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
         }
 
         private void SetUpDownButtonsState(bool enabled)
         {
-            btnTagUp.Enabled = enabled;
-            btnTagDown.Enabled = enabled;
+            BtnMoveTagUp.Enabled = enabled;
+            BtnMoveTagDown.Enabled = enabled;
         }
 
         private void ShowMessageBox(string message, string title, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.Information)
@@ -79,25 +79,25 @@ namespace MusicBeePlugin
 
         public void SetUpPanelForFirstUse()
         {
-            lstTags.SelectedIndex = lstTags.Items.Count > 0 ? 0 : -1;
+            LstTags.SelectedIndex = LstTags.Items.Count > 0 ? 0 : -1;
             SetUpDownButtonsState(!tagsStorage.Sorted);
         }
 
         private void UpdateSortOption()
         {
             bool isSorted = tagsStorage.Sorted;
-            cbEnableAlphabeticalTagSort.Checked = isSorted;
+            CbEnableAlphabeticalTagListSorting.Checked = isSorted;
             // Stellen Sie sicher, dass lstTags.Sorted basierend auf dem Zustand der Checkbox gesetzt wird
-            lstTags.Sorted = cbEnableAlphabeticalTagSort.Checked;
+            LstTags.Sorted = CbEnableAlphabeticalTagListSorting.Checked;
             SetUpDownButtonsState(!isSorted);
         }
 
         private void AttachEventHandlers()
         {
-            lstTags.KeyDown += KeyEventHandler;
+            LstTags.KeyDown += KeyEventHandler;
             TxtNewTagInput.KeyDown += KeyEventHandler;
 
-            cbEnableAlphabeticalTagSort.CheckedChanged += CbEnableTagSort_CheckedChanged;
+            CbEnableAlphabeticalTagListSorting.CheckedChanged += CbEnableTagSort_CheckedChanged;
         }
 
         private void KeyEventHandler(object sender, KeyEventArgs e)
@@ -110,7 +110,7 @@ namespace MusicBeePlugin
                     AddNewTagToList();
                     e.Handled = true;
                 }
-                else if (sender == lstTags)
+                else if (sender == LstTags)
                 {
                     e.SuppressKeyPress = true;
                     RemoveSelectedTagFromList();
@@ -132,12 +132,12 @@ namespace MusicBeePlugin
             {
                 SetUpDownButtonsState(true);
                 tagsStorage.Sorted = false;
-                lstTags.Sorted = false;
+                LstTags.Sorted = false;
                 UpdateTags();
             }
         }
 
-        public bool IsSortEnabled() => cbEnableAlphabeticalTagSort.Checked;
+        public bool IsSortEnabled() => CbEnableAlphabeticalTagListSorting.Checked;
 
         public void UpdateTags()
         {
@@ -146,15 +146,15 @@ namespace MusicBeePlugin
             // Konvertieren beider Seiten des bedingten Ausdrucks in List<string>
             var sortedOrUnsortedTags = IsSortEnabled() ? tags.OrderBy(tag => tag).ToList() : tags.ToList();
 
-            lstTags.BeginUpdate(); // Suspend drawing of the ListBox
-            lstTags.Items.Clear(); // Clear the existing items
+            LstTags.BeginUpdate(); // Suspend drawing of the ListBox
+            LstTags.Items.Clear(); // Clear the existing items
 
             foreach (var tag in sortedOrUnsortedTags)
             {
-                lstTags.Items.Add(tag);
+                LstTags.Items.Add(tag);
             }
 
-            lstTags.EndUpdate(); // Resume drawing of the ListBox
+            LstTags.EndUpdate(); // Resume drawing of the ListBox
         }
 
         public void AddNewTagToList()
@@ -167,25 +167,25 @@ namespace MusicBeePlugin
             }
 
             tagsStorage.TagList.Add(newTag, tagsStorage.TagList.Count);
-            lstTags.Items.Add(newTag);
+            LstTags.Items.Add(newTag);
             TxtNewTagInput.Text = string.Empty;
         }
 
         public void RemoveSelectedTagFromList()
         {
-            if (lstTags.SelectedIndex == -1 || lstTags.Items.Count == 0)
+            if (LstTags.SelectedIndex == -1 || LstTags.Items.Count == 0)
             {
                 return;
             }
 
-            var selectedItems = lstTags.SelectedItems.Cast<string>().ToList();
+            var selectedItems = LstTags.SelectedItems.Cast<string>().ToList();
 
-            int newIndex = lstTags.SelectedIndex - selectedItems.Count;
+            int newIndex = LstTags.SelectedIndex - selectedItems.Count;
 
             foreach (var selectedItem in selectedItems)
             {
-                int itemIndex = lstTags.Items.IndexOf(selectedItem);
-                lstTags.Items.Remove(selectedItem);
+                int itemIndex = LstTags.Items.IndexOf(selectedItem);
+                LstTags.Items.Remove(selectedItem);
                 tagsStorage.TagList.Remove(selectedItem);
 
                 if (itemIndex < newIndex)
@@ -194,16 +194,16 @@ namespace MusicBeePlugin
                 }
             }
 
-            if (lstTags.Items.Count > 0)
+            if (LstTags.Items.Count > 0)
             {
                 newIndex = Math.Max(0, newIndex);
-                lstTags.SelectedIndex = newIndex;
+                LstTags.SelectedIndex = newIndex;
             }
         }
 
         public void ClearTagsListInSettings()
         {
-            lstTags.Items.Clear();
+            LstTags.Items.Clear();
             tagsStorage.Clear();
         }
 
@@ -255,7 +255,7 @@ namespace MusicBeePlugin
                                 if (!tagsStorage.TagList.ContainsKey(tag))
                                 {
                                     tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
-                                    lstTags.Items.Add(tag);
+                                    LstTags.Items.Add(tag);
                                 }
                             }
                             ShowMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccesfullMessage}", Messages.CsvDialogTitle);
@@ -289,7 +289,7 @@ namespace MusicBeePlugin
 
                     using (var csvWriter = new StreamWriter(exportCSVFilename))
                     {
-                        foreach (var tag in lstTags.Items.Cast<string>())
+                        foreach (var tag in LstTags.Items.Cast<string>())
                         {
                             csvWriter.WriteLine(tag);
                         }
@@ -322,7 +322,7 @@ namespace MusicBeePlugin
 
         private void BtnClearTagSettings_Click(object sender, EventArgs e)
         {
-            if (lstTags.Items.Count != 0)
+            if (LstTags.Items.Count != 0)
             {
                 ShowDialogToClearList();
             }
@@ -351,25 +351,25 @@ namespace MusicBeePlugin
         public void MoveItem(int direction)
         {
             // Checking selected item
-            if (lstTags.SelectedItem == null || lstTags.SelectedIndex < 0)
+            if (LstTags.SelectedItem == null || LstTags.SelectedIndex < 0)
                 return; // No selected item - nothing to do
 
             // Calculate new index using move direction
-            int newIndex = lstTags.SelectedIndex + direction;
+            int newIndex = LstTags.SelectedIndex + direction;
 
             // Checking bounds of the range
-            if (newIndex < 0 || newIndex >= lstTags.Items.Count)
+            if (newIndex < 0 || newIndex >= LstTags.Items.Count)
                 return; // Index out of range - nothing to do
 
             // Removing removable element
-            object selected = lstTags.SelectedItem;
-            lstTags.Items.RemoveAt(lstTags.SelectedIndex);
+            object selected = LstTags.SelectedItem;
+            LstTags.Items.RemoveAt(LstTags.SelectedIndex);
 
             // Insert it in new position
-            lstTags.Items.Insert(newIndex, selected);
+            LstTags.Items.Insert(newIndex, selected);
 
             // Restore selection
-            lstTags.SetSelected(newIndex, true);
+            LstTags.SetSelected(newIndex, true);
 
             // Put the selected item to a new position
             tagsStorage.SwapElement(selected.ToString(), newIndex);
@@ -381,10 +381,10 @@ namespace MusicBeePlugin
             tagsStorage.Sort();
             var tags = tagsStorage.GetTags().Keys.ToList();
             tags.Sort();
-            lstTags.BeginUpdate(); // Suspend drawing of the ListBox
-            lstTags.Items.Clear();
-            lstTags.Items.AddRange(tags.ToArray());
-            lstTags.EndUpdate(); // Resume drawing of the ListBox
+            LstTags.BeginUpdate(); // Suspend drawing of the ListBox
+            LstTags.Items.Clear();
+            LstTags.Items.AddRange(tags.ToArray());
+            LstTags.EndUpdate(); // Resume drawing of the ListBox
         }
 
         private void ShowConfirmationDialogToSort()
@@ -394,8 +394,8 @@ namespace MusicBeePlugin
             {
                 SortAlphabetically(); // Sortiert die Tags alphabetisch
                 tagsStorage.Sorted = true; // Aktualisiert den Sortierungszustand im _tagsStorage
-                lstTags.Sorted = true; // Stellt sicher, dass die ListBox weiß, dass sie sortiert ist
-                cbEnableAlphabeticalTagSort.Checked = true; // Stellt sicher, dass die Checkbox markiert bleibt
+                LstTags.Sorted = true; // Stellt sicher, dass die ListBox weiß, dass sie sortiert ist
+                CbEnableAlphabeticalTagListSorting.Checked = true; // Stellt sicher, dass die Checkbox markiert bleibt
             }
         }
 

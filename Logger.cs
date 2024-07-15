@@ -7,7 +7,7 @@ namespace MusicBeePlugin
 {
     public class Logger : IDisposable
     {
-        private const string LogFileName = "mb_tags-panel.log";
+        private const string _logFileName = "mb_tags-panel.log";
         private readonly MusicBeeApiInterface _musicBeeApiInterface;
         private readonly FileInfo _fileInfo;
         private StreamWriter _writer;
@@ -35,7 +35,7 @@ namespace MusicBeePlugin
 
         public void Error(string message, params object[] args) => WriteLog("error", message, args);
 
-        public string GetLogFilePath() => Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), LogFileName);
+        public string GetLogFilePath() => Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), _logFileName);
 
         public void Dispose()
         {
