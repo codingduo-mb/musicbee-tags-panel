@@ -6,7 +6,7 @@ using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public partial class ChecklistBoxPanel : UserControl
+    public partial class TagListPanel : UserControl
     {
         private const int PaddingWidth = 5;
 
@@ -15,7 +15,7 @@ namespace MusicBeePlugin
         private readonly TagsStorage _tagsStorage;
 
         // Add SettingsManager parameter to the constructor
-        public ChecklistBoxPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
+        public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
         {
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface);

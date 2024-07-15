@@ -6,12 +6,12 @@ using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
-    public partial class TagsPanelSettingsForm : Form
+    public partial class TagListSettingsForm : Form
     {
-        private Dictionary<string, TagsPanelSettingsPanel> _tagPanels = new Dictionary<string, TagsPanelSettingsPanel>();
+        private Dictionary<string, TagListSettingsPanel> _tagPanels = new Dictionary<string, TagListSettingsPanel>();
         public SettingsManager SettingsStorage { get; set; }
 
-        public TagsPanelSettingsForm(SettingsManager settingsStorage)
+        public TagListSettingsForm(SettingsManager settingsStorage)
         {
             InitializeComponent();
             InitializeDialogResults();
@@ -29,7 +29,7 @@ namespace MusicBeePlugin
 
         private void InitializeVersionLabel()
         {
-            VersionLbl.Text = $"Version: {typeof(TagsPanelSettingsForm).Assembly.GetName().Version}";
+            VersionLbl.Text = $"Version: {typeof(TagListSettingsForm).Assembly.GetName().Version}";
             VersionLbl.ForeColor = Color.Black;
         }
 
@@ -55,7 +55,7 @@ namespace MusicBeePlugin
                 return;
             }
 
-            var tagsPanelSettingsPanel = new TagsPanelSettingsPanel(tagName, SettingsStorage);
+            var tagsPanelSettingsPanel = new TagListSettingsPanel(tagName, SettingsStorage);
             _tagPanels.Add(tagName, tagsPanelSettingsPanel);
             var tabPage = new TabPage(tagName) { Controls = { tagsPanelSettingsPanel } };
             TabControlSettings.TabPages.Add(tabPage);
@@ -65,7 +65,7 @@ namespace MusicBeePlugin
         private void Btn_AddTagPage_Click(object sender, EventArgs e)
         {
             var usedTags = _tagPanels.Keys.ToList();
-            using (var form = new TabPageSelectorForm(usedTags))
+            using (var form = new TagListSelectorForm(usedTags))
             {
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {

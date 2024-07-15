@@ -8,9 +8,9 @@ using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
-    public partial class TagsPanelSettingsPanel : UserControl
+    public partial class TagListSettingsPanel : UserControl
     {
-        private TagsStorage _tagsStorage;
+        // private TagsStorage _tagsStorage;
 
         private const int EM_SETCUEBANNER = 0x1501;
 
@@ -20,7 +20,7 @@ namespace MusicBeePlugin
         private SettingsManager _settingsManager;
         private TagsStorage tagsStorage;
 
-        public TagsPanelSettingsPanel(string tagName, SettingsManager settingsManager)
+        public TagListSettingsPanel(string tagName, SettingsManager settingsManager)
         {
             InitializeComponent();
             InitializeToolTip();

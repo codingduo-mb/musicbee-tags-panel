@@ -18,7 +18,7 @@ namespace MusicBeePlugin
         private Control _panel;
         private TabControl _tabControl;
         private List<MetaDataType> _availableMetaTags = new List<MetaDataType>();
-        private Dictionary<string, ChecklistBoxPanel> _checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
+        private Dictionary<string, TagListPanel> _checklistBoxList = new Dictionary<string, TagListPanel>();
         private Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
         private Dictionary<string, CheckState> _tagsFromFiles = new Dictionary<string, CheckState>();
         private SettingsManager _settingsStorage;
@@ -74,7 +74,7 @@ namespace MusicBeePlugin
 
         private void InitializePluginComponents()
         {
-            _checklistBoxList = new Dictionary<string, ChecklistBoxPanel>();
+            _checklistBoxList = new Dictionary<string, TagListPanel>();
             _tagsFromFiles = new Dictionary<string, CheckState>();
             _tabPageList = new Dictionary<string, TabPage>();
             _showTagsNotInList = false;
@@ -131,7 +131,7 @@ namespace MusicBeePlugin
         private void ShowSettingsDialog()
         {
             var settingsCopy = _settingsStorage.DeepCopy();
-            using (var tagsPanelSettingsForm = new TagsPanelSettingsForm(settingsCopy))
+            using (var tagsPanelSettingsForm = new TagListSettingsForm(settingsCopy))
             {
                 if (tagsPanelSettingsForm.ShowDialog() == DialogResult.OK)
                 {
@@ -142,7 +142,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private void HandleSettingsDialogResult(TagsPanelSettingsForm tagsPanelSettingsForm)
+        private void HandleSettingsDialogResult(TagListSettingsForm tagsPanelSettingsForm)
         {
             UpdateSettingsAndPanel(tagsPanelSettingsForm.SettingsStorage);
         }
@@ -199,7 +199,7 @@ namespace MusicBeePlugin
             }
 
             var tabPage = GetOrCreateTagPage(tagName);
-            ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
+            TagListPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
             // Populate the checklistbox based on the checkbox state
             if (_showTagsNotInList)
             {
@@ -282,7 +282,7 @@ namespace MusicBeePlugin
             _tabControl.TabPages.Add(tabPage);
         }
 
-        private ChecklistBoxPanel CreateCheckListBoxPanelForTag(string tagName)
+        private TagListPanel CreateCheckListBoxPanelForTag(string tagName)
         {
             // Use the instance _settingsStorage to access RetrieveTagsStorageByTagName
             var tagsStorage = _settingsStorage.RetrieveTagsStorageByTagName(tagName);
@@ -292,7 +292,7 @@ namespace MusicBeePlugin
                 return null;
             }
 
-            ChecklistBoxPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
+            TagListPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
             checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
 
             checkListBox.Dock = DockStyle.Fill;
@@ -301,11 +301,11 @@ namespace MusicBeePlugin
             return checkListBox;
         }
 
-        private ChecklistBoxPanel GetOrCreateCheckListBoxPanel(string tagName)
+        private TagListPanel GetOrCreateCheckListBoxPanel(string tagName)
         {
             if (!_checklistBoxList.TryGetValue(tagName, out var checkListBox) || checkListBox.IsDisposed)
             {
-                checkListBox = new ChecklistBoxPanel(_mbApiInterface, _settingsStorage, tagName, _tagsFromFiles);
+                checkListBox = new TagListPanel(_mbApiInterface, _settingsStorage, tagName, _tagsFromFiles);
                 _checklistBoxList[tagName] = checkListBox;
             }
 
@@ -475,7 +475,7 @@ namespace MusicBeePlugin
         private void SelectedTabPageChanged(Object sender, EventArgs e)
         {
             TabPage selectedTab = _tabControl.SelectedTab;
-            ChecklistBoxPanel checkListBoxPanel = selectedTab?.Controls.OfType<ChecklistBoxPanel>().FirstOrDefault();
+            TagListPanel checkListBoxPanel = selectedTab?.Controls.OfType<TagListPanel>().FirstOrDefault();
 
             if (checkListBoxPanel != null)
             {

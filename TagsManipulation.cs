@@ -17,7 +17,6 @@ namespace MusicBeePlugin
             this.mbApiInterface = mbApiInterface;
             this.settingsStorage = settingsStorage;
         }
-
         public Dictionary<string, CheckState> CombineTagLists(string[] fileNames, TagsStorage tagsStorage)
         {
             var stateOfSelection = new Dictionary<string, int>();

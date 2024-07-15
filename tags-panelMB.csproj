@@ -85,11 +85,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChecklistBoxPanel.cs">
+    <Compile Include="TagListPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ChecklistBoxPanel.Designer.cs">
-      <DependentUpon>ChecklistBoxPanel.cs</DependentUpon>
+    <Compile Include="TagListPanel.Designer.cs">
+      <DependentUpon>TagListPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Messages.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -97,7 +97,7 @@
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
     <Compile Include="TagsManipulation.cs" />
-    <Compile Include="ListBoxExtension.cs" />
+    <Compile Include="TagListBoxExtensions.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MusicBeeInterface.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -109,23 +109,23 @@
     <Compile Include="mb_TagsPanelPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UIManager.cs" />
-    <Compile Include="TabPageSelector.cs">
+    <Compile Include="TagListSelectorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TabPageSelector.Designer.cs">
-      <DependentUpon>TabPageSelector.cs</DependentUpon>
+    <Compile Include="TagListSelectorForm.Designer.cs">
+      <DependentUpon>TagListSelectorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TagsPanelSettingsForm.cs">
+    <Compile Include="TagListSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TagsPanelSettingsForm.Designer.cs">
-      <DependentUpon>TagsPanelSettingsForm.cs</DependentUpon>
+    <Compile Include="TagListSettingsForm.Designer.cs">
+      <DependentUpon>TagListSettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TagsPanelSettingsPanel.cs">
+    <Compile Include="TagListSettingsPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="TagsPanelSettingsPanel.Designer.cs">
-      <DependentUpon>TagsPanelSettingsPanel.cs</DependentUpon>
+    <Compile Include="TagListSettingsPanel.Designer.cs">
+      <DependentUpon>TagListSettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="TagsStorage.cs" />
   </ItemGroup>
@@ -157,8 +157,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ChecklistBoxPanel.resx">
-      <DependentUpon>ChecklistBoxPanel.cs</DependentUpon>
+    <EmbeddedResource Include="TagListPanel.resx">
+      <DependentUpon>TagListPanel.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -169,14 +169,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="TabPageSelector.resx">
-      <DependentUpon>TabPageSelector.cs</DependentUpon>
+    <EmbeddedResource Include="TagListSelectorForm.resx">
+      <DependentUpon>TagListSelectorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TagsPanelSettingsForm.resx">
-      <DependentUpon>TagsPanelSettingsForm.cs</DependentUpon>
+    <EmbeddedResource Include="TagListSettingsForm.resx">
+      <DependentUpon>TagListSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TagsPanelSettingsPanel.resx">
-      <DependentUpon>TagsPanelSettingsPanel.cs</DependentUpon>
+    <EmbeddedResource Include="TagListSettingsPanel.resx">
+      <DependentUpon>TagListSettingsPanel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

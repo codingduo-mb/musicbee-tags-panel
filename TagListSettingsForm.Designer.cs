@@ -1,7 +1,7 @@
 ﻿
 namespace MusicBeePlugin
 {
-    partial class TagsPanelSettingsForm
+    partial class TagListSettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -112,7 +112,7 @@ namespace MusicBeePlugin
             this.VersionLbl.Size = new System.Drawing.Size(0, 19);
             this.VersionLbl.TabIndex = 7;
             // 
-            // TagsPanelSettingsForm
+            // TagListSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

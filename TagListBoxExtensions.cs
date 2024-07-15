@@ -2,7 +2,7 @@
 
 namespace MusicBeePlugin
 {
-    public static class ListBoxExtension
+    public static class TagListBoxExtensions
     {
         public static void MoveUp(this ListBox listBox) => MoveSelectedItem(listBox, -1);
 

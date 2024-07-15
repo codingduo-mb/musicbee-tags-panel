@@ -1,7 +1,7 @@
 ﻿
 namespace MusicBeePlugin
 {
-    partial class TagsPanelSettingsPanel
+    partial class TagListSettingsPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -152,7 +152,7 @@ namespace MusicBeePlugin
             this.CbShowTagsThatAreNotInTheTagsList.Text = "Show tags that are not in the list";
             this.CbShowTagsThatAreNotInTheTagsList.UseVisualStyleBackColor = true;
             // 
-            // TagsPanelSettingsPanel
+            // TagListSettingsPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

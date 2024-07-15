@@ -1,6 +1,6 @@
 ﻿namespace MusicBeePlugin
 {
-    partial class ChecklistBoxPanel
+    partial class TagListPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -48,7 +48,7 @@
             this.CheckedListBoxWithTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CheckedListBox1_KeyDown);
             this.CheckedListBoxWithTags.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CheckedListBox1_KeyUp);
             // 
-            // ChecklistBoxPanel
+            // TagListPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

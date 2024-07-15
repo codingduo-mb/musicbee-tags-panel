@@ -1,7 +1,7 @@
 ﻿
 namespace MusicBeePlugin
 {
-    partial class TabPageSelectorForm
+    partial class TagListSelectorForm
     {
         /// <summary>
         /// Required designer variable.
@@ -65,7 +65,7 @@ namespace MusicBeePlugin
             this.Btn_ComboBoxCancel.Text = "Cancel";
             this.Btn_ComboBoxCancel.UseVisualStyleBackColor = true;
             // 
-            // TabPageSelectorForm
+            // TagListSelectorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

@@ -6,7 +6,7 @@ using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public partial class TabPageSelectorForm : Form
+    public partial class TagListSelectorForm : Form
     {
         // Blacklisted metadata types that are not allowed to be selected.
         private static readonly HashSet<MetaDataType> _blacklistedMetaDataTypes = new HashSet<MetaDataType>
@@ -24,7 +24,7 @@ namespace MusicBeePlugin
             MetaDataType.RatingLove
         };
 
-        public TabPageSelectorForm(IEnumerable<string> usedTags)
+        public TagListSelectorForm(IEnumerable<string> usedTags)
         {
             InitializeComponent();
             Btn_ComboBoxAddTag.DialogResult = DialogResult.OK;
