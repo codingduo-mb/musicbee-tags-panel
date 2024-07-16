@@ -89,7 +89,14 @@ namespace MusicBeePlugin
 
             InitializeMenu();
 
+          
+
             _logger.Info($"{nameof(InitializePluginComponents)} started");
+        }
+
+        private void OnTabSelectionChanged(object sender, EventArgs e)
+        {
+            UpdateTagsForActiveTab();
         }
 
         public bool Configure(IntPtr panelHandle)
@@ -166,6 +173,8 @@ namespace MusicBeePlugin
             RefreshPanelContent();
             LogConfigurationSaved();
         }
+
+
 
         private void ApplySortOrderFromSettings()
         {
@@ -461,6 +470,7 @@ namespace MusicBeePlugin
                     _metaDataTypeName = newMetaDataTypeName;
                     _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
                     UpdateTagsForActiveTab();
+                    RefreshPanelTagsFromFiles(_selectedFileUrls);
                 }
             }
         }
