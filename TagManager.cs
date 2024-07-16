@@ -25,28 +25,19 @@ namespace MusicBeePlugin
 
             foreach (var fileName in fileNames)
             {
-                var tagsFromFile = ReadTagsFromFile(fileName, tagsStorage.GetMetaDataType());
-
-                foreach (var tag in tagsFromFile)
+                foreach (var tag in ReadTagsFromFile(fileName, tagsStorage.GetMetaDataType()))
                 {
-                    if (tagCounts.ContainsKey(tag))
-                    {
-                        tagCounts[tag]++;
-                    }
-                    else
-                    {
-                        tagCounts[tag] = 1;
-                    }
+                    tagCounts[tag] = tagCounts.TryGetValue(tag, out var count) ? count + 1 : 1;
                 }
             }
 
-            return tagCounts.ToDictionary(entry => entry.Key, entry => entry.Value == fileNames.Length ? CheckState.Checked : CheckState.Indeterminate);
+            int totalFiles = fileNames.Length;
+            return tagCounts.ToDictionary(entry => entry.Key, entry => entry.Value == totalFiles ? CheckState.Checked : CheckState.Indeterminate);
         }
 
         public string SortTagsAlphabetical(string tags)
         {
-            var tagsWithoutDuplicates = new SortedSet<string>(tags.Split(Separator));
-            return string.Join(Separator.ToString(), tagsWithoutDuplicates);
+            return string.Join(Separator.ToString(), tags.Split(Separator).Distinct().OrderBy(tag => tag));
         }
 
         public string RemoveTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
@@ -58,22 +49,18 @@ namespace MusicBeePlugin
 
         public string AddTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
-            tagList.Add(selectedTag.Trim());
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator)) { selectedTag.Trim() };
             return string.Join(Separator.ToString(), tagList);
         }
 
         public bool IsTagAvailable(string tagName, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
-            return tagList.Contains(tagName);
+            return GetTags(fileUrl, metaDataType).Split(Separator).Contains(tagName);
         }
 
         public string GetTags(string fileUrl, MetaDataType metaDataType)
         {
-            var tags = ReadTagsFromFile(fileUrl, metaDataType);
-            tags = tags.Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
-            return string.Join(Separator.ToString(), tags).TrimStart(Separator);
+            return string.Join(Separator.ToString(), ReadTagsFromFile(fileUrl, metaDataType));
         }
 
         public void SetTagsInFile(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
@@ -87,7 +74,7 @@ namespace MusicBeePlugin
                 _mbApiInterface.Library_CommitTagsToFile(fileUrl);
             }
 
-            _mbApiInterface.MB_SetBackgroundTaskMessage("Added tags to file");
+            _mbApiInterface.MB_SetBackgroundTaskMessage("Tags updated");
         }
 
         public string[] ReadTagsFromFile(string fileName, MetaDataType metaDataField)
@@ -97,8 +84,11 @@ namespace MusicBeePlugin
                 return Array.Empty<string>();
             }
 
-            var filetagMetaDataFields = _mbApiInterface.Library_GetFileTag(fileName, metaDataField);
-            return filetagMetaDataFields.Split(Separator).Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToArray();
+            return _mbApiInterface.Library_GetFileTag(fileName, metaDataField)
+                .Split(Separator)
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim())
+                .ToArray();
         }
 
         public Dictionary<string, CheckState> UpdateTagsFromFile(string sourceFileUrl, MetaDataType metaDataType)
