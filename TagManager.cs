@@ -8,94 +8,97 @@ namespace MusicBeePlugin
 {
     public class TagManager
     {
-        public const char SEPARATOR = ';';
-        private readonly MusicBeeApiInterface mbApiInterface;
-        private readonly SettingsManager settingsStorage;
+        private const char Separator = ';';
+
+        private readonly MusicBeeApiInterface _mbApiInterface;
+        private readonly SettingsManager _settingsStorage;
 
         public TagManager(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage)
         {
-            this.mbApiInterface = mbApiInterface;
-            this.settingsStorage = settingsStorage;
+            _mbApiInterface = mbApiInterface;
+            _settingsStorage = settingsStorage;
         }
+
         public Dictionary<string, CheckState> CombineTagLists(string[] fileNames, TagsStorage tagsStorage)
         {
-            var stateOfSelection = new Dictionary<string, int>();
-            int numberOfSelectedFiles = fileNames.Length;
+            var tagCounts = new Dictionary<string, int>();
 
-            foreach (var filename in fileNames)
+            foreach (var fileName in fileNames)
             {
-                string[] tagsFromFile = ReadTagsFromFile(filename, tagsStorage.GetMetaDataType());
+                var tagsFromFile = ReadTagsFromFile(fileName, tagsStorage.GetMetaDataType());
+
                 foreach (var tag in tagsFromFile)
                 {
-                    if (stateOfSelection.ContainsKey(tag))
+                    if (tagCounts.ContainsKey(tag))
                     {
-                        stateOfSelection[tag]++;
+                        tagCounts[tag]++;
                     }
                     else
                     {
-                        stateOfSelection[tag] = 1;
+                        tagCounts[tag] = 1;
                     }
                 }
             }
 
-            return stateOfSelection.ToDictionary(entry => entry.Key, entry => entry.Value == numberOfSelectedFiles ? CheckState.Checked : CheckState.Indeterminate);
+            return tagCounts.ToDictionary(entry => entry.Key, entry => entry.Value == fileNames.Length ? CheckState.Checked : CheckState.Indeterminate);
         }
 
         public string SortTagsAlphabetical(string tags)
         {
-            var tagsWithoutDuplicates = new SortedSet<string>(tags.Split(SEPARATOR));
-            return string.Join(SEPARATOR.ToString(), tagsWithoutDuplicates);
+            var tagsWithoutDuplicates = new SortedSet<string>(tags.Split(Separator));
+            return string.Join(Separator.ToString(), tagsWithoutDuplicates);
         }
 
         public string RemoveTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries));
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
             tagList.Remove(selectedTag.Trim());
-            return string.Join(SEPARATOR.ToString(), tagList);
+            return string.Join(Separator.ToString(), tagList);
         }
 
         public string AddTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(new[] { SEPARATOR }, StringSplitOptions.RemoveEmptyEntries));
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
             tagList.Add(selectedTag.Trim());
-            return string.Join(SEPARATOR.ToString(), tagList);
+            return string.Join(Separator.ToString(), tagList);
         }
 
         public bool IsTagAvailable(string tagName, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(SEPARATOR));
+            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
             return tagList.Contains(tagName);
         }
 
         public string GetTags(string fileUrl, MetaDataType metaDataType)
         {
-            string[] tags = ReadTagsFromFile(fileUrl, metaDataType);
+            var tags = ReadTagsFromFile(fileUrl, metaDataType);
             tags = tags.Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
-            return string.Join(SEPARATOR.ToString(), tags).TrimStart(SEPARATOR);
+            return string.Join(Separator.ToString(), tags).TrimStart(Separator);
         }
 
         public void SetTagsInFile(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
         {
-            foreach (string fileUrl in fileUrls)
+            foreach (var fileUrl in fileUrls)
             {
-                string tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
-                string sortedTags = settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile; // Now it works!
+                var tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
+                var sortedTags = _settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
 
-                mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
-                mbApiInterface.Library_CommitTagsToFile(fileUrl);
+                _mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
+                _mbApiInterface.Library_CommitTagsToFile(fileUrl);
             }
-            mbApiInterface.MB_SetBackgroundTaskMessage("Added tags to file");
+
+            _mbApiInterface.MB_SetBackgroundTaskMessage("Added tags to file");
         }
 
-        public string[] ReadTagsFromFile(string filename, MetaDataType metaDataField)
+        public string[] ReadTagsFromFile(string fileName, MetaDataType metaDataField)
         {
-            if (string.IsNullOrEmpty(filename) || metaDataField == 0)
+            if (string.IsNullOrEmpty(fileName) || metaDataField == 0)
             {
                 return Array.Empty<string>();
             }
 
-            string filetagMetaDataFields = mbApiInterface.Library_GetFileTag(filename, metaDataField);
-            return filetagMetaDataFields.Split(SEPARATOR).Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToArray();
+            var filetagMetaDataFields = _mbApiInterface.Library_GetFileTag(fileName, metaDataField);
+            return filetagMetaDataFields.Split(Separator).Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToArray();
         }
 
         public Dictionary<string, CheckState> UpdateTagsFromFile(string sourceFileUrl, MetaDataType metaDataType)
