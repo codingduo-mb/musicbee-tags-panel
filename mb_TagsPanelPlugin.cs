@@ -24,7 +24,7 @@ namespace MusicBeePlugin
         private SettingsManager _settingsStorage;
         private TagManager _tagsManipulation;
         private UIManager _uiManager;
-        private bool _showTagsNotInList = false; // Add a new field to store the checkbox state
+        private bool _showTagsNotInList = false;
         private string _metaDataTypeName;
         private bool _sortAlphabetically;
         private PluginInfo _about = new PluginInfo();
@@ -35,10 +35,8 @@ namespace MusicBeePlugin
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
             InitializeApi(apiInterfacePtr);
-
             _about = CreatePluginInfo();
             InitializePluginComponents();
-
             return _about;
         }
 
@@ -54,10 +52,10 @@ namespace MusicBeePlugin
             return new PluginInfo
             {
                 PluginInfoVersion = PluginInfoVersion,
-                Name = "Tags-Panel",
-                Description = "Creates a dockable Panel with user-defined tabbed pages which let the user choose tags from user-defined lists",
-                Author = "kn9ff & The Anonymous Programmer",
-                TargetApplication = "Tags-Panel",
+                Name = Messages.PluginNamePluginInfo,
+                Description = Messages.PluginDescriptionPluginInfo,
+                Author = Messages.PluginAuthorPluginInfo,
+                TargetApplication = Messages.PluginTargetApplicationPluginInfo,
                 Type = PluginType.General,
                 VersionMajor = (short)version.Major,
                 VersionMinor = (short)version.Minor,
@@ -74,8 +72,8 @@ namespace MusicBeePlugin
             _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
             _uiManager.SetDependencies(_checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
 
-            _tagsFromFiles = new Dictionary<string, CheckState>();
-            _tabPageList = new Dictionary<string, TabPage>();
+            _tagsFromFiles.Clear();
+            _tabPageList.Clear();
             _showTagsNotInList = false;
 
             InitializeLogger();
@@ -221,10 +219,9 @@ namespace MusicBeePlugin
         private void PopulateTabPages()
         {
             _tabPageList.Clear();
-            if (_tabControl != null && _tabControl.TabPages != null)
+            if (_tabControl?.TabPages != null)
             {
                 _tabControl.TabPages.Clear();
-                // Use the instance _settingsStorage to access TagsStorages
                 foreach (var tagsStorage in _settingsStorage.TagsStorages.Values)
                 {
                     AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
@@ -266,7 +263,7 @@ namespace MusicBeePlugin
 
         private void ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
         {
-            MetaDataType metaDataType = GetActiveTabMetaDataType();
+            var metaDataType = GetActiveTabMetaDataType();
             if (metaDataType != 0)
             {
                 _tagsManipulation.SetTagsInFile(fileUrls, selected, selectedTag, metaDataType);
@@ -275,8 +272,9 @@ namespace MusicBeePlugin
 
         public MetaDataType GetActiveTabMetaDataType()
         {
-            return !string.IsNullOrEmpty(_metaDataTypeName) ? (MetaDataType)Enum.Parse(typeof(MetaDataType), _metaDataTypeName, true) : 0;
+            return Enum.TryParse(_metaDataTypeName, true, out MetaDataType result) ? result : 0;
         }
+
 
         private TagsStorage GetCurrentTagsStorage()
         {
@@ -289,13 +287,10 @@ namespace MusicBeePlugin
         private void ClearAllTagPages()
         {
             _tabPageList.Clear();
-            if (_tabControl != null && _tabControl.TabPages != null)
-            {
-                _tabControl.TabPages.Clear();
-            }
+            _tabControl?.TabPages.Clear();
         }
 
-        private void AddTagsToChecklistBoxPanel(string tagName, Dictionary<String, CheckState> tags)
+        private void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
         {
             if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
             {
@@ -315,56 +310,40 @@ namespace MusicBeePlugin
             currentTagsStorage.SortByIndex();
             var allTagsFromSettings = currentTagsStorage.GetTags();
 
-            // Update the checklistbox based on the checkbox state
-            if (_showTagsNotInList)
-            {
-                AddTagsToChecklistBoxPanel(currentTagsStorage.GetTagName(), GetCombinedTags(currentTagsStorage));
-            }
-            else
-            {
-                AddTagsToChecklistBoxPanel(currentTagsStorage.GetTagName(), allTagsFromSettings);
-            }
+            string tagName = currentTagsStorage.GetTagName();
+            var trimmedTagKeys = new HashSet<string>(allTagsFromSettings.Select(tag => tag.Key.Trim()));
 
             Dictionary<string, CheckState> data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
             foreach (var tagFromSettings in allTagsFromSettings)
             {
-                if (_tagsFromFiles.TryGetValue(tagFromSettings.Key.Trim(), out CheckState checkState))
-                {
-                    data[tagFromSettings.Key] = checkState;
-                }
-                else
-                {
-                    data[tagFromSettings.Key] = CheckState.Unchecked;
-                }
+                string trimmedKey = tagFromSettings.Key.Trim();
+                CheckState checkState = _tagsFromFiles.TryGetValue(trimmedKey, out CheckState state) ? state : CheckState.Unchecked;
+                data[trimmedKey] = checkState;
             }
 
             foreach (var tagFromFile in _tagsFromFiles)
             {
-                if (!data.ContainsKey(tagFromFile.Key))
+                if (!trimmedTagKeys.Contains(tagFromFile.Key))
                 {
                     data[tagFromFile.Key] = tagFromFile.Value;
                 }
             }
 
-            string tagName = currentTagsStorage.GetTagName();
             AddTagsToChecklistBoxPanel(tagName, data);
         }
 
         private void InvokeRefreshTagTableData()
         {
-            if (_panel == null || _panel.IsDisposed)
-            {
-                _logger.Error($"{nameof(_panel)} is null or disposed");
-                return;
-            }
+            if (_panel?.IsDisposed != false) return;
 
+            void Action() => UpdateTagsDisplayFromStorage();
             if (_panel.InvokeRequired)
             {
-                _panel.Invoke((Action)UpdateTagsDisplayFromStorage);
+                _panel.Invoke((Action)Action);
             }
             else
             {
-                UpdateTagsDisplayFromStorage();
+                Action();
             }
         }
 

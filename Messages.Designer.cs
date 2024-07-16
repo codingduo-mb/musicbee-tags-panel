@@ -196,6 +196,42 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to kn9ff &amp; The Two Anonymous Programmers.
+        /// </summary>
+        internal static string PluginAuthorPluginInfo {
+            get {
+                return ResourceManager.GetString("PluginAuthorPluginInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates a dockable Panel with user-defined tabbed pages which let the user choose tags from user-defined lists.
+        /// </summary>
+        internal static string PluginDescriptionPluginInfo {
+            get {
+                return ResourceManager.GetString("PluginDescriptionPluginInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tags-Panel.
+        /// </summary>
+        internal static string PluginNamePluginInfo {
+            get {
+                return ResourceManager.GetString("PluginNamePluginInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tags-Panel.
+        /// </summary>
+        internal static string PluginTargetApplicationPluginInfo {
+            get {
+                return ResourceManager.GetString("PluginTargetApplicationPluginInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to mb_tags-panel.settings.json.
         /// </summary>
         internal static string SettingsFileName {

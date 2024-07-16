@@ -162,6 +162,18 @@
   <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
     <value>Please add a tag in the settings dialog.</value>
   </data>
+  <data name="PluginAuthorPluginInfo" xml:space="preserve">
+    <value>kn9ff &amp; The Two Anonymous Programmers</value>
+  </data>
+  <data name="PluginDescriptionPluginInfo" xml:space="preserve">
+    <value>Creates a dockable Panel with user-defined tabbed pages which let the user choose tags from user-defined lists</value>
+  </data>
+  <data name="PluginNamePluginInfo" xml:space="preserve">
+    <value>Tags-Panel</value>
+  </data>
+  <data name="PluginTargetApplicationPluginInfo" xml:space="preserve">
+    <value>Tags-Panel</value>
+  </data>
   <data name="SettingsFileName" xml:space="preserve">
     <value>mb_tags-panel.settings.json</value>
   </data>
