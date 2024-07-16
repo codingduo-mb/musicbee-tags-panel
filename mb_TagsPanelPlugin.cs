@@ -384,16 +384,18 @@ namespace MusicBeePlugin
                 _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
                 RefreshPanelTagsFromFiles(_selectedFileUrls);
                 InvokeRefreshTagTableData();
+                // Add the following line to populate the checklistbox states
+                UpdateTagsInPanelOnFileSelection();
             }
 
             var checkListBoxPanel = e.TabPage.Controls.OfType<TagListPanel>().FirstOrDefault();
             if (checkListBoxPanel != null)
             {
-                UpdateTagsInPanelOnFileSelection();
                 checkListBoxPanel.Refresh();
                 checkListBoxPanel.Invalidate();
             }
         }
+
 
         private void SetPanelEnabled(bool enabled = true)
         {
@@ -422,10 +424,11 @@ namespace MusicBeePlugin
         /// <param name="filenames"></param>
         private void RefreshPanelTagsFromFiles(string[] filenames)
         {
-            _tagsFromFiles.Clear();
-
             if (filenames == null || filenames.Length == 0)
             {
+                _tagsFromFiles.Clear();
+                UpdateTagsInPanelOnFileSelection();
+                SetPanelEnabled(true);
                 return;
             }
 
@@ -433,13 +436,9 @@ namespace MusicBeePlugin
             if (currentTagsStorage != null)
             {
                 _tagsFromFiles = _tagsManipulation.CombineTagLists(filenames, currentTagsStorage);
-            }
-
-            if (_panel != null)
-            {
                 UpdateTagsInPanelOnFileSelection();
+                SetPanelEnabled(true);
             }
-            SetPanelEnabled(true);
         }
 
         private void CreateTabPanel()
