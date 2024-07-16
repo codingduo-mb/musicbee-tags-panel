@@ -32,8 +32,6 @@ namespace MusicBeePlugin
         private bool _ignoreEventFromHandler = true;
         private bool _excludeFromBatchSelection = true;
 
-        #region Initialise plugin
-
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
             InitializeApi(apiInterfacePtr);
@@ -89,14 +87,7 @@ namespace MusicBeePlugin
 
             InitializeMenu();
 
-          
-
             _logger.Info($"{nameof(InitializePluginComponents)} started");
-        }
-
-        private void OnTabSelectionChanged(object sender, EventArgs e)
-        {
-            UpdateTagsForActiveTab();
         }
 
         public bool Configure(IntPtr panelHandle)
@@ -149,18 +140,6 @@ namespace MusicBeePlugin
             }
         }
 
-        private void HandleSettingsDialogResult(TagListSettingsForm tagsPanelSettingsForm)
-        {
-            UpdateSettingsAndPanel(tagsPanelSettingsForm.SettingsStorage);
-        }
-
-        private void UpdateSettingsAndPanel(SettingsManager newSettingsStorage)
-        {
-            _settingsStorage = newSettingsStorage;
-            SavePluginConfiguration();
-            UpdateTabControlVisibility();
-        }
-
         private void UpdateTabControlVisibility()
         {
             _tabControl.Visible = _tabControl.Controls.Count > 0;
@@ -173,8 +152,6 @@ namespace MusicBeePlugin
             RefreshPanelContent();
             LogConfigurationSaved();
         }
-
-
 
         private void ApplySortOrderFromSettings()
         {
@@ -275,40 +252,6 @@ namespace MusicBeePlugin
         /// </summary>
         /// <param name="tabName"></param>
         /// <param name="tabPage"></param>
-        private void RemoveTabPage(string tagName)
-        {
-            if (_tabPageList.TryGetValue(tagName, out var tabPage))
-            {
-                tabPage.Controls.Clear();
-                _tabControl.TabPages.Remove(tabPage);
-                _tabPageList.Remove(tagName);
-            }
-        }
-
-        private void AddTabPage(string tagName, TabPage tabPage)
-        {
-            _tabPageList[tagName] = tabPage;
-            _tabControl.TabPages.Add(tabPage);
-        }
-
-        private TagListPanel CreateCheckListBoxPanelForTag(string tagName)
-        {
-            // Use the instance _settingsStorage to access RetrieveTagsStorageByTagName
-            var tagsStorage = _settingsStorage.RetrieveTagsStorageByTagName(tagName);
-            if (tagsStorage == null)
-            {
-                _logger.Error("tagsStorage is null"); // Log the error
-                return null;
-            }
-
-            TagListPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-            checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
-
-            checkListBox.Dock = DockStyle.Fill;
-            checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
-
-            return checkListBox;
-        }
 
         private TagListPanel GetOrCreateCheckListBoxPanel(string tagName)
         {
@@ -328,11 +271,6 @@ namespace MusicBeePlugin
             {
                 _tagsManipulation.SetTagsInFile(fileUrls, selected, selectedTag, metaDataType);
             }
-        }
-
-        private void DeleteFile(string filePath)
-        {
-            System.IO.File.Delete(filePath);
         }
 
         public MetaDataType GetActiveTabMetaDataType()
@@ -430,10 +368,6 @@ namespace MusicBeePlugin
             }
         }
 
-        #endregion Initialise plugin
-
-        #region Event handlers
-
         public void SettingsMenuClicked(object sender, EventArgs args)
         {
             ShowSettingsDialog();
@@ -462,34 +396,21 @@ namespace MusicBeePlugin
 
         private void TabControlSelectionChanged(Object sender, TabControlEventArgs e)
         {
-            if (e.TabPage != null && !e.TabPage.IsDisposed)
+            if (e.TabPage == null || e.TabPage.IsDisposed) return;
+
+            var newMetaDataTypeName = e.TabPage.Text;
+            if (_metaDataTypeName != newMetaDataTypeName)
             {
-                var newMetaDataTypeName = e.TabPage.Text;
-                if (_metaDataTypeName != newMetaDataTypeName)
-                {
-                    _metaDataTypeName = newMetaDataTypeName;
-                    _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
-                    UpdateTagsForActiveTab();
-                    RefreshPanelTagsFromFiles(_selectedFileUrls);
-                }
+                _metaDataTypeName = newMetaDataTypeName;
+                _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
+                RefreshPanelTagsFromFiles(_selectedFileUrls);
+                InvokeRefreshTagTableData();
             }
-        }
 
-        private void UpdateTagsForActiveTab()
-        {
-            // Update the tags in the panel for the currently active tab
-            InvokeRefreshTagTableData();
-        }
-
-        private void SelectedTabPageChanged(Object sender, EventArgs e)
-        {
-            TabPage selectedTab = _tabControl.SelectedTab;
-            TagListPanel checkListBoxPanel = selectedTab?.Controls.OfType<TagListPanel>().FirstOrDefault();
-
+            var checkListBoxPanel = e.TabPage.Controls.OfType<TagListPanel>().FirstOrDefault();
             if (checkListBoxPanel != null)
             {
                 UpdateTagsInPanelOnFileSelection();
-                RefreshPanelTagsFromFiles(_selectedFileUrls);
                 checkListBoxPanel.Refresh();
                 checkListBoxPanel.Invalidate();
             }
@@ -629,7 +550,7 @@ namespace MusicBeePlugin
                 }
                 else
                 {
-                    UpdateTagsForActiveTab();
+                    InvokeRefreshTagTableData();
                 }
             }
 
@@ -700,7 +621,5 @@ namespace MusicBeePlugin
             };
             return menuItems;
         }
-
-        #endregion Event handlers
     }
 }
