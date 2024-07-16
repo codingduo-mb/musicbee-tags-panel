@@ -8,8 +8,9 @@ namespace MusicBeePlugin
 {
     public class UIManager
     {
-        private const SkinElement _defaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
-        private const ElementState _defaultElementState = ElementState.ElementStateDefault;
+        private const SkinElement DefaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
+        private const ElementState DefaultElementState = ElementState.ElementStateDefault;
+
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
         private Font _defaultFont;
@@ -21,10 +22,6 @@ namespace MusicBeePlugin
         public UIManager(MusicBeeApiInterface mbApiInterface, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
         {
             _mbApiInterface = mbApiInterface;
-        }
-
-        public void SetDependencies(Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
-        {
             _checklistBoxList = checklistBoxList;
             _selectedFileUrls = selectedFileUrls;
             _refreshPanelTagsFromFiles = refreshPanelTagsFromFiles;
@@ -38,7 +35,7 @@ namespace MusicBeePlugin
                 return;
             }
 
-            Label emptyPanelText = new Label
+            var emptyPanelText = new Label
             {
                 AutoSize = true,
                 Location = new Point(14, 30),
@@ -62,23 +59,19 @@ namespace MusicBeePlugin
 
         public void SwitchVisibleTagPanel(string visibleTag)
         {
-            // Hide checklistBox on all panels
-            foreach (var checklistBoxPanel in _checklistBoxList.Values)
+            if (_checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
             {
-                checklistBoxPanel.Visible = false;
-            }
-
-            // Show checklistBox on visible panel
-            if (!string.IsNullOrEmpty(visibleTag))
-            {
-                if (_checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
+                // Hide checklistBox on all panels
+                foreach (var checklistBoxPanel in _checklistBoxList.Values)
                 {
-                    visibleChecklistBoxPanel.Visible = true;
+                    checklistBoxPanel.Visible = false;
                 }
+
+                // Show checklistBox on visible panel
+                visibleChecklistBoxPanel.Visible = true;
                 _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
             }
         }
-
 
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
@@ -87,11 +80,11 @@ namespace MusicBeePlugin
 
         public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
-            int key = GetKeyFromArgs(skinElement, elementState, elementComponent);
+            var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
 
             if (!_colorCache.TryGetValue(key, out var color))
             {
-                int colorValue = _mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
+                var colorValue = _mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
                 color = Color.FromArgb(colorValue);
                 _colorCache.Add(key, color);
             }
@@ -107,8 +100,8 @@ namespace MusicBeePlugin
             }
 
             formControl.Font = _defaultFont;
-            formControl.BackColor = GetElementColor(_defaultSkinElement, _defaultElementState, ElementComponent.ComponentBackground);
-            formControl.ForeColor = GetElementColor(_defaultSkinElement, _defaultElementState, ElementComponent.ComponentForeground);
+            formControl.BackColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentBackground);
+            formControl.ForeColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentForeground);
         }
     }
 }

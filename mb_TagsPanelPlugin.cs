@@ -70,7 +70,6 @@ namespace MusicBeePlugin
         private void InitializePluginComponents()
         {
             _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
-            _uiManager.SetDependencies(_checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
 
             _tagsFromFiles.Clear();
             _tabPageList.Clear();
