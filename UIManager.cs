@@ -14,9 +14,20 @@ namespace MusicBeePlugin
         private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
         private Font _defaultFont;
 
-        public UIManager(MusicBeeApiInterface mbApiInterface)
+        private Dictionary<string, TagListPanel> _checklistBoxList;
+        private string[] _selectedFileUrls;
+        private Action<string[]> _refreshPanelTagsFromFiles;
+
+        public UIManager(MusicBeeApiInterface mbApiInterface, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
         {
             _mbApiInterface = mbApiInterface;
+        }
+
+        public void SetDependencies(Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
+        {
+            _checklistBoxList = checklistBoxList;
+            _selectedFileUrls = selectedFileUrls;
+            _refreshPanelTagsFromFiles = refreshPanelTagsFromFiles;
         }
 
         public void DisplaySettingsPromptLabel(Control panel, TabControl tabControl, string message)
@@ -49,6 +60,24 @@ namespace MusicBeePlugin
             panel.ResumeLayout();
         }
 
+        public void SwitchVisibleTagPanel(string visibleTag)
+        {
+            // Hide checklistBox on all panels
+            foreach (var checklistBoxPanel in _checklistBoxList.Values)
+            {
+                checklistBoxPanel.Visible = false;
+            }
+
+            // Show checklistBox on visible panel
+            if (!string.IsNullOrEmpty(visibleTag))
+            {
+                if (_checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
+                {
+                    visibleChecklistBoxPanel.Visible = true;
+                }
+                _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
+            }
+        }
 
 
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
@@ -70,7 +99,7 @@ namespace MusicBeePlugin
             return color;
         }
 
-        public void StyleControl(Control formControl)
+        public void ApplySkinStyleToControl(Control formControl)
         {
             if (_defaultFont == null)
             {

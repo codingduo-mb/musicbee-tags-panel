@@ -166,6 +166,7 @@ namespace MusicBeePlugin
             this.BtnImportCSVToList.TabIndex = 5;
             this.BtnImportCSVToList.Text = "Import Tags From CSV";
             this.BtnImportCSVToList.UseVisualStyleBackColor = true;
+            this.BtnImportCSVToList.Click += new System.EventHandler(this.BtnImportCSVToList_Click);
             // 
             // TagListSettingsPanel
             // 

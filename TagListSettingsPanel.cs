@@ -310,7 +310,7 @@ namespace MusicBeePlugin
             RemoveSelectedTagFromList();
         }
 
-        private void BtnImportCsv_Click(object sender, EventArgs e)
+        private void BtnImportCSVToList_Click(object sender, EventArgs e)
         {
             ImportTagsFromCsv();
         }

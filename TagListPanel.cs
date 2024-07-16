@@ -18,7 +18,7 @@ namespace MusicBeePlugin
         public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
         {
             _mbApiInterface = mbApiInterface;
-            _controlStyle = new UIManager(mbApiInterface);
+            _controlStyle = new UIManager(mbApiInterface, new Dictionary<string, TagListPanel>(), new string[0], null);
             // Use the provided SettingsManager instance to retrieve TagsStorage
             _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
 
@@ -70,8 +70,8 @@ namespace MusicBeePlugin
 
         private void StylePanel()
         {
-            _controlStyle.StyleControl(CheckedListBoxWithTags);
-            _controlStyle.StyleControl(this);
+            _controlStyle.ApplySkinStyleToControl(CheckedListBoxWithTags);
+            _controlStyle.ApplySkinStyleToControl(this);
         }
 
         public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)

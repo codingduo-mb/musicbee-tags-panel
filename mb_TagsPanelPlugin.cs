@@ -32,7 +32,6 @@ namespace MusicBeePlugin
         private bool _ignoreEventFromHandler = true;
         private bool _excludeFromBatchSelection = true;
 
-
         #region Initialise plugin
 
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
@@ -74,7 +73,9 @@ namespace MusicBeePlugin
 
         private void InitializePluginComponents()
         {
-            _checklistBoxList = new Dictionary<string, TagListPanel>();
+            _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
+            _uiManager.SetDependencies(_checklistBoxList, _selectedFileUrls, RefreshPanelTagsFromFiles);
+
             _tagsFromFiles = new Dictionary<string, CheckState>();
             _tabPageList = new Dictionary<string, TabPage>();
             _showTagsNotInList = false;
@@ -83,7 +84,6 @@ namespace MusicBeePlugin
 
             _settingsStorage = new SettingsManager(_mbApiInterface, _logger);
             _tagsManipulation = new TagManager(_mbApiInterface, _settingsStorage);
-            _uiManager = new UIManager(_mbApiInterface);
 
             LoadPluginSettings();
 
@@ -459,8 +459,8 @@ namespace MusicBeePlugin
                 if (_metaDataTypeName != newMetaDataTypeName)
                 {
                     _metaDataTypeName = newMetaDataTypeName;
-                    SwitchVisibleTagPanel(_metaDataTypeName);
-                    UpdateTagsForActiveTab(); // Call the new method
+                    _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
+                    UpdateTagsForActiveTab();
                 }
             }
         }
@@ -470,7 +470,6 @@ namespace MusicBeePlugin
             // Update the tags in the panel for the currently active tab
             InvokeRefreshTagTableData();
         }
-
 
         private void SelectedTabPageChanged(Object sender, EventArgs e)
         {
@@ -540,25 +539,6 @@ namespace MusicBeePlugin
             SetPanelEnabled(true);
         }
 
-        private void SwitchVisibleTagPanel(string visibleTag)
-        {
-            // Hide checklistBox on all panels
-            foreach (var checklistBoxPanel in _checklistBoxList.Values)
-            {
-                checklistBoxPanel.Visible = false;
-            }
-
-            // Show checklistBox on visible panel
-            if (!string.IsNullOrEmpty(visibleTag))
-            {
-                if (_checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
-                {
-                    visibleChecklistBoxPanel.Visible = true;
-                }
-                RefreshPanelTagsFromFiles(_selectedFileUrls);
-            }
-        }
-
         private void CreateTabPanel()
         {
             _tabControl = (TabControl)_mbApiInterface.MB_AddPanel(_panel, (PluginPanelDock)6);
@@ -570,7 +550,6 @@ namespace MusicBeePlugin
                 PopulateTabPages();
             }
         }
-
 
         private void AddControls()
         {
