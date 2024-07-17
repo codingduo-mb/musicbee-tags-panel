@@ -58,7 +58,8 @@ namespace MusicBeePlugin
 
         public string AddTag(string selectedTag, string fileUrl, MetaDataType metaDataType)
         {
-            var tagList = new HashSet<string>(GetTags(fileUrl, metaDataType).Split(Separator));
+            var existingTags = GetTags(fileUrl, metaDataType);
+            var tagList = new HashSet<string>(string.IsNullOrEmpty(existingTags) ? new string[0] : existingTags.Split(Separator));
             tagList.Add(selectedTag.Trim());
             return string.Join(Separator.ToString(), tagList);
         }
@@ -73,7 +74,8 @@ namespace MusicBeePlugin
         {
             var tags = ReadTagsFromFile(fileUrl, metaDataType);
             tags = tags.Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
-            return string.Join(Separator.ToString(), tags).TrimStart(Separator);
+            // Entfernt TrimStart(Separator), da es nicht mehr benötigt wird
+            return string.Join(Separator.ToString(), tags);
         }
 
         public void SetTagsInFile(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
