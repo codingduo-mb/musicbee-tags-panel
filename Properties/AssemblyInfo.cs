@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-// General Information _about an assembly is controlled through the following 
+// General Information _pluginInformation an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Tags-Panel Plugin")]
@@ -32,8 +32,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.256.1")]
-[assembly: AssemblyFileVersion("1.0.256.1")]
+[assembly: AssemblyVersion("1.0.259.1")]
+[assembly: AssemblyFileVersion("1.0.259.1")]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyInformationalVersion("1.0.258")]
+[assembly: AssemblyInformationalVersion("1.0.261")]

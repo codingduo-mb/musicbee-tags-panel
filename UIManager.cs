@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using static MusicBeePlugin.Plugin;
 
@@ -72,6 +73,8 @@ namespace MusicBeePlugin
                 _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
             }
         }
+
+        
 
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
