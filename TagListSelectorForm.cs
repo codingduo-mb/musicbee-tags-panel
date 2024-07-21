@@ -9,7 +9,7 @@ namespace MusicBeePlugin
     public partial class TagListSelectorForm : Form
     {
         // Change the type to IDictionary<MetaDataType, string>
-        private IDictionary<MetaDataType, string> availableMetaDataTypes;
+        private readonly IDictionary<MetaDataType, string> availableMetaDataTypes;
 
         private static readonly HashSet<MetaDataType> _blacklistedMetaDataTypes = new HashSet<MetaDataType>
             {

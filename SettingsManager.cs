@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,11 +44,30 @@ namespace MusicBeePlugin
                 return;
             }
 
-            using (var streamReader = new StreamReader(filename, Encoding.UTF8))
-            using (var jsonReader = new JsonTextReader(streamReader))
+            try
             {
+                string jsonContent = File.ReadAllText(filename, Encoding.UTF8);
+                // Optional: Validate jsonContent here before deserialization
+                // For example, check if jsonContent is a valid JSON structure for TagsStorages
+
                 var serializer = new JsonSerializer();
-                TagsStorages = serializer.Deserialize<Dictionary<string, TagsStorage>>(jsonReader);
+                using (var stringReader = new StringReader(jsonContent))
+                using (var jsonReader = new JsonTextReader(stringReader))
+                {
+                    TagsStorages = serializer.Deserialize<Dictionary<string, TagsStorage>>(jsonReader);
+                }
+            }
+            catch (JsonException jsonEx)
+            {
+                _logger.Error($"Failed to deserialize settings: {jsonEx.Message}");
+                // Handle or log the error, e.g., initialize with default settings
+                TagsStorages = new Dictionary<string, TagsStorage>();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"An unexpected error occurred while loading settings: {ex.Message}");
+                // Handle or log the error, e.g., initialize with default settings
+                TagsStorages = new Dictionary<string, TagsStorage>();
             }
         }
 
