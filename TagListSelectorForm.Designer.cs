@@ -36,8 +36,8 @@ namespace MusicBeePlugin
             // 
             // ComboBoxTagSelect
             // 
-            this.ComboBoxTagSelect.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
             this.ComboBoxTagSelect.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+            this.ComboBoxTagSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxTagSelect.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ComboBoxTagSelect.FormattingEnabled = true;
             this.ComboBoxTagSelect.Location = new System.Drawing.Point(12, 12);
@@ -45,7 +45,6 @@ namespace MusicBeePlugin
             this.ComboBoxTagSelect.Name = "ComboBoxTagSelect";
             this.ComboBoxTagSelect.Size = new System.Drawing.Size(198, 27);
             this.ComboBoxTagSelect.TabIndex = 0;
-            this.ComboBoxTagSelect.Text = "Click here";
             // 
             // BtnComboBoxAddMetaDataType
             // 
