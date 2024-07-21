@@ -186,7 +186,7 @@ namespace MusicBeePlugin
             // Populate the checklistbox based on the checkbox state
             if (_showTagsNotInList)
             {
-                checkListBox.PopulateChecklistBoxesFromData(GetCombinedTags(tagsStorage));
+                checkListBox.PopulateChecklistBoxesFromData(CombineTagsFromSettingsAndFiles(tagsStorage));
             }
             else
             {
@@ -228,7 +228,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private Dictionary<string, CheckState> GetCombinedTags(TagsStorage tagsStorage)
+        private Dictionary<string, CheckState> CombineTagsFromSettingsAndFiles(TagsStorage tagsStorage)
         {
             // Combine tags from settings and files
             var combinedTags = new Dictionary<string, CheckState>(tagsStorage.GetTags());
