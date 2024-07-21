@@ -380,9 +380,11 @@ namespace MusicBeePlugin
             {
                 _metaDataTypeName = newMetaDataTypeName;
                 _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
+
+                // Refresh the panel tags from the selected files regardless of the number of selected files
                 RefreshPanelTagsFromFiles(_selectedFilesUrls);
-                InvokeRefreshTagTableData();
-                // Add the following line to populate the checklistbox states
+
+                // Update the UI with the current data in _tagsFromFiles
                 UpdateTagsInPanelOnFileSelection();
             }
 
