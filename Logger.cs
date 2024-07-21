@@ -11,6 +11,7 @@ namespace MusicBeePlugin
         private readonly MusicBeeApiInterface _musicBeeApiInterface;
         private readonly FileInfo _fileInfo;
         private StreamWriter _writer;
+        private bool _disposed = false; // To detect redundant calls
 
         public Logger(MusicBeeApiInterface musicBeeApiInterface)
         {
@@ -21,6 +22,8 @@ namespace MusicBeePlugin
 
         private void WriteLog(string type, string message, params object[] args)
         {
+            if (_disposed) throw new ObjectDisposedException("Logger");
+
             var formattedMessage = string.Format(message, args);
             var logEntry = $"{DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {formattedMessage}";
             _writer.WriteLine(logEntry);
@@ -37,10 +40,36 @@ namespace MusicBeePlugin
 
         public string GetLogFilePath() => Path.Combine(_musicBeeApiInterface.Setting_GetPersistentStoragePath(), _logFileName);
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed state (managed objects).
+                    _writer?.Dispose();
+                }
+
+                // Free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // Set large fields to null.
+
+                _disposed = true;
+            }
+        }
+
+        // Override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        ~Logger()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            _writer?.Dispose();
-            _writer = null;
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
