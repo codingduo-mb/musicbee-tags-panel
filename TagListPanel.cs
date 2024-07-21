@@ -33,29 +33,29 @@ namespace MusicBeePlugin
         }
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
             CheckedListBoxWithTags.BeginUpdate();
             CheckedListBoxWithTags.Items.Clear();
 
-            // Retrieve tags from settings and sort them if necessary.
-            var tagsFromSettings = _tagsStorage.GetTags().Keys;
-            var sortedTagsFromSettings = _tagsStorage.Sorted ? tagsFromSettings.OrderBy(tag => tag).ToList() : tagsFromSettings.ToList();
-
-            // Add tags from settings to the checklist box.
-            foreach (var tag in sortedTagsFromSettings)
+            var tagsFromSettings = _tagsStorage?.GetTags()?.Keys;
+            if (tagsFromSettings != null)
             {
-                if (data.ContainsKey(tag))
+                var sortedTagsFromSettings = _tagsStorage.Sorted ? tagsFromSettings.OrderBy(tag => tag).ToList() : tagsFromSettings.ToList();
+
+                foreach (var tag in sortedTagsFromSettings)
+                {
+                    if (data.ContainsKey(tag))
+                    {
+                        CheckedListBoxWithTags.Items.Add(tag, data[tag]);
+                    }
+                }
+
+                var additionalTags = data.Keys.Except(tagsFromSettings).OrderBy(tag => tag);
+                foreach (var tag in additionalTags)
                 {
                     CheckedListBoxWithTags.Items.Add(tag, data[tag]);
                 }
-            }
-
-            // Now, handle tags not in settings. Filter out tags already added.
-            var additionalTags = data.Keys.Except(tagsFromSettings).OrderBy(tag => tag); // Ensure additional tags are sorted alphabetically.
-
-            // Add the additional tags to the checklist box.
-            foreach (var tag in additionalTags)
-            {
-                CheckedListBoxWithTags.Items.Add(tag, data[tag]);
             }
 
             CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;

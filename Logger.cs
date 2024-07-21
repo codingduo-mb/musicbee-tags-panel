@@ -10,7 +10,7 @@ namespace MusicBeePlugin
         private const string _logFileName = "mb_tags-panel.log";
         private readonly MusicBeeApiInterface _musicBeeApiInterface;
         private readonly FileInfo _fileInfo;
-        private StreamWriter _writer;
+        private readonly StreamWriter _writer;
         private bool _disposed = false; // To detect redundant calls
 
         public Logger(MusicBeeApiInterface musicBeeApiInterface)

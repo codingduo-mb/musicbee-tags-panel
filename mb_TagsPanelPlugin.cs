@@ -308,6 +308,12 @@ namespace MusicBeePlugin
             currentTagsStorage.SortByIndex();
             var allTagsFromSettings = currentTagsStorage.GetTags();
 
+            if (allTagsFromSettings == null)
+            {
+                _logger.Error("Failed to retrieve tags from settings.");
+                return;
+            }
+
             string tagName = currentTagsStorage.GetTagName();
             var trimmedTagKeys = new HashSet<string>(allTagsFromSettings.Select(tag => tag.Key.Trim()));
 
