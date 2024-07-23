@@ -60,18 +60,22 @@ namespace MusicBeePlugin
 
         public void SwitchVisibleTagPanel(string visibleTag)
         {
-            if (_checklistBoxList.TryGetValue(visibleTag, out var visibleChecklistBoxPanel))
+            if (_checklistBoxList == null || _selectedFileUrls == null)
             {
-                // Hide checklistBox on all panels
-                foreach (var checklistBoxPanel in _checklistBoxList.Values)
+                return;
+            }
+
+            foreach (var checklistBoxPanel in _checklistBoxList.Values)
+            {
+                if (checklistBoxPanel == null || checklistBoxPanel.Tag == null)
                 {
-                    checklistBoxPanel.Visible = false;
+                    continue;
                 }
 
-                // Show checklistBox on visible panel
-                visibleChecklistBoxPanel.Visible = true;
-                _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
+                checklistBoxPanel.Visible = checklistBoxPanel.Tag.ToString() == visibleTag;
             }
+
+            _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
         }
 
         
