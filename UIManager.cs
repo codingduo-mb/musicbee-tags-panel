@@ -54,7 +54,13 @@ namespace MusicBeePlugin
 
             panel.ResumeLayout();
         }
-
+        public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
+        {
+            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
+            {
+                checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
+            }
+        }
         public void SwitchVisibleTagPanel(string visibleTag)
         {
             if (_checklistBoxList == null || _selectedFileUrls == null)

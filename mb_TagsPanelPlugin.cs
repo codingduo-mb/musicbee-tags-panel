@@ -84,6 +84,14 @@ namespace MusicBeePlugin
 
             InitializeMenu();
 
+            // Ensure _tabControl is initialized
+            if (_tabControl == null)
+            {
+                _tabControl = new TabControl();
+            }
+
+            _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
+
             _logger.Info($"{nameof(InitializePluginComponents)} started");
         }
 
@@ -288,13 +296,7 @@ namespace MusicBeePlugin
             _tabControl?.TabPages.Clear();
         }
 
-        private void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
-        {
-            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
-            {
-                checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
-            }
-        }
+        
 
         private void UpdateTagsDisplayFromStorage()
         {
@@ -333,7 +335,7 @@ namespace MusicBeePlugin
                 }
             }
 
-            AddTagsToChecklistBoxPanel(tagName, data);
+            _uiManager.AddTagsToChecklistBoxPanel(tagName, data);
         }
 
         private void InvokeRefreshTagTableData()
@@ -377,11 +379,15 @@ namespace MusicBeePlugin
             }
         }
 
-        private void TabControlSelectionChanged(Object sender, TabControlEventArgs e)
+        private void TabControlSelectionChanged(object sender, EventArgs e)
         {
-            if (e.TabPage == null || e.TabPage.IsDisposed) return;
+            var tabControl = sender as TabControl;
+            if (tabControl == null) return;
 
-            var newMetaDataTypeName = e.TabPage.Text;
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab == null || selectedTab.IsDisposed) return;
+
+            var newMetaDataTypeName = selectedTab.Text;
             if (_metaDataTypeName != newMetaDataTypeName)
             {
                 _metaDataTypeName = newMetaDataTypeName;
@@ -394,7 +400,7 @@ namespace MusicBeePlugin
                 UpdateTagsInPanelOnFileSelection();
             }
 
-            var checkListBoxPanel = e.TabPage.Controls.OfType<TagListPanel>().FirstOrDefault();
+            var checkListBoxPanel = selectedTab.Controls.OfType<TagListPanel>().FirstOrDefault();
             if (checkListBoxPanel != null)
             {
                 checkListBoxPanel.Refresh();
@@ -450,7 +456,7 @@ namespace MusicBeePlugin
         {
             _tabControl = (TabControl)_mbApiInterface.MB_AddPanel(_tagsPanelControl, (PluginPanelDock)6);
             _tabControl.Dock = DockStyle.Fill;
-            _tabControl.Selected += TabControlSelectionChanged;
+            _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
 
             if (_tabControl.TabPages.Count == 0)
             {
