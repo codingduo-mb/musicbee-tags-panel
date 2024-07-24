@@ -8,7 +8,6 @@ namespace MusicBeePlugin
 {
     public partial class TagListSelectorForm : Form
     {
-        // Change the type to IDictionary<MetaDataType, string>
         private readonly IDictionary<MetaDataType, string> availableMetaDataTypes;
 
         private static readonly HashSet<MetaDataType> _blacklistedMetaDataTypes = new HashSet<MetaDataType>
@@ -29,23 +28,20 @@ namespace MusicBeePlugin
         public TagListSelectorForm(IEnumerable<string> usedTags)
         {
             InitializeComponent();
-            this.KeyPreview = true; // Enable form to receive key events first
+            KeyPreview = true; // Enable form to receive key events first
 
             BtnComboBoxAddMetaDataType.DialogResult = DialogResult.OK;
             BtnComboBoxMetaDataTypCancel.DialogResult = DialogResult.Cancel;
             availableMetaDataTypes = GetAvailableMetaDataTypes(usedTags);
-            // Use the values of the dictionary for the DataSource
             ComboBoxTagSelect.DataSource = new BindingSource(availableMetaDataTypes.Values, null);
             ComboBoxTagSelect.Validating += ComboBoxTagSelect_Validating;
 
-            this.KeyDown += TagListSelectorForm_KeyDown;
+            KeyDown += TagListSelectorForm_KeyDown;
         }
 
         private void ComboBoxTagSelect_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var comboBox = sender as ComboBox;
-            // Check if the text is in the values of the dictionary
-            if (comboBox != null && !availableMetaDataTypes.Values.Contains(comboBox.Text))
+            if (sender is ComboBox comboBox && !availableMetaDataTypes.Values.Contains(comboBox.Text))
             {
                 MessageBox.Show("Please select a valid metadata type from the list.", "Invalid Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 e.Cancel = true; // Prevents the focus from leaving the ComboBox if the validation fails
@@ -60,22 +56,18 @@ namespace MusicBeePlugin
                 .ToDictionary(t => t, t => t.ToString("g"));
 
             var usedMetaDataTypeEnums = usedTags
-                .Select(tag => Enum.TryParse<MetaDataType>(tag, out var type) ? type : (MetaDataType?)null)
+                .Select(tag => Enum.TryParse(tag, out MetaDataType type) ? type : (MetaDataType?)null)
                 .Where(t => t.HasValue)
                 .Select(t => t.Value);
 
-            var availableMetaDataTypes = allMetaDataTypes
+            return allMetaDataTypes
                 .Where(kvp => !usedMetaDataTypeEnums.Contains(kvp.Key))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-            return availableMetaDataTypes;
         }
 
         public string GetSelectedMetaDataType()
         {
-            // Adjust to return the selected value's key as a string
-            var selectedValue = ComboBoxTagSelect.SelectedItem as string;
-            if (selectedValue != null)
+            if (ComboBoxTagSelect.SelectedItem is string selectedValue)
             {
                 var selectedKey = availableMetaDataTypes.FirstOrDefault(kvp => kvp.Value == selectedValue).Key;
                 return selectedKey.ToString();

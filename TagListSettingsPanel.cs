@@ -209,18 +209,17 @@ namespace MusicBeePlugin
 
         public void ImportTagsFromCsv()
         {
-            using (var openFileDialog1 = new OpenFileDialog())
+            using (var openFileDialog1 = new OpenFileDialog
             {
-                openFileDialog1.CheckFileExists = true;
-                openFileDialog1.CheckPathExists = true;
-
-                openFileDialog1.Title = Messages.CsvDialogTitle;
-                openFileDialog1.Filter = Messages.CsvFileFilter;
-                openFileDialog1.DefaultExt = Messages.CsvDefaultExt;
-                openFileDialog1.Multiselect = false;
-
-                openFileDialog1.RestoreDirectory = true;
-
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Title = Messages.CsvDialogTitle,
+                Filter = Messages.CsvFileFilter,
+                DefaultExt = Messages.CsvDefaultExt,
+                Multiselect = false,
+                RestoreDirectory = true
+            })
+            {
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     var importCsvFilename = openFileDialog1.FileName;
@@ -229,8 +228,7 @@ namespace MusicBeePlugin
                         return;
                     }
 
-                    var dialogResult = MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (dialogResult == DialogResult.Yes)
+                    if (MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         var lines = File.ReadAllLines(importCsvFilename);
                         var importedTags = new HashSet<string>();
@@ -389,8 +387,7 @@ namespace MusicBeePlugin
 
         private void ShowConfirmationDialogToSort()
         {
-            DialogResult dialogResult = MessageBox.Show(Messages.TagListSortConfirmationMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dialogResult == DialogResult.Yes && IsSortEnabled())
+            if (MessageBox.Show(Messages.TagListSortConfirmationMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes && IsSortEnabled())
             {
                 SortAlphabetically(); // Sortiert die Tags alphabetisch
                 tagsStorage.Sorted = true; // Aktualisiert den Sortierungszustand im _tagsStorage
@@ -401,8 +398,7 @@ namespace MusicBeePlugin
 
         private void PromptClearTagsConfirmation()
         {
-            DialogResult dialogResult = MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dialogResult == DialogResult.Yes)
+            if (MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
             }

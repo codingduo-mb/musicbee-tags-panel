@@ -41,6 +41,7 @@ namespace MusicBeePlugin
             }
         }
 
+
         private void InitializeToolTip()
         {
             toolTipAddTagPage.SetToolTip(BtnAddMetaDataTypeTabPage, Messages.AddTagPageTooltip);
