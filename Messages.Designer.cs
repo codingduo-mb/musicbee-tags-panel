@@ -97,6 +97,24 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please select a valid metadata type from the list..
+        /// </summary>
+        internal static string ComboBoxTagSelectNotValidMessage {
+            get {
+                return ResourceManager.GetString("ComboBoxTagSelectNotValidMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Selection.
+        /// </summary>
+        internal static string ComboBoxTagSelectNotValidTitle {
+            get {
+                return ResourceManager.GetString("ComboBoxTagSelectNotValidTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to csv.
         /// </summary>
         internal static string CsvDefaultExt {

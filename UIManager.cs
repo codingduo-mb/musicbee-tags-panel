@@ -16,9 +16,9 @@ namespace MusicBeePlugin
         private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
         private Font _defaultFont;
 
-        private Dictionary<string, TagListPanel> _checklistBoxList;
-        private string[] _selectedFileUrls;
-        private Action<string[]> _refreshPanelTagsFromFiles;
+        private readonly Dictionary<string, TagListPanel> _checklistBoxList;
+        private readonly string[] _selectedFileUrls;
+        private readonly Action<string[]> _refreshPanelTagsFromFiles;
 
         public UIManager(MusicBeeApiInterface mbApiInterface, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
         {
@@ -50,10 +50,7 @@ namespace MusicBeePlugin
             panel.Controls.SetChildIndex(emptyPanelText, 1);
             panel.Controls.SetChildIndex(tabControl, 0);
 
-            if (tabControl.TabPages.Count == 0)
-            {
-                tabControl.Visible = false;
-            }
+            tabControl.Visible = tabControl.TabPages.Count > 0;
 
             panel.ResumeLayout();
         }
@@ -67,7 +64,7 @@ namespace MusicBeePlugin
 
             foreach (var checklistBoxPanel in _checklistBoxList.Values)
             {
-                if (checklistBoxPanel == null || checklistBoxPanel.Tag == null)
+                if (checklistBoxPanel?.Tag == null)
                 {
                     continue;
                 }
@@ -77,8 +74,6 @@ namespace MusicBeePlugin
 
             _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
         }
-
-        
 
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {

@@ -129,6 +129,12 @@
   <data name="ClearAllCurrentTagsInLIstMessage" xml:space="preserve">
     <value>This will clear your current tag list. Continue?</value>
   </data>
+  <data name="ComboBoxTagSelectNotValidMessage" xml:space="preserve">
+    <value>Please select a valid metadata type from the list.</value>
+  </data>
+  <data name="ComboBoxTagSelectNotValidTitle" xml:space="preserve">
+    <value>Invalid Selection</value>
+  </data>
   <data name="CsvDefaultExt" xml:space="preserve">
     <value>csv</value>
   </data>
