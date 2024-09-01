@@ -296,7 +296,21 @@ namespace MusicBeePlugin
             _tabControl?.TabPages.Clear();
         }
 
-        
+        private Dictionary<string, CheckState> GetTagsFromStorage(TagsStorage currentTagsStorage)
+        {
+            var allTagsFromSettings = currentTagsStorage.GetTags();
+            var trimmedTagKeys = new HashSet<string>(allTagsFromSettings.Select(tag => tag.Key.Trim()));
+            var data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
+
+            foreach (var tagFromSettings in allTagsFromSettings)
+            {
+                string trimmedKey = tagFromSettings.Key.Trim();
+                CheckState checkState = _tagsFromFiles.TryGetValue(trimmedKey, out CheckState state) ? state : CheckState.Unchecked;
+                data[trimmedKey] = checkState;
+            }
+
+            return data;
+        }
 
         private void UpdateTagsDisplayFromStorage()
         {
@@ -308,25 +322,17 @@ namespace MusicBeePlugin
             }
 
             currentTagsStorage.SortByIndex();
-            var allTagsFromSettings = currentTagsStorage.GetTags();
+            var data = GetTagsFromStorage(currentTagsStorage);
+            var trimmedTagKeys = new HashSet<string>(data.Keys);
 
-            if (allTagsFromSettings == null)
-            {
-                _logger.Error("Failed to retrieve tags from settings.");
-                return;
-            }
+            AddTagsFromFiles(data, trimmedTagKeys);
 
             string tagName = currentTagsStorage.GetTagName();
-            var trimmedTagKeys = new HashSet<string>(allTagsFromSettings.Select(tag => tag.Key.Trim()));
+            _uiManager.AddTagsToChecklistBoxPanel(tagName, data);
+        }
 
-            Dictionary<string, CheckState> data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
-            foreach (var tagFromSettings in allTagsFromSettings)
-            {
-                string trimmedKey = tagFromSettings.Key.Trim();
-                CheckState checkState = _tagsFromFiles.TryGetValue(trimmedKey, out CheckState state) ? state : CheckState.Unchecked;
-                data[trimmedKey] = checkState;
-            }
-
+        private void AddTagsFromFiles(Dictionary<string, CheckState> data, HashSet<string> trimmedTagKeys)
+        {
             foreach (var tagFromFile in _tagsFromFiles)
             {
                 if (!trimmedTagKeys.Contains(tagFromFile.Key))
@@ -334,8 +340,6 @@ namespace MusicBeePlugin
                     data[tagFromFile.Key] = tagFromFile.Value;
                 }
             }
-
-            _uiManager.AddTagsToChecklistBoxPanel(tagName, data);
         }
 
         private void InvokeRefreshTagTableData()
