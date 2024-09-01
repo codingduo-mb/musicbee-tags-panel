@@ -439,14 +439,29 @@ namespace MusicBeePlugin
         /// <param name="filenames"></param>
         private void RefreshPanelTagsFromFiles(string[] filenames)
         {
-            if (filenames == null || filenames.Length == 0)
+            if (ShouldClearTags(filenames))
             {
-                _tagsFromFiles.Clear();
-                UpdateTagsInPanelOnFileSelection();
-                SetPanelEnabled(true);
+                ClearTagsAndUpdateUI();
                 return;
             }
 
+            UpdateTagsFromFiles(filenames);
+        }
+
+        private bool ShouldClearTags(string[] filenames)
+        {
+            return filenames == null || filenames.Length == 0;
+        }
+
+        private void ClearTagsAndUpdateUI()
+        {
+            _tagsFromFiles.Clear();
+            UpdateTagsInPanelOnFileSelection();
+            SetPanelEnabled(true);
+        }
+
+        private void UpdateTagsFromFiles(string[] filenames)
+        {
             var currentTagsStorage = GetCurrentTagsStorage();
             if (currentTagsStorage != null)
             {
@@ -555,20 +570,32 @@ namespace MusicBeePlugin
         public int OnDockablePanelCreated(Control panel)
         {
             _tagsPanelControl = panel;
+            EnsureControlCreated();
+            AddControls();
+            DisplaySettingsPrompt();
+            RefreshTagDataIfHandleCreated();
+            return 0;
+        }
 
+        private void EnsureControlCreated()
+        {
             if (!_tagsPanelControl.Created)
             {
                 _tagsPanelControl.CreateControl();
             }
+        }
 
-            AddControls();
+        private void DisplaySettingsPrompt()
+        {
             _uiManager.DisplaySettingsPromptLabel(_tagsPanelControl, _tabControl, "No tags available. Please add tags in the settings.");
+        }
+
+        private void RefreshTagDataIfHandleCreated()
+        {
             if (_tagsPanelControl.IsHandleCreated)
             {
                 InvokeRefreshTagTableData();
             }
-
-            return 0;
         }
 
         /// <summary>
