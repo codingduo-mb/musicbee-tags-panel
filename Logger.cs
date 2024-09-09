@@ -25,7 +25,7 @@ namespace MusicBeePlugin
             if (_disposed) throw new ObjectDisposedException("Logger");
 
             var formattedMessage = string.Format(message, args);
-            var logEntry = $"{DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} [{type.ToUpper()}] {formattedMessage}";
+            var logEntry = $"{DateTime.UtcNow:dd/MM/yyyy HH:mm:ss} [{type.ToUpperInvariant()}] {formattedMessage}";
             _writer.WriteLine(logEntry);
             _writer.Flush();
         }

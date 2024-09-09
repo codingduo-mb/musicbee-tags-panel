@@ -40,8 +40,6 @@ namespace MusicBeePlugin
             {
                 AutoSize = true,
                 Location = new Point(14, 30),
-                Size = new Size(38, 13),
-                TabIndex = 2,
                 Text = message
             };
 

@@ -45,9 +45,9 @@ namespace MusicBeePlugin
 
                 foreach (var tag in sortedTagsFromSettings)
                 {
-                    if (data.ContainsKey(tag))
+                    if (data.TryGetValue(tag, out var checkState))
                     {
-                        CheckedListBoxWithTags.Items.Add(tag, data[tag]);
+                        CheckedListBoxWithTags.Items.Add(tag, checkState);
                     }
                 }
 

@@ -26,7 +26,7 @@ namespace MusicBeePlugin
         private UIManager _uiManager;
         private bool _showTagsNotInList = false;
         private string _metaDataTypeName;
-        private bool _sortAlphabetically;
+        private bool _sortAlphabetically = false;
         private PluginInfo _pluginInformation = new PluginInfo();
         private string[] _selectedFilesUrls = Array.Empty<string>();
         private bool _ignoreEventFromHandler = true;
