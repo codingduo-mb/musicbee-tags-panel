@@ -42,19 +42,15 @@ namespace MusicBeePlugin
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                if (disposing)
-                {
-                    // Dispose managed state (managed objects).
-                    _writer?.Dispose();
-                }
-
-                // Free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // Set large fields to null.
-
-                _disposed = true;
+                _writer?.Dispose();
             }
+
+            _disposed = true;
         }
 
         // Override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
