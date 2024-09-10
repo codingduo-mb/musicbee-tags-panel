@@ -1,3 +1,6 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -32,8 +35,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.310.1")]
-[assembly: AssemblyFileVersion("1.0.304.1")]
+[assembly: AssemblyVersion("1.0.311.1")]
+[assembly: AssemblyFileVersion("1.0.305.1")]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyInformationalVersion("1.0.306")]
+[assembly: AssemblyInformationalVersion("1.0.307")]

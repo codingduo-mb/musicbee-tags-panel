@@ -1,4 +1,7 @@
-﻿using System;
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,7 +10,7 @@ using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
 {
-    public class UIManager
+    public class UIManager : IDisposable
     {
         private const SkinElement DefaultSkinElement = SkinElement.SkinTrackAndArtistPanel;
         private const ElementState DefaultElementState = ElementState.ElementStateDefault;
@@ -52,6 +55,7 @@ namespace MusicBeePlugin
 
             panel.ResumeLayout();
         }
+
         public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
         {
             if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
@@ -59,6 +63,7 @@ namespace MusicBeePlugin
                 checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
             }
         }
+
         public void SwitchVisibleTagPanel(string visibleTag)
         {
             if (_checklistBoxList == null || _selectedFileUrls == null)
@@ -108,6 +113,20 @@ namespace MusicBeePlugin
             formControl.Font = _defaultFont;
             formControl.BackColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentBackground);
             formControl.ForeColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentForeground);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _defaultFont?.Dispose();
+            }
         }
     }
 }
