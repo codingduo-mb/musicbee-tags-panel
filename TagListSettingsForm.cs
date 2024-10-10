@@ -68,12 +68,21 @@ namespace MusicBeePlugin
 
         private void OnAddTagPageButtonClick(object sender, EventArgs e)
         {
-            var usedTags = _tagPanels.Keys.ToList();
+            var usedTags = _tagPanels.Keys;
             using (var form = new TagListSelectorForm(usedTags))
             {
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {
-                    TryToAddPanel(form.GetSelectedMetaDataType());
+                    var metaDataType = form.GetSelectedMetaDataType();
+                    if (!_tagPanels.ContainsKey(metaDataType))
+                    {
+                        var storage = new TagsStorage { MetaDataType = metaDataType };
+                        AddPanel(storage);
+                    }
+                    else
+                    {
+                        ShowWarning(Messages.TagListTagAlreadyExistsMessage);
+                    }
                 }
             }
         }
