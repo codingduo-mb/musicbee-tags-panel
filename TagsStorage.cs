@@ -36,7 +36,7 @@ namespace MusicBeePlugin
         public MetaDataType GetMetaDataType()
         {
             return Enum.TryParse(_tagMetaDataType, true, out MetaDataType result) ? result : default;
-        }      
+        }
 
         public void Sort()
         {
@@ -90,14 +90,14 @@ namespace MusicBeePlugin
 
         public string MetaDataType
         {
-            get { return _tagMetaDataType; }
-            set { _tagMetaDataType = value; }
+            get => _tagMetaDataType;
+            set => _tagMetaDataType = value;
         }
 
         public SortedDictionary<string, int> TagList
         {
-            get { return _tagList; }
-            set { _tagList = value; }
+            get => _tagList;
+            set => _tagList = value;
         }
     }
 }
