@@ -74,13 +74,16 @@ namespace MusicBeePlugin
 
         public bool Sorted
         {
-            get { return _isAlphabeticallySorted; }
+            get => _isAlphabeticallySorted;
             set
             {
                 if (value != _isAlphabeticallySorted)
                 {
                     _isAlphabeticallySorted = value;
-                    Sort();
+                    if (_isAlphabeticallySorted && _enableAlphabeticalSorting)
+                    {
+                        Sort();
+                    }
                 }
             }
         }
