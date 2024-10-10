@@ -544,7 +544,8 @@ namespace MusicBeePlugin
                 _mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
-            if (isTagsChanging || isTrackChanged)
+            // if (isTagsChanging || isTrackChanged)
+            if (isTrackChanged)
             {
                 _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
                 if (_showTagsNotInList)
