@@ -559,16 +559,6 @@ namespace MusicBeePlugin
 
             _excludeFromBatchSelection = false;
         }
-
-        /// <summary>
-        /// Event handler that is triggered by MusicBee when a dockable panel has been created.
-        /// </summary>
-        /// <param name="panel">A reference to the new panel.</param>
-        /// <returns>
-        /// &lt; 0 indicates to MusicBee this control is resizable and should be sized to fill the panel it is docked to in MusicBee<br/>
-        ///  = 0 indicates to MusicBee this control resizeable<br/>
-        /// &gt; 0 indicates to MusicBee the fixed height for the control. Note it is recommended you scale the height for high DPI screens(create a graphics object and get the DpiY value)
-        /// </returns>
         public int OnDockablePanelCreated(Control panel)
         {
             _tagsPanelControl = panel;
@@ -576,7 +566,7 @@ namespace MusicBeePlugin
             AddControls();
             DisplaySettingsPrompt();
             RefreshTagDataIfHandleCreated();
-            return 0;
+            return 0;  //  = 0 indicates to MusicBee this control resizeable
         }
 
         private void EnsureControlCreated()
