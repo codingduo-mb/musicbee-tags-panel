@@ -86,20 +86,7 @@ namespace MusicBeePlugin
                 }
             }
         }
-
-        private void TryToAddPanel(string metaDataType)
-        {
-            var storage = new TagsStorage { MetaDataType = metaDataType };
-            if (storage.MetaDataType != null && !_tagPanels.ContainsKey(storage.GetTagName()))
-            {
-                AddPanel(storage);
-            }
-            else
-            {
-                ShowWarning(Messages.TagListTagAlreadyExistsMessage);
-            }
-        }
-
+        
         private void OnRemoveTagPageButtonClick(object sender, EventArgs e)
         {
             var tabToRemove = TabControlSettings.SelectedTab;
