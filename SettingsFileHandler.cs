@@ -13,6 +13,12 @@ namespace MusicBeePlugin
     {
         public static Dictionary<string, TagsStorage> LoadSettings(string filename, Logger logger)
         {
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                logger.Error("Filename is null or whitespace.");
+                return new Dictionary<string, TagsStorage>();
+            }
+
             if (!File.Exists(filename) || new FileInfo(filename).Length == 0)
             {
                 InitializeEmptySettingsFile(filename, logger);
@@ -43,15 +49,28 @@ namespace MusicBeePlugin
 
         public static void InitializeEmptySettingsFile(string filename, Logger logger)
         {
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                logger.Error("Filename is null or whitespace.");
+                return;
+            }
+
             var defaultSettings = new Dictionary<string, TagsStorage>();
             var json = JsonConvert.SerializeObject(defaultSettings);
 
-            using (var writer = new StreamWriter(filename, false, Encoding.UTF8))
+            try
             {
-                writer.Write(json);
-            }
+                using (var writer = new StreamWriter(filename, false, Encoding.UTF8))
+                {
+                    writer.Write(json);
+                }
 
-            logger.Info($"{nameof(InitializeEmptySettingsFile)} executed");
+                logger.Info($"{nameof(InitializeEmptySettingsFile)} executed");
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"An error occurred while initializing the settings file: {ex.Message}");
+            }
         }
     }
 }
