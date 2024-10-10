@@ -36,20 +36,14 @@ namespace MusicBeePlugin
         public MetaDataType GetMetaDataType()
         {
             return Enum.TryParse(_tagMetaDataType, true, out MetaDataType result) ? result : default;
-        }
-
-        public bool EnableAlphabeticalTagSort
-        {
-            get { return _enableAlphabeticalSorting; }
-            set { _enableAlphabeticalSorting = value; }
-        }
+        }      
 
         public void Sort()
         {
             if (!_isAlphabeticallySorted && _enableAlphabeticalSorting)
             {
-                var sortedTagList = _tagList.OrderBy(item => item.Key).ToDictionary(item => item.Key, item => item.Value);
-                _tagList = new SortedDictionary<string, int>(sortedTagList);
+                _tagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Key)
+                                                                      .ToDictionary(item => item.Key, item => item.Value));
                 _isAlphabeticallySorted = true;
             }
         }
@@ -58,8 +52,9 @@ namespace MusicBeePlugin
         {
             if (!_enableAlphabeticalSorting)
             {
-                var sortedTagList = _tagList.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
-                _tagList = new SortedDictionary<string, int>(sortedTagList);
+                var sortedTagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Value)
+                                                                              .ToDictionary(item => item.Key, item => item.Value));
+                _tagList = sortedTagList;
             }
         }
 
