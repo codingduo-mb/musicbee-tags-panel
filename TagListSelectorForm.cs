@@ -43,7 +43,7 @@ namespace MusicBeePlugin
         {
             if (sender is ComboBox comboBox && !availableMetaDataTypes.Values.Contains(comboBox.Text))
             {
-                MessageBox.Show($" { Messages.ComboBoxTagSelectNotValidMessage}, { Messages.ComboBoxTagSelectNotValidTitle}, MessageBoxButtons.OK, MessageBoxIcon.Warning");
+                MessageBox.Show(Messages.ComboBoxTagSelectNotValidMessage, Messages.ComboBoxTagSelectNotValidTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 e.Cancel = true; // Prevents the focus from leaving the ComboBox if the validation fails
             }
         }

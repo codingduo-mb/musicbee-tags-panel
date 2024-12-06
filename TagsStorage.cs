@@ -11,8 +11,8 @@ namespace MusicBeePlugin
         private string _tagMetaDataType;
         private SortedDictionary<string, int> _tagList = new SortedDictionary<string, int>();
         private bool _isAlphabeticallySorted = true;
-
         private bool _enableAlphabeticalSorting;
+
         public bool ShowTagsNotInList { get; set; }
 
         public void Clear()
@@ -49,9 +49,8 @@ namespace MusicBeePlugin
         {
             if (!_enableAlphabeticalSorting)
             {
-                var sortedTagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Value)
-                                                                              .ToDictionary(item => item.Key, item => item.Value));
-                _tagList = sortedTagList;
+                _tagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Value)
+                                                                      .ToDictionary(item => item.Key, item => item.Value));
             }
         }
 
@@ -94,7 +93,7 @@ namespace MusicBeePlugin
         public SortedDictionary<string, int> TagList
         {
             get => _tagList;
-            set => _tagList = value;
+            set => _tagList = value ?? new SortedDictionary<string, int>();
         }
     }
 }

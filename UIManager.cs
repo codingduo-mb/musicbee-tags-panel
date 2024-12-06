@@ -55,7 +55,7 @@ namespace MusicBeePlugin
 
         public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
         {
-            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && !checklistBoxPanel.IsDisposed && checklistBoxPanel.IsHandleCreated)
+            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && checklistBoxPanel?.IsDisposed == false && checklistBoxPanel.IsHandleCreated)
             {
                 checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
             }

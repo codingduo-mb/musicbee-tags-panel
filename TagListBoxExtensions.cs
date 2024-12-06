@@ -4,9 +4,17 @@ namespace MusicBeePlugin
 {
     public static class TagListBoxExtensions
     {
-        public static void MoveUp(this ListBox listBox) => MoveSelectedItem(listBox, -1);
+        public static void MoveUp(this ListBox listBox)
+        {
+            if (listBox == null) return;
+            MoveSelectedItem(listBox, -1);
+        }
 
-        public static void MoveDown(this ListBox listBox) => MoveSelectedItem(listBox, 1);
+        public static void MoveDown(this ListBox listBox)
+        {
+            if (listBox == null) return;
+            MoveSelectedItem(listBox, 1);
+        }
 
         private static void MoveSelectedItem(ListBox listBox, int direction)
         {
@@ -23,7 +31,7 @@ namespace MusicBeePlugin
             }
 
             var selectedItem = listBox.SelectedItem;
-            var checkState = SaveCheckedState(listBox);
+            var checkState = SaveAndRemoveCheckedState(listBox);
 
             listBox.Items.Remove(selectedItem);
             listBox.Items.Insert(selectedIndex, selectedItem);
@@ -33,11 +41,13 @@ namespace MusicBeePlugin
             RestoreCheckedState(listBox, checkState, selectedIndex);
         }
 
-        private static CheckState SaveCheckedState(ListBox listBox)
+        private static CheckState SaveAndRemoveCheckedState(ListBox listBox)
         {
             if (listBox is CheckedListBox checkedListBox)
             {
-                return checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
+                var checkState = checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
+                checkedListBox.SetItemCheckState(checkedListBox.SelectedIndex, CheckState.Unchecked);
+                return checkState;
             }
 
             return CheckState.Unchecked;
