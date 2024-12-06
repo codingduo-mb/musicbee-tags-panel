@@ -1,7 +1,4 @@
-﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
-// A MusicBee plugin that displays a panel with tabpages containing checklistboxes. The user can select _availableMetaTags from the checklistboxes and the plugin will update the _availableMetaTags in the selected files.
+﻿// A MusicBee plugin that displays a panel with tabpages containing checklistboxes. The user can select _availableMetaTags from the checklistboxes and the plugin will update the _availableMetaTags in the selected files.
 // The plugin also has a settings dialog that allows the user to define the _availableMetaTags and the order in which they are displayed.
 // The plugin also has a logger that logs errors and information messages. The plugin also has a settings storage class that saves the settings to a file.
 // The plugin also has a _availableMetaTags manipulation class that manipulates the _availableMetaTags in the selected files. The plugin also has a plugin info class that contains information _pluginInformation the plugin.
@@ -71,30 +68,46 @@ namespace MusicBeePlugin
 
         private void InitializePluginComponents()
         {
-            _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles);
+            InitializeUIManager();
+            ClearCollections();
+            InitializeLogger();
+            InitializeSettingsManager();
+            InitializeTagManager();
+            LoadPluginSettings();
+            InitializeMenu();
+            EnsureTabControlInitialized();
+            _logger.Info($"{nameof(InitializePluginComponents)} started");
+        }
 
+        private void InitializeUIManager()
+        {
+            _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles);
+        }
+
+        private void ClearCollections()
+        {
             _tagsFromFiles.Clear();
             _tabPageList.Clear();
             _showTagsNotInList = false;
+        }
 
-            InitializeLogger();
-
+        private void InitializeSettingsManager()
+        {
             _settingsManager = new SettingsManager(_mbApiInterface, _logger);
+        }
+
+        private void InitializeTagManager()
+        {
             _tagManager = new TagManager(_mbApiInterface, _settingsManager);
+        }
 
-            LoadPluginSettings();
-
-            InitializeMenu();
-
-            // Ensure _tabControl is initialized
+        private void EnsureTabControlInitialized()
+        {
             if (_tabControl == null)
             {
                 _tabControl = new TabControl();
             }
-
             _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
-
-            _logger.Info($"{nameof(InitializePluginComponents)} started");
         }
 
         public bool Configure(IntPtr panelHandle)
