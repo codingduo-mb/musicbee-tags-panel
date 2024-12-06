@@ -483,11 +483,18 @@ namespace MusicBeePlugin
 
         private void AddControls()
         {
-            _tagsPanelControl.SuspendLayout();
-            CreateTabPanel();
-            _tagsPanelControl.Controls.Add(_tabControl);
-            _tagsPanelControl.Enabled = false;
-            _tagsPanelControl.ResumeLayout();
+            if (_tagsPanelControl.InvokeRequired)
+            {
+                _tagsPanelControl.Invoke(new Action(AddControls));
+            }
+            else
+            {
+                _tagsPanelControl.SuspendLayout();
+                CreateTabPanel();
+                _tagsPanelControl.Controls.Add(_tabControl);
+                _tagsPanelControl.Enabled = false;
+                _tagsPanelControl.ResumeLayout();
+            }
         }
 
         /// <summary>
