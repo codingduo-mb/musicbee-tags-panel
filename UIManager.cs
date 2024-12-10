@@ -33,8 +33,14 @@ namespace MusicBeePlugin
         {
             if (panel.InvokeRequired)
             {
-                panel.Invoke(new Action(() => DisplaySettingsPromptLabel(panel, tabControl, message)));
+                panel.Invoke((MethodInvoker)(() => DisplaySettingsPromptLabel(panel, tabControl, message)));
                 return;
+            }
+
+            var existingLabel = panel.Controls.OfType<Label>().FirstOrDefault(lbl => lbl.Text == message);
+            if (existingLabel != null)
+            {
+                return; // Label with the same message already exists
             }
 
             var emptyPanelText = new Label
