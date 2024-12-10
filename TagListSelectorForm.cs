@@ -5,10 +5,17 @@ using System.Windows.Forms;
 using static MusicBeePlugin.Plugin;
 
 namespace MusicBeePlugin
+
 {
+    public class MetaDataTypeItem
+    {
+        public MetaDataType MetaDataType { get; set; }
+        public string DisplayValue { get; set; }
+    }
+
     public partial class TagListSelectorForm : Form
     {
-        private readonly IDictionary<MetaDataType, string> availableMetaDataTypes;
+        private readonly List<MetaDataTypeItem> metaDataTypeItems;
 
         private static readonly HashSet<MetaDataType> _blacklistedMetaDataTypes = new HashSet<MetaDataType>
             {
@@ -32,8 +39,11 @@ namespace MusicBeePlugin
 
             BtnComboBoxAddMetaDataType.DialogResult = DialogResult.OK;
             BtnComboBoxMetaDataTypCancel.DialogResult = DialogResult.Cancel;
-            availableMetaDataTypes = GetAvailableMetaDataTypes(usedTags);
-            ComboBoxTagSelect.DataSource = new BindingSource(availableMetaDataTypes.Values, null);
+
+            metaDataTypeItems = GetAvailableMetaDataTypes(usedTags);
+            ComboBoxTagSelect.DataSource = metaDataTypeItems;
+            ComboBoxTagSelect.DisplayMember = "DisplayValue";
+            ComboBoxTagSelect.ValueMember = "MetaDataType";
             ComboBoxTagSelect.Validating += ComboBoxTagSelect_Validating;
 
             KeyDown += TagListSelectorForm_KeyDown;
@@ -41,19 +51,23 @@ namespace MusicBeePlugin
 
         private void ComboBoxTagSelect_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (sender is ComboBox comboBox && !availableMetaDataTypes.Values.Contains(comboBox.Text))
+            if (ComboBoxTagSelect.SelectedItem == null)
             {
-                MessageBox.Show(Messages.ComboBoxTagSelectNotValidMessage, Messages.ComboBoxTagSelectNotValidTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    Messages.ComboBoxTagSelectNotValidMessage,
+                    Messages.ComboBoxTagSelectNotValidTitle,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
                 e.Cancel = true; // Prevents the focus from leaving the ComboBox if the validation fails
             }
         }
 
-        private static IDictionary<MetaDataType, string> GetAvailableMetaDataTypes(IEnumerable<string> usedTags)
+        private static List<MetaDataTypeItem> GetAvailableMetaDataTypes(IEnumerable<string> usedTags)
         {
             var allMetaDataTypes = Enum.GetValues(typeof(MetaDataType))
                 .Cast<MetaDataType>()
-                .Except(_blacklistedMetaDataTypes)
-                .ToDictionary(t => t, t => t.ToString("g"));
+                .Except(_blacklistedMetaDataTypes);
 
             var usedMetaDataTypeEnums = usedTags
                 .Select(tag => Enum.TryParse(tag, out MetaDataType type) ? type : (MetaDataType?)null)
@@ -61,16 +75,20 @@ namespace MusicBeePlugin
                 .Select(t => t.Value);
 
             return allMetaDataTypes
-                .Where(kvp => !usedMetaDataTypeEnums.Contains(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                .Except(usedMetaDataTypeEnums)
+                .Select(t => new MetaDataTypeItem
+                {
+                    MetaDataType = t,
+                    DisplayValue = t.ToString()
+                })
+                .ToList();
         }
 
         public string GetSelectedMetaDataType()
         {
-            if (ComboBoxTagSelect.SelectedItem is string selectedValue)
+            if (ComboBoxTagSelect.SelectedValue is MetaDataType selectedMetaDataType)
             {
-                var selectedKey = availableMetaDataTypes.FirstOrDefault(kvp => kvp.Value == selectedValue).Key;
-                return selectedKey.ToString();
+                return selectedMetaDataType.ToString();
             }
             return null;
         }
