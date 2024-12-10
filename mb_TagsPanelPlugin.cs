@@ -132,8 +132,15 @@ namespace MusicBeePlugin
 
         private void LoadPluginSettings()
         {
-            _settingsManager.LoadSettingsWithFallback();
-            UpdateSettingsFromTagsStorage();
+            try
+            {
+                _settingsManager.LoadSettingsWithFallback();
+                UpdateSettingsFromTagsStorage();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to load plugin settings: {ex.Message}");
+            }
         }
 
         private void UpdateSettingsFromTagsStorage()
@@ -437,11 +444,18 @@ namespace MusicBeePlugin
 
         private void UpdateTagsInPanelOnFileSelection()
         {
-            _ignoreEventFromHandler = true;
-            _excludeFromBatchSelection = true;
-            InvokeRefreshTagTableData();
-            _ignoreEventFromHandler = false;
-            _excludeFromBatchSelection = false;
+            if (_tagsPanelControl.InvokeRequired)
+            {
+                _tagsPanelControl.Invoke(new Action(UpdateTagsInPanelOnFileSelection));
+            }
+            else
+            {
+                _ignoreEventFromHandler = true;
+                _excludeFromBatchSelection = true;
+                InvokeRefreshTagTableData();
+                _ignoreEventFromHandler = false;
+                _excludeFromBatchSelection = false;
+            }
         }
 
         /// <summary>
