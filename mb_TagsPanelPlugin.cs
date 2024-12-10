@@ -431,6 +431,12 @@ namespace MusicBeePlugin
 
         private void SetPanelEnabled(bool enabled = true)
         {
+            if (_tagsPanelControl == null)
+            {
+                // Handle the null case appropriately, e.g., log an error or initialize the control
+                return;
+            }
+
             if (_tagsPanelControl.InvokeRequired)
             {
                 _tagsPanelControl.Invoke(new Action(() => _tagsPanelControl.Enabled = enabled));
@@ -443,6 +449,12 @@ namespace MusicBeePlugin
 
         private void UpdateTagsInPanelOnFileSelection()
         {
+            if (_tagsPanelControl == null)
+            {
+                // Handle the null case appropriately, e.g., log an error or initialize the control
+                return;
+            }
+
             if (_tagsPanelControl.InvokeRequired)
             {
                 _tagsPanelControl.Invoke(new Action(UpdateTagsInPanelOnFileSelection));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace MusicBeePlugin
         private const ElementState DefaultElementState = ElementState.ElementStateDefault;
 
         private readonly MusicBeeApiInterface _mbApiInterface;
-        private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
+        private readonly ConcurrentDictionary<int, Color> _colorCache = new ConcurrentDictionary<int, Color>();
         private Font _defaultFont;
 
         private readonly Dictionary<string, TagListPanel> _checklistBoxList;
@@ -55,7 +56,9 @@ namespace MusicBeePlugin
 
         public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
         {
-            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) && checklistBoxPanel?.IsDisposed == false && checklistBoxPanel.IsHandleCreated)
+            if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) &&
+                checklistBoxPanel?.IsDisposed == false &&
+                checklistBoxPanel.IsHandleCreated)
             {
                 checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
             }
@@ -90,14 +93,11 @@ namespace MusicBeePlugin
         {
             var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
 
-            if (!_colorCache.TryGetValue(key, out var color))
+            return _colorCache.GetOrAdd(key, k =>
             {
                 var colorValue = _mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
-                color = Color.FromArgb(colorValue);
-                _colorCache.Add(key, color);
-            }
-
-            return color;
+                return Color.FromArgb(colorValue);
+            });
         }
 
         public void ApplySkinStyleToControl(Control formControl)
@@ -123,6 +123,7 @@ namespace MusicBeePlugin
             if (disposing)
             {
                 _defaultFont?.Dispose();
+                _colorCache.Clear();
             }
         }
     }
