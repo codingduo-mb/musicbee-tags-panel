@@ -87,10 +87,9 @@ namespace MusicBeePlugin
         
         private void OnRemoveTagPageButtonClick(object sender, EventArgs e)
         {
-            var tabToRemove = TabControlSettings.SelectedTab;
-            if (tabToRemove != null && ConfirmTagPageRemoval())
+            if (TabControlSettings.SelectedTab != null && ConfirmTagPageRemoval())
             {
-                RemoveSelectedTab(tabToRemove);
+                RemoveSelectedTab(TabControlSettings.SelectedTab);
             }
         }
 
@@ -109,22 +108,29 @@ namespace MusicBeePlugin
 
         private void LinkAbout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ShowMessageBox(string.Format(Messages.AboutMessage, VersionLbl.Text), Messages.AboutCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ShowMessageBox($"{Messages.AboutMessage} {VersionLbl.Text}", Messages.AboutCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void LinkGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start(Messages.GitHubLinkSettings);
+            try
+            {
+                System.Diagnostics.Process.Start(Messages.GitHubLinkSettings);
+            }
+            catch (Exception ex)
+            {
+                ShowWarning($"Failed to open link: {ex.Message}");
+            }
         }
 
         private void ShowWarning(string message)
         {
-            MessageBox.Show(message, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show($"{message}", $"{Messages.WarningTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void ShowMessageBox(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
         {
-            MessageBox.Show(text, caption, buttons, icon);
+            MessageBox.Show($"{text}", $"{caption}", buttons, icon);
         }
     }
 }
