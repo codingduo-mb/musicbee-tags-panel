@@ -103,11 +103,10 @@ namespace MusicBeePlugin
 
         private void EnsureTabControlInitialized()
         {
-            if (_tabControl == null)
+            if (_tabControl != null)
             {
-                _tabControl = new TabControl();
+                _tabControl.SelectedIndexChanged -= TabControlSelectionChanged;
             }
-            _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
         }
 
         public bool Configure(IntPtr panelHandle)
@@ -362,7 +361,7 @@ namespace MusicBeePlugin
 
         private void InvokeRefreshTagTableData()
         {
-            if (_tagsPanelControl?.IsDisposed != false) return;
+            if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed) return;
 
             void Action() => UpdateTagsDisplayFromStorage();
             if (_tagsPanelControl.InvokeRequired)
