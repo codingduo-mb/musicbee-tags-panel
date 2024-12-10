@@ -45,8 +45,8 @@
             this.CheckedListBoxWithTags.Name = "CheckedListBoxWithTags";
             this.CheckedListBoxWithTags.Size = new System.Drawing.Size(138, 138);
             this.CheckedListBoxWithTags.TabIndex = 1;
-            this.CheckedListBoxWithTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CheckedListBox1_KeyDown);
-            this.CheckedListBoxWithTags.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CheckedListBox1_KeyUp);
+            this.CheckedListBoxWithTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyDown);
+            this.CheckedListBoxWithTags.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyUp);
             // 
             // TagListPanel
             // 
