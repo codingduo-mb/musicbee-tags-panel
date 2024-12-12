@@ -14,7 +14,7 @@ namespace MusicBeePlugin
 
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly UIManager _controlStyle;
-        private readonly TagsStorage _tagsStorage;
+        private TagsStorage _tagsStorage;
 
         // Add SettingsManager parameter to the constructor
         public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
@@ -33,6 +33,21 @@ namespace MusicBeePlugin
 
             StylePanel();
         }
+
+        // Add this method to update the TagsStorage and refresh the checklist
+        public void UpdateTagsStorage(TagsStorage newTagsStorage)
+        {
+            _tagsStorage = newTagsStorage;
+
+            // Preserve the current checked states
+            var currentCheckStates = CheckedListBoxWithTags.Items.Cast<string>().ToDictionary(
+                item => item,
+                item => CheckedListBoxWithTags.GetItemCheckState(CheckedListBoxWithTags.Items.IndexOf(item))
+            );
+
+            // Re-populate the checklist with updated tags and current check states
+            PopulateChecklistBoxesFromData(currentCheckStates);
+        }
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -42,27 +57,49 @@ namespace MusicBeePlugin
             {
                 CheckedListBoxWithTags.Items.Clear();
 
-                var tagsFromSettings = _tagsStorage?.GetTags()?.Keys;
-            if (tagsFromSettings != null)
-            {
-                var sortedTagsFromSettings = tagsFromSettings.OrderBy(tag => tag).ToList();
+                var tagsFromSettings = _tagsStorage?.GetTags();
 
-                foreach (var tag in sortedTagsFromSettings)
+                if (tagsFromSettings != null)
                 {
-                    if (data.TryGetValue(tag, out var checkState))
+                    // Sort tags based on their indices in TagsStorage
+                    var sortedTagsFromSettings = tagsFromSettings
+                        .OrderBy(tag => tag.Value)
+                        .Select(tag => tag.Key)
+                        .ToList();
+
+                    // Add tags from settings in the specified order
+                    foreach (var tag in sortedTagsFromSettings)
                     {
-                        CheckedListBoxWithTags.Items.Add(tag, checkState);
+                        if (data.TryGetValue(tag, out var checkState))
+                        {
+                            CheckedListBoxWithTags.Items.Add(tag, checkState);
+                        }
+                        else
+                        {
+                            // If the tag is not in the data, add it unchecked
+                            CheckedListBoxWithTags.Items.Add(tag, CheckState.Unchecked);
+                        }
+                    }
+
+                    // Add any additional tags not in the settings
+                    var additionalTags = data.Keys.Except(tagsFromSettings.Keys).ToList();
+                    foreach (var tag in additionalTags)
+                    {
+                        CheckedListBoxWithTags.Items.Add(tag, data[tag]);
+                    }
+                }
+                else
+                {
+                    // If no tags from settings, display tags from data
+                    foreach (var kvp in data)
+                    {
+                        CheckedListBoxWithTags.Items.Add(kvp.Key, kvp.Value);
                     }
                 }
 
-                var additionalTags = data.Keys.Except(tagsFromSettings).OrderBy(tag => tag);
-                foreach (var tag in additionalTags)
-                {
-                    CheckedListBoxWithTags.Items.Add(tag, data[tag]);
-                }
-            }
-
-            CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(data.Keys) + PaddingWidth;
+                // Adjust the column width based on the longest tag
+                CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(
+                    CheckedListBoxWithTags.Items.Cast<string>()) + PaddingWidth;
             }
             finally
             {

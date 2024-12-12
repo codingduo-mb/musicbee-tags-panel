@@ -171,10 +171,22 @@ namespace MusicBeePlugin
             _tabControl.Visible = _tabControl.Controls.Count > 0;
         }
 
-        public void SavePluginConfiguration()
+        private void SavePluginConfiguration()
         {
             _settingsManager.SaveAllSettings();
             ApplySortOrderFromSettings();
+
+            // Update TagsStorage for each TagListPanel
+            foreach (var tagPanel in _checklistBoxList.Values)
+            {
+                var tagName = tagPanel.Name;
+                var newTagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
+                if (newTagsStorage != null)
+                {
+                    tagPanel.UpdateTagsStorage(newTagsStorage);
+                }
+            }
+
             RefreshPanelContent();
             LogConfigurationSaved();
         }
@@ -203,36 +215,22 @@ namespace MusicBeePlugin
 
         private void AddTagPanelForVisibleTags(string tagName)
         {
-            // Use _settingsManager instance to access TagsStorages
             if (!_settingsManager.TagsStorages.TryGetValue(tagName, out var tagsStorage))
             {
                 _logger.Error("tagsStorage is null");
                 return;
             }
 
-            var tabPage = GetOrCreateTagPage(tagName);
-            TagListPanel checkListBox = GetOrCreateCheckListBoxPanel(tagName);
-            // Populate the checklistbox based on the checkbox state
-            if (_showTagsNotInList)
-            {
-                var combinedTags = CombineTagsFromSettingsAndFiles(tagsStorage);
-                var combinedTagsWithCheckState = combinedTags.ToDictionary(tag => tag, tag => CheckState.Unchecked);
-                checkListBox.PopulateChecklistBoxesFromData(combinedTagsWithCheckState);
-            }
-            else
-            {
-                var tagsWithCheckState = tagsStorage.GetTags().ToDictionary(tag => tag.Key, tag => CheckState.Unchecked);
-                checkListBox.PopulateChecklistBoxesFromData(tagsWithCheckState);
-            }
+            var tabPage = new TabPage(tagName);
+            var checkListBox = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _tagsFromFiles);
+            _checklistBoxList[tagName] = checkListBox; // Update the checklistBoxList with the new instance
 
             checkListBox.Dock = DockStyle.Fill;
             checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
+            tabPage.Controls.Add(checkListBox);
 
-            if (!tabPage.Controls.Contains(checkListBox))
-            {
-                tabPage.Controls.Add(checkListBox);
-            }
-            checkListBox.Visible = true;
+            _tabPageList[tagName] = tabPage;
+            _tabControl.TabPages.Add(tabPage);
         }
 
         private TabPage GetOrCreateTagPage(string tagName)
@@ -250,6 +248,7 @@ namespace MusicBeePlugin
         private void PopulateTabPages()
         {
             _tabPageList.Clear();
+            _checklistBoxList.Clear(); // Clear existing TagListPanel instances
             if (_tabControl?.TabPages != null)
             {
                 _tabControl.TabPages.Clear();
@@ -310,6 +309,13 @@ namespace MusicBeePlugin
 
         private void ClearAllTagPages()
         {
+            foreach (var tabPage in _tabPageList.Values)
+            {
+                foreach (var control in tabPage.Controls.OfType<TagListPanel>())
+                {
+                    control.Dispose();
+                }
+            }
             _tabPageList.Clear();
             _tabControl?.TabPages.Clear();
         }
