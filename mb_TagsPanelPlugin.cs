@@ -221,7 +221,8 @@ namespace MusicBeePlugin
             }
             else
             {
-                checkListBox.PopulateChecklistBoxesFromData(tagsStorage.GetTags());
+                var tagsWithCheckState = tagsStorage.GetTags().ToDictionary(tag => tag.Key, tag => CheckState.Unchecked);
+                checkListBox.PopulateChecklistBoxesFromData(tagsWithCheckState);
             }
 
             checkListBox.Dock = DockStyle.Fill;
@@ -338,7 +339,8 @@ namespace MusicBeePlugin
                 return;
             }
 
-            currentTagsStorage.SortByIndex();
+            // Sort tags by their index
+            var sortedTags = currentTagsStorage.GetTags().OrderBy(tag => tag.Value).ToDictionary(tag => tag.Key, tag => tag.Value);
             var data = GetTagsFromStorage(currentTagsStorage);
             var trimmedTagKeys = new HashSet<string>(data.Keys);
 

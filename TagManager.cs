@@ -78,18 +78,22 @@ namespace MusicBeePlugin
             return string.Join(Separator.ToString(), tags);
         }
 
+        // TagManager.cs (If necessary)
+
         public void SetTagsInFile(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
         {
+            var tagsStorage = _settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString());
+
             foreach (var fileUrl in fileUrls)
             {
                 var tagsFromFile = selected == CheckState.Checked ? AddTag(selectedTag, fileUrl, metaDataType) : RemoveTag(selectedTag, fileUrl, metaDataType);
-                var sortedTags = _settingsStorage.RetrieveTagsStorageByTagName(metaDataType.ToString()).Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
+                var sortedTags = tagsStorage.Sorted ? SortTagsAlphabetical(tagsFromFile) : tagsFromFile;
 
                 _mbApiInterface.Library_SetFileTag(fileUrl, metaDataType, sortedTags);
                 _mbApiInterface.Library_CommitTagsToFile(fileUrl);
             }
 
-            _mbApiInterface.MB_SetBackgroundTaskMessage("Added tags to file");
+            _mbApiInterface.MB_SetBackgroundTaskMessage("Applied tags to files");
         }
 
         public string[] ReadTagsFromFile(string fileName, MetaDataType metaDataField)

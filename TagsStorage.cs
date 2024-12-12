@@ -9,20 +9,31 @@ namespace MusicBeePlugin
     public class TagsStorage
     {
         private string _tagMetaDataType;
-        private SortedDictionary<string, int> _tagList = new SortedDictionary<string, int>();
-        private bool _isAlphabeticallySorted = true;
-        private bool _enableAlphabeticalSorting;
+        private Dictionary<string, int> _tagList = new Dictionary<string, int>();
 
         public bool ShowTagsNotInList { get; set; }
+
+        // Add the Sorted property
+        public bool Sorted { get; set; }
 
         public void Clear()
         {
             _tagList.Clear();
         }
 
-        public Dictionary<string, CheckState> GetTags()
+        // Modify GetTags to return tags based on the Sorted property
+        public Dictionary<string, int> GetTags()
         {
-            return _tagList.ToDictionary(item => item.Key, item => CheckState.Unchecked);
+            if (Sorted)
+            {
+                // Return tags sorted alphabetically
+                return _tagList.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);
+            }
+            else
+            {
+                // Return tags in their original order
+                return _tagList.OrderBy(kv => kv.Value).ToDictionary(kv => kv.Key, kv => kv.Value);
+            }
         }
 
         public string GetTagName()
@@ -35,52 +46,11 @@ namespace MusicBeePlugin
             return Enum.TryParse(_tagMetaDataType, true, out MetaDataType result) ? result : default;
         }
 
-        public void Sort()
+        public void SwapElement(string key, int newIndex)
         {
-            if (!_isAlphabeticallySorted && _enableAlphabeticalSorting)
+            if (_tagList.ContainsKey(key))
             {
-                _tagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Key)
-                                                                      .ToDictionary(item => item.Key, item => item.Value));
-                _isAlphabeticallySorted = true;
-            }
-        }
-
-        public void SortByIndex()
-        {
-            if (!_enableAlphabeticalSorting)
-            {
-                _tagList = new SortedDictionary<string, int>(_tagList.OrderBy(item => item.Value)
-                                                                      .ToDictionary(item => item.Key, item => item.Value));
-            }
-        }
-
-        public void SwapElement(string key, int position)
-        {
-            if (_tagList.TryGetValue(key, out int oldPosition))
-            {
-                _tagList[key] = position;
-
-                var items = _tagList.Where(x => x.Value == position && x.Key != key).ToList();
-                foreach (var item in items)
-                {
-                    _tagList[item.Key] = oldPosition;
-                }
-            }
-        }
-
-        public bool Sorted
-        {
-            get => _isAlphabeticallySorted;
-            set
-            {
-                if (value != _isAlphabeticallySorted)
-                {
-                    _isAlphabeticallySorted = value;
-                    if (_isAlphabeticallySorted && _enableAlphabeticalSorting)
-                    {
-                        Sort();
-                    }
-                }
+                _tagList[key] = newIndex;
             }
         }
 
@@ -90,10 +60,10 @@ namespace MusicBeePlugin
             set => _tagMetaDataType = value;
         }
 
-        public SortedDictionary<string, int> TagList
+        public Dictionary<string, int> TagList
         {
             get => _tagList;
-            set => _tagList = value ?? new SortedDictionary<string, int>();
+            set => _tagList = value ?? new Dictionary<string, int>();
         }
     }
 }
