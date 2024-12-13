@@ -102,6 +102,7 @@ namespace MusicBeePlugin
             if (_tabControl != null)
             {
                 _tabControl.SelectedIndexChanged -= TabControlSelectionChanged;
+                _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
             }
         }
 
@@ -122,7 +123,7 @@ namespace MusicBeePlugin
 
         private void InitializeMenu()
         {
-            _mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", SettingsMenuClicked);
+            _mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", OnSettingsMenuClicked);
         }
 
         private void LoadPluginSettings()
@@ -131,10 +132,11 @@ namespace MusicBeePlugin
             {
                 _settingsManager.LoadSettingsWithFallback();
                 UpdateSettingsFromTagsStorage();
+                _logger.Info("Plugin settings loaded successfully.");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to load plugin settings: {ex.Message}");
+                _logger.Error($"Failed to load plugin settings: {ex}");
             }
         }
 
@@ -356,7 +358,7 @@ namespace MusicBeePlugin
             }
         }
 
-        public void SettingsMenuClicked(object sender, EventArgs args)
+        public void OnSettingsMenuClicked(object sender, EventArgs args)
         {
             ShowSettingsDialog();
         }
@@ -670,7 +672,7 @@ namespace MusicBeePlugin
         {
             var menuItems = new List<ToolStripItem>
             {
-                new ToolStripMenuItem("Tag-Panel Settings", null, SettingsMenuClicked),
+                new ToolStripMenuItem("Tag-Panel Settings", null, OnSettingsMenuClicked),
             };
             return menuItems;
         }

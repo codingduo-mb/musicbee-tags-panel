@@ -43,8 +43,9 @@ namespace MusicBeePlugin
             // TabControlSettings
             // 
             this.TabControlSettings.Location = new System.Drawing.Point(12, 76);
+            this.TabControlSettings.Margin = new System.Windows.Forms.Padding(0);
             this.TabControlSettings.Name = "TabControlSettings";
-            this.TabControlSettings.Padding = new System.Drawing.Point(3, 3);
+            this.TabControlSettings.Padding = new System.Drawing.Point(5, 5);
             this.TabControlSettings.SelectedIndex = 0;
             this.TabControlSettings.Size = new System.Drawing.Size(600, 770);
             this.TabControlSettings.TabIndex = 0;
@@ -56,7 +57,7 @@ namespace MusicBeePlugin
             // VersionLbl
             // 
             this.VersionLbl.AutoSize = true;
-            this.VersionLbl.Location = new System.Drawing.Point(469, 925);
+            this.VersionLbl.Location = new System.Drawing.Point(474, 930);
             this.VersionLbl.Name = "VersionLbl";
             this.VersionLbl.Size = new System.Drawing.Size(0, 19);
             this.VersionLbl.TabIndex = 7;
@@ -65,7 +66,7 @@ namespace MusicBeePlugin
             // 
             this.BtnDiscardSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardSettings.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnDiscardSettings.Location = new System.Drawing.Point(428, 852);
+            this.BtnDiscardSettings.Location = new System.Drawing.Point(423, 857);
             this.BtnDiscardSettings.Name = "BtnDiscardSettings";
             this.BtnDiscardSettings.Size = new System.Drawing.Size(181, 50);
             this.BtnDiscardSettings.TabIndex = 4;
@@ -104,7 +105,7 @@ namespace MusicBeePlugin
             // linkGitHub
             // 
             this.linkGitHub.AutoSize = true;
-            this.linkGitHub.Location = new System.Drawing.Point(12, 925);
+            this.linkGitHub.Location = new System.Drawing.Point(17, 930);
             this.linkGitHub.Name = "linkGitHub";
             this.linkGitHub.Size = new System.Drawing.Size(130, 19);
             this.linkGitHub.TabIndex = 5;
@@ -131,6 +132,7 @@ namespace MusicBeePlugin
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "TagListSettingsForm";
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Tags-Panel Settings";

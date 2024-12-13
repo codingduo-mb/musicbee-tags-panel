@@ -50,6 +50,7 @@ namespace MusicBeePlugin
             this.LstTags.FormattingEnabled = true;
             this.LstTags.ItemHeight = 19;
             this.LstTags.Location = new System.Drawing.Point(6, 6);
+            this.LstTags.Margin = new System.Windows.Forms.Padding(5);
             this.LstTags.Name = "LstTags";
             this.LstTags.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.LstTags.Size = new System.Drawing.Size(593, 498);
@@ -80,9 +81,11 @@ namespace MusicBeePlugin
             this.CbEnableAlphabeticalTagListSorting.AutoSize = true;
             this.CbEnableAlphabeticalTagListSorting.Checked = true;
             this.CbEnableAlphabeticalTagListSorting.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CbEnableAlphabeticalTagListSorting.Location = new System.Drawing.Point(413, 84);
+            this.CbEnableAlphabeticalTagListSorting.Location = new System.Drawing.Point(404, 68);
+            this.CbEnableAlphabeticalTagListSorting.Margin = new System.Windows.Forms.Padding(0);
             this.CbEnableAlphabeticalTagListSorting.Name = "CbEnableAlphabeticalTagListSorting";
-            this.CbEnableAlphabeticalTagListSorting.Size = new System.Drawing.Size(174, 23);
+            this.CbEnableAlphabeticalTagListSorting.Padding = new System.Windows.Forms.Padding(5);
+            this.CbEnableAlphabeticalTagListSorting.Size = new System.Drawing.Size(184, 33);
             this.CbEnableAlphabeticalTagListSorting.TabIndex = 3;
             this.CbEnableAlphabeticalTagListSorting.Text = "Sort Tags Alphabetically";
             this.CbEnableAlphabeticalTagListSorting.UseVisualStyleBackColor = true;
@@ -137,9 +140,10 @@ namespace MusicBeePlugin
             // CbShowTagsThatAreNotInTheTagsList
             // 
             this.CbShowTagsThatAreNotInTheTagsList.AutoSize = true;
-            this.CbShowTagsThatAreNotInTheTagsList.Location = new System.Drawing.Point(343, 113);
+            this.CbShowTagsThatAreNotInTheTagsList.Location = new System.Drawing.Point(341, 104);
             this.CbShowTagsThatAreNotInTheTagsList.Name = "CbShowTagsThatAreNotInTheTagsList";
-            this.CbShowTagsThatAreNotInTheTagsList.Size = new System.Drawing.Size(244, 23);
+            this.CbShowTagsThatAreNotInTheTagsList.Padding = new System.Windows.Forms.Padding(5);
+            this.CbShowTagsThatAreNotInTheTagsList.Size = new System.Drawing.Size(254, 33);
             this.CbShowTagsThatAreNotInTheTagsList.TabIndex = 8;
             this.CbShowTagsThatAreNotInTheTagsList.Text = "Show Tags That Are Not In The List";
             this.CbShowTagsThatAreNotInTheTagsList.UseVisualStyleBackColor = true;
@@ -152,7 +156,9 @@ namespace MusicBeePlugin
             this.groupBox1.Controls.Add(this.BtnClearTagList);
             this.groupBox1.Controls.Add(this.CbEnableAlphabeticalTagListSorting);
             this.groupBox1.Location = new System.Drawing.Point(6, 586);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
             this.groupBox1.Size = new System.Drawing.Size(593, 140);
             this.groupBox1.TabIndex = 9;
             this.groupBox1.TabStop = false;
@@ -181,9 +187,10 @@ namespace MusicBeePlugin
             this.Controls.Add(this.BtnAddTagToList);
             this.Controls.Add(this.LstTags);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TagListSettingsPanel";
-            this.Padding = new System.Windows.Forms.Padding(3);
-            this.Size = new System.Drawing.Size(605, 760);
+            this.Padding = new System.Windows.Forms.Padding(5);
+            this.Size = new System.Drawing.Size(609, 760);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

@@ -39,11 +39,11 @@
             this.CheckedListBoxWithTags.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CheckedListBoxWithTags.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.CheckedListBoxWithTags.IntegralHeight = false;
-            this.CheckedListBoxWithTags.Location = new System.Drawing.Point(6, 6);
+            this.CheckedListBoxWithTags.Location = new System.Drawing.Point(5, 5);
             this.CheckedListBoxWithTags.Margin = new System.Windows.Forms.Padding(0);
             this.CheckedListBoxWithTags.MultiColumn = true;
             this.CheckedListBoxWithTags.Name = "CheckedListBoxWithTags";
-            this.CheckedListBoxWithTags.Size = new System.Drawing.Size(138, 138);
+            this.CheckedListBoxWithTags.Size = new System.Drawing.Size(140, 140);
             this.CheckedListBoxWithTags.TabIndex = 1;
             this.CheckedListBoxWithTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyDown);
             this.CheckedListBoxWithTags.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyUp);
@@ -56,8 +56,8 @@
             this.Controls.Add(this.CheckedListBoxWithTags);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(0);
-            this.Name = "ChecklistBoxPanel";
-            this.Padding = new System.Windows.Forms.Padding(6);
+            this.Name = "TagListPanel";
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.ResumeLayout(false);
 
         }
