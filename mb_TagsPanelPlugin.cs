@@ -1,10 +1,6 @@
-﻿// A MusicBee plugin that displays a panel with tabpages containing checklistboxes. The user can select _availableMetaTags from the checklistboxes and the plugin will update the _availableMetaTags in the selected files.
-// The plugin also has a settings dialog that allows the user to define the _availableMetaTags and the order in which they are displayed.
-// The plugin also has a logger that logs errors and information messages. The plugin also has a settings storage class that saves the settings to a file.
-// The plugin also has a _availableMetaTags manipulation class that manipulates the _availableMetaTags in the selected files. The plugin also has a plugin info class that contains information _pluginInformation the plugin.
-// The plugin also has a _availableMetaTags storage class that contains the _availableMetaTags and the order in which they are displayed. The plugin also has a checklistbox panel class that contains a checklistbox and a style class that styles
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -248,10 +244,12 @@ namespace MusicBeePlugin
         private void PopulateTabPages()
         {
             _tabPageList.Clear();
-            _checklistBoxList.Clear(); // Clear existing TagListPanel instances
+            _checklistBoxList.Clear();
+
             if (_tabControl?.TabPages != null)
             {
                 _tabControl.TabPages.Clear();
+
                 foreach (var tagsStorage in _settingsManager.TagsStorages.Values)
                 {
                     AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
@@ -290,6 +288,7 @@ namespace MusicBeePlugin
                 {
                     control.Dispose();
                 }
+                tabPage.Controls.Clear();
             }
             _tabPageList.Clear();
             _tabControl?.TabPages.Clear();
@@ -369,16 +368,17 @@ namespace MusicBeePlugin
                 return;
             }
 
-            CheckState newState = e.NewValue;
-            CheckState currentState = ((CheckedListBox)sender).GetItemCheckState(e.Index);
-
-            if (newState != currentState)
+            _ignoreEventFromHandler = true;
+            try
             {
+                CheckState newState = e.NewValue;
                 string name = ((CheckedListBox)sender).Items[e.Index].ToString();
 
-                _ignoreEventFromHandler = true;
                 ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, name);
                 _mbApiInterface.MB_RefreshPanels();
+            }
+            finally
+            {
                 _ignoreEventFromHandler = false;
             }
         }
@@ -414,9 +414,9 @@ namespace MusicBeePlugin
 
         private void SetPanelEnabled(bool enabled = true)
         {
-            if (_tagsPanelControl == null)
+            if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
             {
-                // Handle the null case appropriately, e.g., log an error or initialize the control
+                // Control is not available; cannot set enabled state
                 return;
             }
 
@@ -458,13 +458,24 @@ namespace MusicBeePlugin
         /// <param name="filenames"></param>
         private void RefreshPanelTagsFromFiles(string[] filenames)
         {
-            if (ShouldClearTags(filenames))
+            if (filenames == null || filenames.Length == 0)
             {
-                ClearTagsAndUpdateUI();
+                _tagsFromFiles.Clear();
+                UpdateTagsInPanelOnFileSelection();
+                SetPanelEnabled(true);
                 return;
             }
 
-            UpdateTagsFromFiles(filenames);
+            var currentTagsStorage = GetCurrentTagsStorage();
+            if (currentTagsStorage == null)
+            {
+                _logger.Error("Current TagsStorage is null");
+                return;
+            }
+
+            _tagsFromFiles = _tagManager.CombineTagLists(filenames, currentTagsStorage);
+            UpdateTagsInPanelOnFileSelection();
+            SetPanelEnabled(true);
         }
 
         private bool ShouldClearTags(string[] filenames)
@@ -531,21 +542,33 @@ namespace MusicBeePlugin
             _logger = null;
         }
 
-        /// <summary>
-        /// uninstall this plugin - clean up any persisted files
-        /// </summary>
+
         public void Uninstall()
         {
-            // Delete settings file
-            if (System.IO.File.Exists(_settingsManager.GetSettingsPath()))
+            try
             {
-                System.IO.File.Delete(_settingsManager.GetSettingsPath());
+                string settingsPath = _settingsManager.GetSettingsPath();
+                if (File.Exists(settingsPath))
+                {
+                    File.Delete(settingsPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Failed to delete settings file: {ex.Message}");
             }
 
-            // Delete _logger file
-            if (System.IO.File.Exists(_logger.GetLogFilePath()))
+            try
             {
-                System.IO.File.Delete(_logger.GetLogFilePath());
+                string logFilePath = _logger?.GetLogFilePath();
+                if (!string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
+                {
+                    File.Delete(logFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Failed to delete log file: {ex.Message}");
             }
         }
 
