@@ -259,31 +259,6 @@ namespace MusicBeePlugin
             }
         }
 
-        private HashSet<string> CombineTagsFromSettingsAndFiles(TagsStorage tagsStorage)
-        {
-            // Combine tags from settings and files
-            var combinedTags = new HashSet<string>(tagsStorage.GetTags().Select(x => x.Key));
-            combinedTags.UnionWith(_tagsFromFiles.Keys);
-
-            return combinedTags;
-        }
-
-        /// <summary>
-        /// Removes a tab from the panel.
-        /// </summary>
-        /// <param name="tabName"></param>
-        /// <param name="tabPage"></param>
-
-        private TagListPanel GetOrCreateCheckListBoxPanel(string tagName)
-        {
-            if (!_checklistBoxList.TryGetValue(tagName, out var checkListBox) || checkListBox.IsDisposed)
-            {
-                checkListBox = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _tagsFromFiles);
-                _checklistBoxList[tagName] = checkListBox;
-            }
-
-            return checkListBox;
-        }
 
         private void ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
         {

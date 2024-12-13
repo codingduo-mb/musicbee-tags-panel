@@ -21,10 +21,12 @@ namespace MusicBeePlugin
         {
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface, new Dictionary<string, TagListPanel> { { tagName, this } }, new string[0], null);
-            // Use the provided SettingsManager instance to retrieve TagsStorage
             _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
 
             InitializeComponent();
+
+            // Set the Name property to ensure the correct tab name
+            this.Name = tagName;
 
             if (data != null)
             {
