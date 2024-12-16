@@ -16,11 +16,10 @@ namespace MusicBeePlugin
         private readonly UIManager _controlStyle;
         private TagsStorage _tagsStorage;
 
-        // Add SettingsManager parameter to the constructor
-        public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, CheckState> data = null)
+        public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
         {
             _mbApiInterface = mbApiInterface;
-            _controlStyle = new UIManager(mbApiInterface, new Dictionary<string, TagListPanel> { { tagName, this } }, new string[0], null);
+            _controlStyle = new UIManager(mbApiInterface, checklistBoxList, selectedFileUrls, refreshPanelTagsFromFiles);
             _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
 
             InitializeComponent();
@@ -28,28 +27,22 @@ namespace MusicBeePlugin
             // Set the Name property to ensure the correct tab name
             this.Name = tagName;
 
-            if (data != null)
-            {
-                PopulateChecklistBoxesFromData(data);
-            }
-
             StylePanel();
         }
 
-        // Add this method to update the TagsStorage and refresh the checklist
-        public void UpdateTagsStorage(TagsStorage newTagsStorage)
+        /// <summary>
+        /// Updates the TagsStorage and refreshes the checklist with new data.
+        /// </summary>
+        /// <param name="newTagsStorage">The new TagsStorage.</param>
+        /// <param name="data">Dictionary containing tags and their check states.</param>
+        public void UpdateTagsStorage(TagsStorage newTagsStorage, Dictionary<string, CheckState> data)
         {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
             _tagsStorage = newTagsStorage;
-
-            // Preserve the current checked states
-            var currentCheckStates = CheckedListBoxWithTags.Items.Cast<string>().ToDictionary(
-                item => item,
-                item => CheckedListBoxWithTags.GetItemCheckState(CheckedListBoxWithTags.Items.IndexOf(item))
-            );
-
-            // Re-populate the checklist with updated tags and current check states
-            PopulateChecklistBoxesFromData(currentCheckStates);
+            PopulateChecklistBoxesFromData(data);
         }
+
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -66,7 +59,7 @@ namespace MusicBeePlugin
                     // Sort tags based on their indices in TagsStorage
                     var sortedTagsFromSettings = tagsFromSettings
                         .OrderBy(tag => tag.Value)
-                        .Select(tag => tag.Key)
+                        .Select(tag => tag.Key.Trim())
                         .ToList();
 
                     // Add tags from settings in the specified order
@@ -84,7 +77,7 @@ namespace MusicBeePlugin
                     }
 
                     // Add any additional tags not in the settings
-                    var additionalTags = data.Keys.Except(tagsFromSettings.Keys).ToList();
+                    var additionalTags = data.Keys.Except(sortedTagsFromSettings);
                     foreach (var tag in additionalTags)
                     {
                         CheckedListBoxWithTags.Items.Add(tag, data[tag]);
@@ -102,6 +95,8 @@ namespace MusicBeePlugin
                 // Adjust the column width based on the longest tag
                 CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(
                     CheckedListBoxWithTags.Items.Cast<string>()) + PaddingWidth;
+
+                CheckedListBoxWithTags.Refresh();
             }
             finally
             {

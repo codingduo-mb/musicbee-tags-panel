@@ -211,7 +211,8 @@ namespace MusicBeePlugin
                 var newTagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
                 if (newTagsStorage != null)
                 {
-                    tagPanel.UpdateTagsStorage(newTagsStorage);
+                    var data = GetTagsFromStorage(newTagsStorage);
+                    tagPanel.UpdateTagsStorage(newTagsStorage, data);
                 }
             }
 
@@ -250,13 +251,13 @@ namespace MusicBeePlugin
             }
 
             var tabPage = new TabPage(tagName);
-            var checkListBox = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _tagsFromFiles);
-            _checklistBoxList[tagName] = checkListBox; // Update the checklistBoxList with the new instance
+            var checkListBox = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles); // Updated constructor call
 
             checkListBox.Dock = DockStyle.Fill;
             checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
             tabPage.Controls.Add(checkListBox);
 
+            _checklistBoxList[tagName] = checkListBox; // Update the checklistBoxList with the new instance
             _tabPageList[tagName] = tabPage;
             _tabControl.TabPages.Add(tabPage);
         }
@@ -351,15 +352,29 @@ namespace MusicBeePlugin
                 return;
             }
 
-            // Sort tags by their index
-            var sortedTags = currentTagsStorage.GetTags().OrderBy(tag => tag.Value).ToDictionary(tag => tag.Key, tag => tag.Value);
             var data = GetTagsFromStorage(currentTagsStorage);
             var trimmedTagKeys = new HashSet<string>(data.Keys);
 
             AddTagsFromFiles(data, trimmedTagKeys);
 
             string tagName = currentTagsStorage.GetTagName();
-            _uiManager.AddTagsToChecklistBoxPanel(tagName, data);
+
+            if (_checklistBoxList.TryGetValue(tagName, out var tagListPanel))
+            {
+                if (tagListPanel.InvokeRequired)
+                {
+                    tagListPanel.Invoke(new Action(() =>
+                        tagListPanel.UpdateTagsStorage(currentTagsStorage, data)));
+                }
+                else
+                {
+                    tagListPanel.UpdateTagsStorage(currentTagsStorage, data);
+                }
+            }
+            else
+            {
+                _logger.Error($"TagListPanel for tag '{tagName}' not found.");
+            }
         }
 
         private void AddTagsFromFiles(Dictionary<string, CheckState> data, HashSet<string> trimmedTagKeys)
@@ -377,14 +392,13 @@ namespace MusicBeePlugin
         {
             if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed) return;
 
-            void Action() => UpdateTagsDisplayFromStorage();
             if (_tagsPanelControl.InvokeRequired)
             {
-                _tagsPanelControl.Invoke((Action)Action);
+                _tagsPanelControl.Invoke(new Action(UpdateTagsDisplayFromStorage));
             }
             else
             {
-                Action();
+                UpdateTagsDisplayFromStorage();
             }
         }
 

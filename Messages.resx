@@ -165,6 +165,12 @@
   <data name="GitHubLinkSettings" xml:space="preserve">
     <value>https://github.com/kn9ff/musicbee-tags-panel</value>
   </data>
+  <data name="InformationTitle" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="NoMetaDataTypesMessage" xml:space="preserve">
+    <value>No MetaData Types are available. Please add MetaData Types using the 'Add Metadata Type' button.</value>
+  </data>
   <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
     <value>Please add a tag in the settings dialog.</value>
   </data>

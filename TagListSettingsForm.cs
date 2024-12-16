@@ -19,6 +19,7 @@ namespace MusicBeePlugin
             SettingsStorage = settingsStorage;
             PopulatePanelsFromSettings();
             InitializeToolTip();
+            CheckAndDisplayNoMetaDataTypeMessage();
         }
 
         private void InitializeDialogResults()
@@ -40,7 +41,6 @@ namespace MusicBeePlugin
                 AddPanel(storage);
             }
         }
-
 
         private void InitializeToolTip()
         {
@@ -76,6 +76,7 @@ namespace MusicBeePlugin
                     {
                         var storage = new TagsStorage { MetaDataType = metaDataType };
                         AddPanel(storage);
+                        CheckAndDisplayNoMetaDataTypeMessage();
                     }
                     else
                     {
@@ -84,12 +85,13 @@ namespace MusicBeePlugin
                 }
             }
         }
-        
+
         private void OnRemoveTagPageButtonClick(object sender, EventArgs e)
         {
             if (TabControlSettings.SelectedTab != null && ConfirmTagPageRemoval())
             {
                 RemoveSelectedTab(TabControlSettings.SelectedTab);
+                CheckAndDisplayNoMetaDataTypeMessage();
             }
         }
 
@@ -131,6 +133,19 @@ namespace MusicBeePlugin
         private void ShowMessageBox(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
         {
             MessageBox.Show($"{text}", $"{caption}", buttons, icon);
+        }
+
+        private void CheckAndDisplayNoMetaDataTypeMessage()
+        {
+            if (_tagPanels.Count == 0)
+            {
+                ShowInformation(Messages.NoMetaDataTypesMessage);
+            }
+        }
+
+        private void ShowInformation(string message)
+        {
+            MessageBox.Show($"{message}", $"{Messages.InformationTitle}", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

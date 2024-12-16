@@ -205,6 +205,24 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        internal static string InformationTitle {
+            get {
+                return ResourceManager.GetString("InformationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No MetaData Types are available. Please add MetaData Types using the &apos;Add Metadata Type&apos; button..
+        /// </summary>
+        internal static string NoMetaDataTypesMessage {
+            get {
+                return ResourceManager.GetString("NoMetaDataTypesMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please add a tag in the settings dialog..
         /// </summary>
         internal static string PleaseAddTagsInSettingsMessage {
