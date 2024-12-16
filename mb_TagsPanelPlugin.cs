@@ -128,25 +128,49 @@ namespace MusicBeePlugin
 
         private void LoadPluginSettings()
         {
+            if (_settingsManager == null)
+            {
+                _logger.Error("SettingsManager is not initialized.");
+                return;
+            }
+
             try
             {
                 _settingsManager.LoadSettingsWithFallback();
                 UpdateSettingsFromTagsStorage();
                 _logger.Info("Plugin settings loaded successfully.");
             }
+            catch (IOException ioEx)
+            {
+                _logger.Error($"I/O error while loading plugin settings: {ioEx.Message}");
+                ShowErrorMessage("An error occurred while accessing the settings file. Please check file permissions or disk space.");
+            }
+            catch (UnauthorizedAccessException uaEx)
+            {
+                _logger.Error($"Unauthorized access during settings load: {uaEx.Message}");
+                ShowErrorMessage("Insufficient permissions to access the settings file.");
+            }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to load plugin settings: {ex}");
+                _logger.Error($"Unexpected error while loading plugin settings: {ex.Message}");
+                ShowErrorMessage("An unexpected error occurred while loading settings.");
             }
         }
 
         private void UpdateSettingsFromTagsStorage()
         {
             var tagsStorage = _settingsManager.GetFirstOne();
+
             if (tagsStorage != null)
             {
                 _metaDataTypeName = tagsStorage.MetaDataType;
                 _sortAlphabetically = tagsStorage.Sorted;
+            }
+            else
+            {
+                _logger.Warn("No TagsStorage found in SettingsManager.");
+                _metaDataTypeName = string.Empty;
+                _sortAlphabetically = false;
             }
         }
 
@@ -163,6 +187,12 @@ namespace MusicBeePlugin
                 }
             }
         }
+
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
 
         private void UpdateTabControlVisibility()
         {
