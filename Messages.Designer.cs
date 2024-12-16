@@ -70,7 +70,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub.
+        ///   Looks up a localized string similar to Tags-Panel Plugin\nVersion {0}\nVisit my GitHub page for more information..
         /// </summary>
         internal static string AboutMessage {
             get {
@@ -79,7 +79,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add &amp; select a new tag and a new tabpage.
+        ///   Looks up a localized string similar to Add and select a new tag and tab page.
         /// </summary>
         internal static string AddTagPageTooltip {
             get {
@@ -88,7 +88,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This will clear your current tag list. Continue?.
+        ///   Looks up a localized string similar to This action will clear your current tag list. Do you want to proceed?.
         /// </summary>
         internal static string ClearAllCurrentTagsInLIstMessage {
             get {
@@ -97,7 +97,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please select a valid metadata type from the list..
+        ///   Looks up a localized string similar to Please select a valid metadata type from the dropdown list..
         /// </summary>
         internal static string ComboBoxTagSelectNotValidMessage {
             get {
@@ -133,7 +133,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tags succesfully exported in CSV file.
+        ///   Looks up a localized string similar to Tags successfully exported to CSV file..
         /// </summary>
         internal static string CsvExportSuccessMessage {
             get {
@@ -151,7 +151,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CSV import canceled.
+        ///   Looks up a localized string similar to CSV import has been canceled..
         /// </summary>
         internal static string CsvImportCancelMessage {
             get {
@@ -160,7 +160,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No tags found to import..
+        ///   Looks up a localized string similar to No tags were found to import..
         /// </summary>
         internal static string CsvImportNoTagsFoundMessage {
             get {
@@ -169,7 +169,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tags imported successfully.
+        ///   Looks up a localized string similar to Tags have been imported successfully..
         /// </summary>
         internal static string CsvImportTagImportSuccesfullMessage {
             get {
@@ -178,7 +178,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Warning: This will replace all entries of this tag. Do you want to continue with the CSV import?.
+        ///   Looks up a localized string similar to Warning: This action will replace all existing entries of this tag. Do you want to proceed with the CSV import?.
         /// </summary>
         internal static string CsvImportWarningReplaceMessage {
             get {
@@ -187,7 +187,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please enter a tag.
+        ///   Looks up a localized string similar to Please enter a tag..
         /// </summary>
         internal static string EnterTagMessagePlaceholder {
             get {
@@ -214,7 +214,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No MetaData Types are available. Please add MetaData Types using the &apos;Add Metadata Type&apos; button..
+        ///   Looks up a localized string similar to No metadata types are available. Please add metadata types using the &apos;Add Metadata Type&apos; button..
         /// </summary>
         internal static string NoMetaDataTypesMessage {
             get {
@@ -277,7 +277,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tag cannot be empty..
+        ///   Looks up a localized string similar to The tag field cannot be empty..
         /// </summary>
         internal static string TagInputBoxEmptyMessage {
             get {
@@ -286,7 +286,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tag is already in the list!.
+        ///   Looks up a localized string similar to This tag is already in the list!.
         /// </summary>
         internal static string TagListAddDuplicateTagMessage {
             get {
@@ -295,7 +295,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This will remove the current tag page and you will lose your current tag list. Continue?.
+        ///   Looks up a localized string similar to This action will remove the current tag page and you will lose your current tag list. Do you want to proceed?.
         /// </summary>
         internal static string TagListRemoveTagPageWarning {
             get {
@@ -304,7 +304,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you really want to sort the tags alphabetically? Your current order will be lost!.
+        ///   Looks up a localized string similar to Do you really want to sort the tags alphabetically? Your current order will be lost..
         /// </summary>
         internal static string TagListSortConfirmationMessage {
             get {
@@ -313,7 +313,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tag already exists.
+        ///   Looks up a localized string similar to This tag already exists..
         /// </summary>
         internal static string TagListTagAlreadyExistsMessage {
             get {
@@ -322,7 +322,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists..
+        ///   Looks up a localized string similar to If enabled, the tags will always be sorted alphabetically. Otherwise, you can use the up and down buttons to reorder your tag lists..
         /// </summary>
         internal static string TagSortTooltip {
             get {
@@ -331,7 +331,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Warning!.
+        ///   Looks up a localized string similar to Warning.
         /// </summary>
         internal static string WarningTitle {
             get {

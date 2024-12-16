@@ -121,16 +121,16 @@
     <value>About Tags-Panel Plugin</value>
   </data>
   <data name="AboutMessage" xml:space="preserve">
-    <value>Tags-Panel Plugin \nVersion {0}\nVisit us on GitHub</value>
+    <value>Tags-Panel Plugin\nVersion {0}\nVisit my GitHub page for more information.</value>
   </data>
   <data name="AddTagPageTooltip" xml:space="preserve">
-    <value>Add &amp; select a new tag and a new tabpage</value>
+    <value>Add and select a new tag and tab page</value>
   </data>
   <data name="ClearAllCurrentTagsInLIstMessage" xml:space="preserve">
-    <value>This will clear your current tag list. Continue?</value>
+    <value>This action will clear your current tag list. Do you want to proceed?</value>
   </data>
   <data name="ComboBoxTagSelectNotValidMessage" xml:space="preserve">
-    <value>Please select a valid metadata type from the list.</value>
+    <value>Please select a valid metadata type from the dropdown list.</value>
   </data>
   <data name="ComboBoxTagSelectNotValidTitle" xml:space="preserve">
     <value>Invalid Selection</value>
@@ -142,25 +142,25 @@
     <value>Choose a CSV file</value>
   </data>
   <data name="CsvExportSuccessMessage" xml:space="preserve">
-    <value>Tags succesfully exported in CSV file</value>
+    <value>Tags successfully exported to CSV file.</value>
   </data>
   <data name="CsvFileFilter" xml:space="preserve">
     <value>csv files (*.csv)|*.csv</value>
   </data>
   <data name="CsvImportCancelMessage" xml:space="preserve">
-    <value>CSV import canceled</value>
+    <value>CSV import has been canceled.</value>
   </data>
   <data name="CsvImportNoTagsFoundMessage" xml:space="preserve">
-    <value>No tags found to import.</value>
+    <value>No tags were found to import.</value>
   </data>
   <data name="CsvImportTagImportSuccesfullMessage" xml:space="preserve">
-    <value>Tags imported successfully</value>
+    <value>Tags have been imported successfully.</value>
   </data>
   <data name="CsvImportWarningReplaceMessage" xml:space="preserve">
-    <value>Warning: This will replace all entries of this tag. Do you want to continue with the CSV import?</value>
+    <value>Warning: This action will replace all existing entries of this tag. Do you want to proceed with the CSV import?</value>
   </data>
   <data name="EnterTagMessagePlaceholder" xml:space="preserve">
-    <value>Please enter a tag</value>
+    <value>Please enter a tag.</value>
   </data>
   <data name="GitHubLinkSettings" xml:space="preserve">
     <value>https://github.com/kn9ff/musicbee-tags-panel</value>
@@ -169,7 +169,7 @@
     <value>Information</value>
   </data>
   <data name="NoMetaDataTypesMessage" xml:space="preserve">
-    <value>No MetaData Types are available. Please add MetaData Types using the 'Add Metadata Type' button.</value>
+    <value>No metadata types are available. Please add metadata types using the 'Add Metadata Type' button.</value>
   </data>
   <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
     <value>Please add a tag in the settings dialog.</value>
@@ -190,24 +190,24 @@
     <value>mb_tags-panel.settings.json</value>
   </data>
   <data name="TagInputBoxEmptyMessage" xml:space="preserve">
-    <value>Tag cannot be empty.</value>
+    <value>The tag field cannot be empty.</value>
   </data>
   <data name="TagListAddDuplicateTagMessage" xml:space="preserve">
-    <value>Tag is already in the list!</value>
+    <value>This tag is already in the list!</value>
   </data>
   <data name="TagListRemoveTagPageWarning" xml:space="preserve">
-    <value>This will remove the current tag page and you will lose your current tag list. Continue?</value>
+    <value>This action will remove the current tag page and you will lose your current tag list. Do you want to proceed?</value>
   </data>
   <data name="TagListSortConfirmationMessage" xml:space="preserve">
-    <value>Do you really want to sort the tags alphabetically? Your current order will be lost!</value>
+    <value>Do you really want to sort the tags alphabetically? Your current order will be lost.</value>
   </data>
   <data name="TagListTagAlreadyExistsMessage" xml:space="preserve">
-    <value>Tag already exists</value>
+    <value>This tag already exists.</value>
   </data>
   <data name="TagSortTooltip" xml:space="preserve">
-    <value>If enabled, the tags will always be sorted alphabetically in the tag. Otherwise, you can use the up and down buttons to reorder your tag lists.</value>
+    <value>If enabled, the tags will always be sorted alphabetically. Otherwise, you can use the up and down buttons to reorder your tag lists.</value>
   </data>
   <data name="WarningTitle" xml:space="preserve">
-    <value>Warning!</value>
+    <value>Warning</value>
   </data>
 </root>
