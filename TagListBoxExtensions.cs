@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
@@ -6,58 +8,65 @@ namespace MusicBeePlugin
     {
         public static void MoveUp(this ListBox listBox)
         {
-            if (listBox == null) return;
-            MoveSelectedItem(listBox, -1);
+            MoveSelectedItems(listBox, -1);
         }
 
         public static void MoveDown(this ListBox listBox)
         {
-            if (listBox == null) return;
-            MoveSelectedItem(listBox, 1);
+            MoveSelectedItems(listBox, 1);
         }
 
-        private static void MoveSelectedItem(ListBox listBox, int direction)
+        private static void MoveSelectedItems(ListBox listBox, int direction)
         {
             if (listBox == null || listBox.SelectedItems.Count == 0)
-            {
                 return;
-            }
 
-            var selectedIndex = listBox.SelectedIndex + direction;
+            bool isCheckedListBox = listBox is CheckedListBox;
+            var selectedIndices = listBox.SelectedIndices.Cast<int>().ToList();
 
-            if (selectedIndex < 0 || selectedIndex >= listBox.Items.Count)
-            {
+            // Prevent movement if any selected item is at the boundary
+            if ((direction < 0 && selectedIndices.Contains(0)) ||
+                (direction > 0 && selectedIndices.Contains(listBox.Items.Count - 1)))
                 return;
+
+            // Sort indices based on direction
+            selectedIndices.Sort();
+            if (direction > 0)
+                selectedIndices.Reverse();
+
+            var itemsToMove = new List<object>();
+            var checkStates = new List<CheckState>();
+
+            foreach (int index in selectedIndices)
+            {
+                itemsToMove.Add(listBox.Items[index]);
+
+                if (isCheckedListBox)
+                {
+                    var clb = (CheckedListBox)listBox;
+                    checkStates.Add(clb.GetItemCheckState(index));
+                }
             }
 
-            var selectedItem = listBox.SelectedItem;
-            var checkState = SaveAndRemoveCheckedState(listBox);
-
-            listBox.Items.Remove(selectedItem);
-            listBox.Items.Insert(selectedIndex, selectedItem);
-
-            listBox.SetSelected(selectedIndex, true);
-
-            RestoreCheckedState(listBox, checkState, selectedIndex);
-        }
-
-        private static CheckState SaveAndRemoveCheckedState(ListBox listBox)
-        {
-            if (listBox is CheckedListBox checkedListBox)
+            // Remove items
+            foreach (int index in selectedIndices)
             {
-                var checkState = checkedListBox.GetItemCheckState(checkedListBox.SelectedIndex);
-                checkedListBox.SetItemCheckState(checkedListBox.SelectedIndex, CheckState.Unchecked);
-                return checkState;
+                listBox.Items.RemoveAt(index);
             }
 
-            return CheckState.Unchecked;
-        }
-
-        private static void RestoreCheckedState(ListBox listBox, CheckState checkState, int newIndex)
-        {
-            if (listBox is CheckedListBox checkedListBox)
+            // Insert items at new positions
+            for (int i = 0; i < selectedIndices.Count; i++)
             {
-                checkedListBox.SetItemCheckState(newIndex, checkState);
+                int newIndex = selectedIndices[i] + direction;
+                listBox.Items.Insert(newIndex, itemsToMove[i]);
+
+                if (isCheckedListBox)
+                {
+                    var clb = (CheckedListBox)listBox;
+                    clb.SetItemCheckState(newIndex, checkStates[i]);
+                }
+
+                listBox.SetSelected(newIndex, true);
             }
         }
     }

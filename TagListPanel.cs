@@ -107,6 +107,16 @@ namespace MusicBeePlugin
         private int CalculateMaxStringPixelWidth(IEnumerable<string> strings)
         {
             int maxWidth = 0;
+            if (CheckedListBoxWithTags.IsDisposed)
+            {
+                if (CheckedListBoxWithTags.IsDisposed)
+                {
+                    // Handle the disposed state, possibly by returning early or reinitializing the control
+                    return 0;
+                }
+                throw new ObjectDisposedException("CheckedListBoxWithTags");
+            }
+
             using (Graphics g = CheckedListBoxWithTags.CreateGraphics())
             {
                 foreach (var str in strings)
