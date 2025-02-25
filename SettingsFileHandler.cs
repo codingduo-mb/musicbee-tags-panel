@@ -6,8 +6,17 @@ using Newtonsoft.Json;
 
 namespace MusicBeePlugin
 {
+    /// <summary>
+    /// Handles the loading and initialization of settings files.
+    /// </summary>
     public static class SettingsFileHandler
     {
+        /// <summary>
+        /// Loads the settings from the specified file.
+        /// </summary>
+        /// <param name="filename">The name of the file to load settings from.</param>
+        /// <param name="logger">The logger to use for logging errors and information.</param>
+        /// <returns>A dictionary of tag storages.</returns>
         public static Dictionary<string, TagsStorage> LoadSettings(string filename, Logger logger)
         {
             if (string.IsNullOrWhiteSpace(filename))
@@ -44,6 +53,11 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Initializes an empty settings file with default settings.
+        /// </summary>
+        /// <param name="filename">The name of the file to initialize.</param>
+        /// <param name="logger">The logger to use for logging errors and information.</param>
         public static void InitializeEmptySettingsFile(string filename, Logger logger)
         {
             if (string.IsNullOrWhiteSpace(filename))
