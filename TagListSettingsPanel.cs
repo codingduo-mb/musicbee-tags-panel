@@ -8,6 +8,9 @@ using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
+    /// <summary>
+    /// Represents the settings panel for managing tag lists.
+    /// </summary>
     public partial class TagListSettingsPanel : UserControl
     {
         private const int EM_SETCUEBANNER = 0x1501;
@@ -15,17 +18,22 @@ namespace MusicBeePlugin
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        private SettingsManager _settingsManager;
-        private TagsStorage tagsStorage;
+        private readonly SettingsManager _settingsManager;
+        private readonly TagsStorage _tagsStorage;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
+        /// </summary>
+        /// <param name="tagName">The name of the tag.</param>
+        /// <param name="settingsManager">The settings manager.</param>
         public TagListSettingsPanel(string tagName, SettingsManager settingsManager)
         {
             InitializeComponent();
             InitializeToolTip();
             SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
 
-            _settingsManager = settingsManager;
-            tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            _tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName) ?? throw new ArgumentNullException(nameof(tagName));
 
             AttachEventHandlers();
             UpdateSortOption();
@@ -74,18 +82,21 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Sets up the panel for first use.
+        /// </summary>
         public void SetUpPanelForFirstUse()
         {
             LstTags.SelectedIndex = LstTags.Items.Count > 0 ? 0 : -1;
-            SetUpDownButtonsState(!tagsStorage.Sorted);
+            SetUpDownButtonsState(!_tagsStorage.Sorted);
             UpdateTags();
         }
 
         private void UpdateSortOption()
         {
             CbEnableAlphabeticalTagListSorting.CheckedChanged -= CbEnableTagSort_CheckedChanged;
-            CbEnableAlphabeticalTagListSorting.Checked = tagsStorage.Sorted;
-            SetUpDownButtonsState(!tagsStorage.Sorted);
+            CbEnableAlphabeticalTagListSorting.Checked = _tagsStorage.Sorted;
+            SetUpDownButtonsState(!_tagsStorage.Sorted);
             CbEnableAlphabeticalTagListSorting.CheckedChanged += CbEnableTagSort_CheckedChanged;
         }
 
@@ -115,15 +126,17 @@ namespace MusicBeePlugin
 
         private void CbEnableTagSort_CheckedChanged(object sender, EventArgs e)
         {
-            tagsStorage.Sorted = CbEnableAlphabeticalTagListSorting.Checked;
-            SetUpDownButtonsState(!tagsStorage.Sorted);
+            _tagsStorage.Sorted = CbEnableAlphabeticalTagListSorting.Checked;
+            SetUpDownButtonsState(!_tagsStorage.Sorted);
             UpdateTags();
         }
 
+        /// <summary>
+        /// Updates the tags displayed in the list.
+        /// </summary>
         public void UpdateTags()
         {
-            var tagsDictionary = tagsStorage.GetTags();
-            var tags = tagsDictionary.Keys.ToList();
+            var tags = _tagsStorage.GetTags().Keys.ToList();
 
             LstTags.BeginUpdate();
             LstTags.Items.Clear();
@@ -131,22 +144,28 @@ namespace MusicBeePlugin
             LstTags.EndUpdate();
         }
 
+        /// <summary>
+        /// Adds a new tag to the list.
+        /// </summary>
         public void AddNewTagToList()
         {
             var newTag = TxtNewTagInput.Text.Trim();
-            if (string.IsNullOrWhiteSpace(newTag) || tagsStorage.TagList.ContainsKey(newTag))
+            if (string.IsNullOrWhiteSpace(newTag) || _tagsStorage.TagList.ContainsKey(newTag))
             {
                 ShowMessageBox(string.IsNullOrWhiteSpace(newTag) ? Messages.TagInputBoxEmptyMessage : Messages.TagListAddDuplicateTagMessage, Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             // Assign index based on count
-            int newIndex = tagsStorage.TagList.Count;
-            tagsStorage.TagList.Add(newTag, newIndex);
+            int newIndex = _tagsStorage.TagList.Count;
+            _tagsStorage.TagList.Add(newTag, newIndex);
             UpdateTags();
             TxtNewTagInput.Text = string.Empty;
         }
 
+        /// <summary>
+        /// Removes the selected tag from the list.
+        /// </summary>
         public void RemoveSelectedTagFromList()
         {
             if (LstTags.SelectedIndex == -1 || LstTags.Items.Count == 0)
@@ -158,14 +177,14 @@ namespace MusicBeePlugin
 
             foreach (var selectedItem in selectedItems)
             {
-                tagsStorage.TagList.Remove(selectedItem);
+                _tagsStorage.TagList.Remove(selectedItem);
             }
 
             // Reindex remaining tags
             int index = 0;
-            foreach (var key in tagsStorage.TagList.Keys.ToList())
+            foreach (var key in _tagsStorage.TagList.Keys.ToList())
             {
-                tagsStorage.TagList[key] = index;
+                _tagsStorage.TagList[key] = index;
                 index++;
             }
 
@@ -178,11 +197,17 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Clears the tags list in the settings.
+        /// </summary>
         public void ClearTagsListInSettings()
         {
-            tagsStorage.Clear();
+            _tagsStorage.Clear();
         }
 
+        /// <summary>
+        /// Imports tags from a CSV file.
+        /// </summary>
         public void ImportTagsFromCsv()
         {
             using (var openFileDialog1 = new OpenFileDialog
@@ -228,9 +253,9 @@ namespace MusicBeePlugin
                             {
                                 foreach (var tag in importedTags)
                                 {
-                                    if (!tagsStorage.TagList.ContainsKey(tag))
+                                    if (!_tagsStorage.TagList.ContainsKey(tag))
                                     {
-                                        tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
+                                        _tagsStorage.TagList.Add(tag, _tagsStorage.TagList.Count);
                                         LstTags.Items.Add(tag);
                                     }
                                 }
@@ -254,6 +279,9 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Exports the tags to a CSV file.
+        /// </summary>
         public void ExportTagsToCsv()
         {
             using (var saveFileDialog1 = new SaveFileDialog
@@ -327,19 +355,29 @@ namespace MusicBeePlugin
             MoveItem(1);
         }
 
+        /// <summary>
+        /// Moves the selected tag up in the list.
+        /// </summary>
         public void MoveUp()
         {
             MoveItem(-1);
         }
 
+        /// <summary>
+        /// Moves the selected tag down in the list.
+        /// </summary>
         public void MoveDown()
         {
             MoveItem(1);
         }
 
+        /// <summary>
+        /// Moves the selected item in the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction to move the item.</param>
         public void MoveItem(int direction)
         {
-            if (LstTags.SelectedItem == null || LstTags.SelectedIndex < 0 || tagsStorage.Sorted)
+            if (LstTags.SelectedItem == null || LstTags.SelectedIndex < 0 || _tagsStorage.Sorted)
                 return;
 
             int oldIndex = LstTags.SelectedIndex;
@@ -348,15 +386,15 @@ namespace MusicBeePlugin
             if (newIndex < 0 || newIndex >= LstTags.Items.Count)
                 return;
 
-            var tags = tagsStorage.GetTags().ToList();
+            var tags = _tagsStorage.GetTags().ToList();
             var selectedTag = tags[oldIndex];
 
             // Swap indices in TagList
             var otherTag = tags[newIndex];
 
-            int tempIndex = tagsStorage.TagList[selectedTag.Key];
-            tagsStorage.TagList[selectedTag.Key] = tagsStorage.TagList[otherTag.Key];
-            tagsStorage.TagList[otherTag.Key] = tempIndex;
+            int tempIndex = _tagsStorage.TagList[selectedTag.Key];
+            _tagsStorage.TagList[selectedTag.Key] = _tagsStorage.TagList[otherTag.Key];
+            _tagsStorage.TagList[otherTag.Key] = tempIndex;
 
             UpdateTags();
             LstTags.SetSelected(newIndex, true);
