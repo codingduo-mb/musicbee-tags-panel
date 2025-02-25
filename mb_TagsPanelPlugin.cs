@@ -13,16 +13,16 @@ namespace MusicBeePlugin
         private Control _tagsPanelControl;
         private TabControl _tabControl;
         private List<MetaDataType> _availableMetaTags = new List<MetaDataType>();
-        private Dictionary<string, TagListPanel> _checklistBoxList = new Dictionary<string, TagListPanel>();
-        private Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
+        private readonly Dictionary<string, TagListPanel> _checklistBoxList = new Dictionary<string, TagListPanel>();
+        private readonly Dictionary<string, TabPage> _tabPageList = new Dictionary<string, TabPage>();
         private Dictionary<string, CheckState> _tagsFromFiles = new Dictionary<string, CheckState>();
         private SettingsManager _settingsManager;
         private TagManager _tagManager;
         private UIManager _uiManager;
-        private bool _showTagsNotInList = false;
+        private bool _showTagsNotInList;
         private string _metaDataTypeName;
-        private bool _sortAlphabetically = false;
-        private PluginInfo _pluginInformation = new PluginInfo();
+        private bool _sortAlphabetically;
+        private readonly PluginInfo _pluginInformation = new PluginInfo();
         private string[] _selectedFilesUrls = Array.Empty<string>();
         private bool _ignoreEventFromHandler = true;
         private bool _excludeFromBatchSelection = true;
@@ -30,9 +30,9 @@ namespace MusicBeePlugin
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
             InitializeApi(apiInterfacePtr);
-            _pluginInformation = CreatePluginInfo();
+            var pluginInformation = CreatePluginInfo();
             InitializePluginComponents();
-            return _pluginInformation;
+            return pluginInformation;
         }
 
         private void InitializeApi(IntPtr apiInterfacePtr)
@@ -87,6 +87,11 @@ namespace MusicBeePlugin
             _showTagsNotInList = false;
         }
 
+        private void InitializeLogger()
+        {
+            _logger = new Logger(_mbApiInterface);
+        }
+
         private void InitializeSettingsManager()
         {
             _settingsManager = new SettingsManager(_mbApiInterface, _logger);
@@ -105,7 +110,6 @@ namespace MusicBeePlugin
                 _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
             }
         }
-
         public bool Configure(IntPtr panelHandle)
         {
             // save any persistent settings in a sub-folder of this path
@@ -115,12 +119,6 @@ namespace MusicBeePlugin
             ShowSettingsDialog();
             return true;
         }
-
-        private void InitializeLogger()
-        {
-            _logger = new Logger(_mbApiInterface);
-        }
-
         private void InitializeMenu()
         {
             _mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", OnSettingsMenuClicked);
@@ -160,7 +158,6 @@ namespace MusicBeePlugin
         private void UpdateSettingsFromTagsStorage()
         {
             var tagsStorage = _settingsManager.GetFirstOne();
-
             if (tagsStorage != null)
             {
                 _metaDataTypeName = tagsStorage.MetaDataType;
@@ -177,11 +174,11 @@ namespace MusicBeePlugin
         private void ShowSettingsDialog()
         {
             var settingsCopy = _settingsManager.DeepCopy();
-            using (var tagsPanelSettingsForm = new TagListSettingsForm(settingsCopy))
+            using (var settingsForm = new TagListSettingsForm(settingsCopy))
             {
-                if (tagsPanelSettingsForm.ShowDialog() == DialogResult.OK)
+                if (settingsForm.ShowDialog() == DialogResult.OK)
                 {
-                    _settingsManager = tagsPanelSettingsForm.SettingsStorage;
+                    _settingsManager = settingsForm.SettingsStorage;
                     SavePluginConfiguration();
                     UpdateTabControlVisibility();
                 }
@@ -193,10 +190,12 @@ namespace MusicBeePlugin
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-
         private void UpdateTabControlVisibility()
         {
-            _tabControl.Visible = _tabControl.Controls.Count > 0;
+            if (_tabControl != null)
+            {
+                _tabControl.Visible = _tabControl.Controls.Count > 0;
+            }
         }
 
         private void SavePluginConfiguration()
@@ -204,7 +203,6 @@ namespace MusicBeePlugin
             _settingsManager.SaveAllSettings();
             ApplySortOrderFromSettings();
 
-            // Update TagsStorage for each TagListPanel
             foreach (var tagPanel in _checklistBoxList.Values)
             {
                 var tagName = tagPanel.Name;
@@ -217,17 +215,12 @@ namespace MusicBeePlugin
             }
 
             RefreshPanelContent();
-            LogConfigurationSaved();
+            _logger.Info("Plugin configuration saved.");
         }
 
         private void ApplySortOrderFromSettings()
         {
             _sortAlphabetically = _settingsManager.GetFirstOne()?.Sorted ?? false;
-        }
-
-        private void LogConfigurationSaved()
-        {
-            _logger.Info("Plugin configuration saved.");
         }
 
         private void RefreshPanelContent()
@@ -246,18 +239,20 @@ namespace MusicBeePlugin
         {
             if (!_settingsManager.TagsStorages.TryGetValue(tagName, out var tagsStorage))
             {
-                _logger.Error("tagsStorage is null");
+                _logger.Error("TagsStorage is null for tag: " + tagName);
                 return;
             }
 
             var tabPage = new TabPage(tagName);
-            var checkListBox = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles); // Updated constructor call
+            var tagListPanel = new TagListPanel(_mbApiInterface, _settingsManager, tagName, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles)
+            {
+                Dock = DockStyle.Fill
+            };
 
-            checkListBox.Dock = DockStyle.Fill;
-            checkListBox.RegisterItemCheckEventHandler(TagCheckStateChanged);
-            tabPage.Controls.Add(checkListBox);
+            tagListPanel.RegisterItemCheckEventHandler(TagCheckStateChanged);
+            tabPage.Controls.Add(tagListPanel);
 
-            _checklistBoxList[tagName] = checkListBox; // Update the checklistBoxList with the new instance
+            _checklistBoxList[tagName] = tagListPanel;
             _tabPageList[tagName] = tabPage;
             _tabControl.TabPages.Add(tabPage);
         }
@@ -270,7 +265,7 @@ namespace MusicBeePlugin
                 _tabPageList[tagName] = tabPage;
                 _tabControl.TabPages.Add(tabPage);
             }
-            _logger.Info($"{nameof(GetOrCreateTagPage)} returned {nameof(tabPage)} for {nameof(tagName)}: {tagName}");
+            _logger.Info($"{nameof(GetOrCreateTagPage)} returned tabPage for tag: {tagName}");
             return tabPage;
         }
 
@@ -282,14 +277,12 @@ namespace MusicBeePlugin
             if (_tabControl?.TabPages != null)
             {
                 _tabControl.TabPages.Clear();
-
                 foreach (var tagsStorage in _settingsManager.TagsStorages.Values)
                 {
                     AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
                 }
             }
         }
-
 
         private void ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
         {
@@ -308,8 +301,8 @@ namespace MusicBeePlugin
         private TagsStorage GetCurrentTagsStorage()
         {
             MetaDataType metaDataType = GetActiveTabMetaDataType();
-            TagsStorage tagsStorage = metaDataType != 0 ? _settingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
-            _logger.Info($"{nameof(GetCurrentTagsStorage)} returned {nameof(tagsStorage)} for {nameof(metaDataType)}: {metaDataType}");
+            var tagsStorage = metaDataType != 0 ? _settingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
+            _logger.Info($"{nameof(GetCurrentTagsStorage)} returned TagsStorage for metaDataType: {metaDataType}");
             return tagsStorage;
         }
 
@@ -329,42 +322,42 @@ namespace MusicBeePlugin
 
         private Dictionary<string, CheckState> GetTagsFromStorage(TagsStorage currentTagsStorage)
         {
-            var allTagsFromSettings = currentTagsStorage.GetTags();
-            var trimmedTagKeys = new HashSet<string>(allTagsFromSettings.Select(tag => tag.Key.Trim()));
-            var data = new Dictionary<string, CheckState>(allTagsFromSettings.Count);
+            var allTags = currentTagsStorage.GetTags();
+            var data = new Dictionary<string, CheckState>(allTags.Count);
 
-            foreach (var tagFromSettings in allTagsFromSettings)
+            foreach (var tag in allTags)
             {
-                string trimmedKey = tagFromSettings.Key.Trim();
-                CheckState checkState = _tagsFromFiles.TryGetValue(trimmedKey, out CheckState state) ? state : CheckState.Unchecked;
+                string trimmedKey = tag.Key.Trim();
+                var checkState = _tagsFromFiles.TryGetValue(trimmedKey, out var state) ? state : CheckState.Unchecked;
                 data[trimmedKey] = checkState;
             }
-
             return data;
         }
 
         private void UpdateTagsDisplayFromStorage()
         {
-            TagsStorage currentTagsStorage = GetCurrentTagsStorage();
+            var currentTagsStorage = GetCurrentTagsStorage();
             if (currentTagsStorage == null)
             {
-                _logger.Error($"{nameof(currentTagsStorage)} is null");
+                _logger.Error("Current TagsStorage is null");
                 return;
             }
 
             var data = GetTagsFromStorage(currentTagsStorage);
-            var trimmedTagKeys = new HashSet<string>(data.Keys);
+            foreach (var tagFromFile in _tagsFromFiles)
+            {
+                if (!data.ContainsKey(tagFromFile.Key))
+                {
+                    data[tagFromFile.Key] = tagFromFile.Value;
+                }
+            }
 
-            AddTagsFromFiles(data, trimmedTagKeys);
-
-            string tagName = currentTagsStorage.GetTagName();
-
+            var tagName = currentTagsStorage.GetTagName();
             if (_checklistBoxList.TryGetValue(tagName, out var tagListPanel))
             {
                 if (tagListPanel.InvokeRequired)
                 {
-                    tagListPanel.Invoke(new Action(() =>
-                        tagListPanel.UpdateTagsStorage(currentTagsStorage, data)));
+                    tagListPanel.Invoke(new Action(() => tagListPanel.UpdateTagsStorage(currentTagsStorage, data)));
                 }
                 else
                 {
@@ -377,20 +370,10 @@ namespace MusicBeePlugin
             }
         }
 
-        private void AddTagsFromFiles(Dictionary<string, CheckState> data, HashSet<string> trimmedTagKeys)
-        {
-            foreach (var tagFromFile in _tagsFromFiles)
-            {
-                if (!trimmedTagKeys.Contains(tagFromFile.Key))
-                {
-                    data[tagFromFile.Key] = tagFromFile.Value;
-                }
-            }
-        }
-
         private void InvokeRefreshTagTableData()
         {
-            if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed) return;
+            if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
+                return;
 
             if (_tagsPanelControl.InvokeRequired)
             {
@@ -410,17 +393,14 @@ namespace MusicBeePlugin
         private void TagCheckStateChanged(object sender, ItemCheckEventArgs e)
         {
             if (_excludeFromBatchSelection || _ignoreEventFromHandler)
-            {
                 return;
-            }
 
             _ignoreEventFromHandler = true;
             try
             {
-                CheckState newState = e.NewValue;
-                string name = ((CheckedListBox)sender).Items[e.Index].ToString();
-
-                ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, name);
+                var newState = e.NewValue;
+                var tagName = ((CheckedListBox)sender).Items[e.Index].ToString();
+                ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName);
                 _mbApiInterface.MB_RefreshPanels();
             }
             finally
@@ -431,63 +411,40 @@ namespace MusicBeePlugin
 
         private void TabControlSelectionChanged(object sender, EventArgs e)
         {
-            var tabControl = sender as TabControl;
-            if (tabControl == null) return;
+            if (!(sender is TabControl tabControl) || tabControl.SelectedTab == null || tabControl.SelectedTab.IsDisposed)
+                return;
 
-            var selectedTab = tabControl.SelectedTab;
-            if (selectedTab == null || selectedTab.IsDisposed) return;
-
-            var newMetaDataTypeName = selectedTab.Text;
+            var newMetaDataTypeName = tabControl.SelectedTab.Text;
             if (_metaDataTypeName != newMetaDataTypeName)
             {
                 _metaDataTypeName = newMetaDataTypeName;
                 _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
-
-                // Refresh the panel tags from the selected files regardless of the number of selected files
                 RefreshPanelTagsFromFiles(_selectedFilesUrls);
-
-                // Update the UI with the current data in _tagsFromFiles
                 UpdateTagsInPanelOnFileSelection();
             }
 
-            var checkListBoxPanel = selectedTab.Controls.OfType<TagListPanel>().FirstOrDefault();
-            if (checkListBoxPanel != null)
-            {
-                checkListBoxPanel.Refresh();
-                checkListBoxPanel.Invalidate();
-            }
+            var tagListPanel = tabControl.SelectedTab.Controls.OfType<TagListPanel>().FirstOrDefault();
+            tagListPanel?.Refresh();
         }
 
         private void SetPanelEnabled(bool enabled = true)
         {
             if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
-            {
-                // Control is not available; cannot set enabled state
                 return;
-            }
 
             if (_tagsPanelControl.InvokeRequired)
-            {
                 _tagsPanelControl.Invoke(new Action(() => _tagsPanelControl.Enabled = enabled));
-            }
             else
-            {
                 _tagsPanelControl.Enabled = enabled;
-            }
         }
 
         private void UpdateTagsInPanelOnFileSelection()
         {
             if (_tagsPanelControl == null)
-            {
-                // Handle the null case appropriately, e.g., log an error or initialize the control
                 return;
-            }
 
             if (_tagsPanelControl.InvokeRequired)
-            {
                 _tagsPanelControl.Invoke(new Action(UpdateTagsInPanelOnFileSelection));
-            }
             else
             {
                 _ignoreEventFromHandler = true;
@@ -498,10 +455,6 @@ namespace MusicBeePlugin
             }
         }
 
-        /// <summary>
-        /// Sets _availableMetaTags from files contained within a panel based on filenames array
-        /// </summary>
-        /// <param name="filenames"></param>
         private void RefreshPanelTagsFromFiles(string[] filenames)
         {
             if (filenames == null || filenames.Length == 0)
@@ -564,21 +517,16 @@ namespace MusicBeePlugin
             if (_tagsPanelControl.InvokeRequired)
             {
                 _tagsPanelControl.Invoke(new Action(AddControls));
+                return;
             }
-            else
-            {
-                _tagsPanelControl.SuspendLayout();
-                CreateTabPanel();
-                _tagsPanelControl.Controls.Add(_tabControl);
-                _tagsPanelControl.Enabled = false;
-                _tagsPanelControl.ResumeLayout();
-            }
+
+            _tagsPanelControl.SuspendLayout();
+            CreateTabPanel();
+            _tagsPanelControl.Controls.Add(_tabControl);
+            _tagsPanelControl.Enabled = false;
+            _tagsPanelControl.ResumeLayout();
         }
 
-        /// <summary>
-        /// MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
-        /// </summary>
-        /// <param name="reason">The reason why MusicBee has closed the plugin.</param>
         public void Close(PluginCloseReason reason)
         {
             _logger?.Info(reason.ToString("G"));
@@ -587,7 +535,6 @@ namespace MusicBeePlugin
             _tagsPanelControl = null;
             _logger = null;
         }
-
 
         public void Uninstall()
         {
@@ -618,15 +565,11 @@ namespace MusicBeePlugin
             }
         }
 
-        /// <summary>
-        /// Receive event notifications from MusicBee.
-        /// You need to set _pluginInformation.ReceiveNotificationFlags = PlayerEvents to receive all notifications, and not just the startup event.
-        /// </summary>
-        /// <param name="sourceFileUrl"></param>
-        /// <param name="type"></param>
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
-            if (_tagsPanelControl == null || type == NotificationType.ApplicationWindowChanged || GetActiveTabMetaDataType() == 0 || _ignoreEventFromHandler) return;
+            if (_tagsPanelControl == null || type == NotificationType.ApplicationWindowChanged ||
+                GetActiveTabMetaDataType() == 0 || _ignoreEventFromHandler)
+                return;
 
             bool isTagsChanging = type == NotificationType.TagsChanging;
             bool isTrackChanged = type == NotificationType.TrackChanged;
@@ -637,30 +580,25 @@ namespace MusicBeePlugin
                 _mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
-            // if (isTagsChanging || isTrackChanged)
             if (isTrackChanged)
             {
                 _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
-                if (_showTagsNotInList)
-                {
-                    InvokeRefreshTagTableData();
-                }
-                else
-                {
-                    InvokeRefreshTagTableData();
-                }
+                InvokeRefreshTagTableData();
             }
 
             _excludeFromBatchSelection = false;
         }
+
         public int OnDockablePanelCreated(Control panel)
         {
             _tagsPanelControl = panel;
             EnsureControlCreated();
             AddControls();
-            DisplaySettingsPrompt();
-            RefreshTagDataIfHandleCreated();
-            return 0;  //  = 0 indicates to MusicBee this control resizeable
+            _uiManager.DisplaySettingsPromptLabel(_tagsPanelControl, _tabControl, "No tags available. Please add tags in the settings.");
+            if (_tagsPanelControl.IsHandleCreated)
+                InvokeRefreshTagTableData();
+
+            return 0;
         }
 
         private void EnsureControlCreated()
@@ -671,23 +609,6 @@ namespace MusicBeePlugin
             }
         }
 
-        private void DisplaySettingsPrompt()
-        {
-            _uiManager.DisplaySettingsPromptLabel(_tagsPanelControl, _tabControl, "No tags available. Please add tags in the settings.");
-        }
-
-        private void RefreshTagDataIfHandleCreated()
-        {
-            if (_tagsPanelControl.IsHandleCreated)
-            {
-                InvokeRefreshTagTableData();
-            }
-        }
-
-        /// <summary>
-        /// Event handler triggered by MusicBee when the user selects files in the library view.
-        /// </summary>
-        /// <param name="filenames">List of selected files.</param>
         public void OnSelectedFilesChanged(string[] filenames)
         {
             _selectedFilesUrls = filenames ?? Array.Empty<string>();
@@ -701,24 +622,15 @@ namespace MusicBeePlugin
                 _tagsFromFiles.Clear();
                 UpdateTagsInPanelOnFileSelection();
             }
-            if (_tagsPanelControl != null)
-            {
-                UpdateTagsInPanelOnFileSelection();
-            }
             SetPanelEnabled(true);
         }
 
-        /// <summary>
-        /// The presence of this function indicates to MusicBee that the dockable panel created above will show menu items when the panel header is clicked.
-        /// </summary>
-        /// <returns>Returns the list of ToolStripMenuItems that will be displayed.</returns>
         public List<ToolStripItem> GetMenuItems()
         {
-            var menuItems = new List<ToolStripItem>
-            {
-                new ToolStripMenuItem("Tag-Panel Settings", null, OnSettingsMenuClicked),
-            };
-            return menuItems;
+            return new List<ToolStripItem>
+                {
+                    new ToolStripMenuItem("Tag-Panel Settings", null, OnSettingsMenuClicked)
+                };
         }
     }
 }
