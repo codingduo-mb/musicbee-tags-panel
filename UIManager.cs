@@ -21,8 +21,17 @@ namespace MusicBeePlugin
         private readonly string[] _selectedFileUrls;
         private readonly Action<string[]> _refreshPanelTagsFromFiles;
 
-        public UIManager(MusicBeeApiInterface mbApiInterface, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
+        private bool _disposed;
+
+        public UIManager(
+            MusicBeeApiInterface mbApiInterface,
+            Dictionary<string, TagListPanel> checklistBoxList,
+            string[] selectedFileUrls,
+            Action<string[]> refreshPanelTagsFromFiles)
         {
+            if (mbApiInterface.Equals(default(MusicBeeApiInterface))) throw new ArgumentNullException(nameof(mbApiInterface));
+            if (checklistBoxList == null) throw new ArgumentNullException(nameof(checklistBoxList));
+
             _mbApiInterface = mbApiInterface;
             _checklistBoxList = checklistBoxList;
             _selectedFileUrls = selectedFileUrls;
@@ -31,6 +40,10 @@ namespace MusicBeePlugin
 
         public void DisplaySettingsPromptLabel(Control panel, TabControl tabControl, string message)
         {
+            if (panel == null) throw new ArgumentNullException(nameof(panel));
+            if (tabControl == null) throw new ArgumentNullException(nameof(tabControl));
+            if (string.IsNullOrEmpty(message)) return;
+
             if (panel.InvokeRequired)
             {
                 panel.Invoke((MethodInvoker)(() => DisplaySettingsPromptLabel(panel, tabControl, message)));
@@ -95,13 +108,18 @@ namespace MusicBeePlugin
             return ((int)skinElement & 0x7F) << 24 | ((int)elementState & 0xFF) << 16 | (int)elementComponent & 0xFFFF;
         }
 
-        public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
+        public Color GetElementColor(
+    SkinElement skinElement,
+    ElementState elementState,
+    ElementComponent elementComponent)
         {
-            var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
+            if (_disposed) throw new ObjectDisposedException(nameof(UIManager));
 
-            return _colorCache.GetOrAdd(key, k =>
+            var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
+            return _colorCache.GetOrAdd(key, _ =>
             {
-                var colorValue = _mbApiInterface.Setting_GetSkinElementColour(skinElement, elementState, elementComponent);
+                int colorValue = _mbApiInterface.Setting_GetSkinElementColour(
+                    skinElement, elementState, elementComponent);
                 return Color.FromArgb(colorValue);
             });
         }
@@ -126,11 +144,13 @@ namespace MusicBeePlugin
 
         protected virtual void Dispose(bool disposing)
         {
+            if (_disposed) return;
             if (disposing)
             {
                 _defaultFont?.Dispose();
                 _colorCache.Clear();
             }
+            _disposed = true;
         }
     }
 }
