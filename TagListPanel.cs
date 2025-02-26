@@ -73,10 +73,15 @@ namespace MusicBeePlugin
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
 
+            // Suspend layout to reduce visual updates
+            this.SuspendLayout();
             CheckedListBoxWithTags.BeginUpdate();
+
             try
             {
-                CheckedListBoxWithTags.Items.Clear();
+                // Prepare all items before adding them to reduce visual updates
+                List<object> itemsToAdd = new List<object>();
+                List<CheckState> statesToApply = new List<CheckState>();
 
                 var tagsFromSettings = _tagsStorage?.GetTags();
 
@@ -88,68 +93,83 @@ namespace MusicBeePlugin
                         .Select(tag => tag.Key.Trim())
                         .ToList();
 
-                    // Add tags from settings in the specified order
+                    // Prepare tags from settings in the specified order
                     foreach (var tag in sortedTagsFromSettings)
                     {
+                        itemsToAdd.Add(tag);
                         if (data.TryGetValue(tag, out var checkState))
                         {
-                            CheckedListBoxWithTags.Items.Add(tag, checkState);
+                            statesToApply.Add(checkState);
                         }
                         else
                         {
-                            // If the tag is not in the data, add it unchecked
-                            CheckedListBoxWithTags.Items.Add(tag, CheckState.Unchecked);
+                            statesToApply.Add(CheckState.Unchecked);
                         }
                     }
 
-                    // Add any additional tags not in the settings
-                    var additionalTags = data.Keys.Except(sortedTagsFromSettings);
+                    // Prepare any additional tags not in the settings
+                    var additionalTags = data.Keys.Except(sortedTagsFromSettings).ToList();
                     foreach (var tag in additionalTags)
                     {
-                        CheckedListBoxWithTags.Items.Add(tag, data[tag]);
+                        itemsToAdd.Add(tag);
+                        statesToApply.Add(data[tag]);
                     }
                 }
                 else
                 {
-                    // If no tags from settings, display tags from data
+                    // If no tags from settings, prepare tags from data
                     foreach (var kvp in data)
                     {
-                        CheckedListBoxWithTags.Items.Add(kvp.Key, kvp.Value);
+                        itemsToAdd.Add(kvp.Key);
+                        statesToApply.Add(kvp.Value);
                     }
                 }
 
-                // Adjust the column width based on the longest tag
-                CheckedListBoxWithTags.ColumnWidth = CalculateMaxStringPixelWidth(
-                    CheckedListBoxWithTags.Items.Cast<string>()) + PaddingWidth;
+                // Calculate column width before adding items
+                int maxWidth = CalculateMaxStringPixelWidth(itemsToAdd.Cast<string>());
 
-                CheckedListBoxWithTags.Refresh();
+                // Clear and add all items at once
+                CheckedListBoxWithTags.Items.Clear();
+
+                // Add all items at once using object[] to minimize UI updates
+                for (int i = 0; i < itemsToAdd.Count; i++)
+                {
+                    CheckedListBoxWithTags.Items.Add(itemsToAdd[i], statesToApply[i]);
+                }
+
+                // Set column width only once
+                CheckedListBoxWithTags.ColumnWidth = maxWidth + PaddingWidth;
             }
             finally
             {
                 CheckedListBoxWithTags.EndUpdate();
+                this.ResumeLayout();
             }
         }
 
         private int CalculateMaxStringPixelWidth(IEnumerable<string> strings)
         {
-            int maxWidth = 0;
-            if (CheckedListBoxWithTags.IsDisposed)
+            if (CheckedListBoxWithTags.IsDisposed || strings == null || !strings.Any())
             {
-                // Handle the disposed state, possibly by returning early or reinitializing the control
                 return 0;
             }
 
-            using (Graphics g = CheckedListBoxWithTags.CreateGraphics())
+            int maxWidth = 0;
+
+            // Use a static bitmap to avoid creating Graphics context from control
+            using (var bitmap = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(bitmap))
             {
+                // Use the font from the control for accurate measurements
                 foreach (var str in strings)
                 {
+                    if (string.IsNullOrEmpty(str)) continue;
+
                     int width = TextRenderer.MeasureText(g, str, CheckedListBoxWithTags.Font).Width;
-                    if (width > maxWidth)
-                    {
-                        maxWidth = width;
-                    }
+                    maxWidth = Math.Max(maxWidth, width);
                 }
             }
+
             return maxWidth + SystemInformation.BorderSize.Width * 2 + PaddingWidth;
         }
 
