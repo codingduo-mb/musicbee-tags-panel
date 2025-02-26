@@ -341,12 +341,38 @@ namespace MusicBeePlugin
             }
         }
 
-        private void ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
+        /// <summary>
+        /// Applies the selected tag to all selected files with the specified check state.
+        /// </summary>
+        /// <param name="fileUrls">Array of file paths to process</param>
+        /// <param name="selected">The check state to apply</param>
+        /// <param name="selectedTag">The tag to apply or remove</param>
+        /// <returns>True if the operation was successful, false otherwise</returns>
+        private bool ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
         {
-            var metaDataType = GetActiveTabMetaDataType();
-            if (metaDataType != 0)
+            if (fileUrls == null || fileUrls.Length == 0 || string.IsNullOrWhiteSpace(selectedTag))
             {
+                _logger?.Debug("ApplyTagsToSelectedFiles called with invalid parameters");
+                return false;
+            }
+
+            try
+            {
+                var metaDataType = GetActiveTabMetaDataType();
+                if (metaDataType == 0)
+                {
+                    _logger?.Error("ApplyTagsToSelectedFiles failed: Invalid metadata type");
+                    return false;
+                }
+
+                _logger?.Info($"Applying tag '{selectedTag}' with state {selected} to {fileUrls.Length} files");
                 _tagManager.SetTagsInFile(fileUrls, selected, selectedTag, metaDataType);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error applying tags to files: {ex.Message}", ex);
+                return false;
             }
         }
 
