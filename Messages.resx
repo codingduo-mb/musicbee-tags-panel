@@ -160,7 +160,7 @@
     <value>Warning: This action will replace all existing entries of this tag. Do you want to proceed with the CSV import?</value>
   </data>
   <data name="EnterTagMessagePlaceholder" xml:space="preserve">
-    <value>Please enter a tag.</value>
+    <value>Please enter a new tag.</value>
   </data>
   <data name="GitHubLinkSettings" xml:space="preserve">
     <value>https://github.com/kn9ff/musicbee-tags-panel</value>
@@ -185,6 +185,9 @@
   </data>
   <data name="PluginTargetApplicationPluginInfo" xml:space="preserve">
     <value>Tags-Panel</value>
+  </data>
+  <data name="SearchTagMessagePlaceholder" xml:space="preserve">
+    <value>Search a tag ...</value>
   </data>
   <data name="SettingsFileName" xml:space="preserve">
     <value>mb_tags-panel.settings.json</value>

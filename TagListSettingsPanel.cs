@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using ToolTip = System.Windows.Forms.ToolTip;
-using TextBox = System.Windows.Forms.TextBox;
 
 namespace MusicBeePlugin
 {
@@ -34,8 +30,6 @@ namespace MusicBeePlugin
 
         private int _dragIndex = -1;
 
-        private TextBox _searchBox;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
         /// </summary>
@@ -45,7 +39,6 @@ namespace MusicBeePlugin
         {
             InitializeComponent();
             InitializeToolTip();
-            InitializeSearchBox();
 
             if (string.IsNullOrEmpty(tagName))
                 throw new ArgumentNullException(nameof(tagName), "Tag name cannot be null or empty");
@@ -57,11 +50,13 @@ namespace MusicBeePlugin
             _tagsCsvHelper = new TagsCsvHelper(ShowMessageBox);
 
             SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
-            AttachEventHandlers();
+            SendMessage(TxtSearchBox.Handle, EM_SETCUEBANNER, 0, Messages.SearchTagMessagePlaceholder);
             UpdateSortOption();
             UpdateTags();
             TxtNewTagInput.Focus();
             InitializeDragDrop();
+
+            TxtSearchBox.TextChanged += TxtSearchBox_TextChanged;
         }
 
         private void InitializeToolTip()
@@ -73,35 +68,19 @@ namespace MusicBeePlugin
                 ReshowDelay = TOOLTIP_RESHOW_DELAY,
                 ShowAlways = true
             };
-            // Tooltip for sort option remains as is.
-            _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
             _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
             _toolTip.SetToolTip(BtnAddTagToList, "Add Tag (Enter)");
             _toolTip.SetToolTip(BtnRemoveTagFromList, "Remove Selected Tags (Delete)");
             _toolTip.SetToolTip(BtnMoveTagUp, "Move Up (Ctrl+Up)");
             _toolTip.SetToolTip(BtnMoveTagDown, "Move Down (Ctrl+Down)");
-        }
-
-        private void InitializeSearchBox()
-        {
-            _searchBox = new TextBox
-            {
-                Dock = DockStyle.Top
-            };
-
-            // Set the placeholder text using a cue banner
-            SendMessage(_searchBox.Handle, EM_SETCUEBANNER, 0, "Search tags...");
-
-            _searchBox.TextChanged += (s, e) => FilterTagsList(_searchBox.Text);
-            Controls.Add(_searchBox);
-            Controls.SetChildIndex(_searchBox, 0);
+            _toolTip.SetToolTip(TxtSearchBox, "Focus Search Box (Ctrl+F)");
         }
 
         private void FilterTagsList(string filter)
         {
             if (string.IsNullOrWhiteSpace(filter))
             {
-                UpdateTags(); // Show all tags
+                UpdateTags();
                 return;
             }
 
@@ -167,6 +146,8 @@ namespace MusicBeePlugin
             LstTags.KeyDown += KeyEventHandler;
             TxtNewTagInput.KeyDown += KeyEventHandler;
             CbEnableAlphabeticalTagListSorting.CheckedChanged += CbEnableTagSort_CheckedChanged;
+            this.KeyDown += KeyEventHandler;
+            TxtSearchBox.TextChanged += TxtSearchBox_TextChanged;
         }
 
         private void KeyEventHandler(object sender, KeyEventArgs e)
@@ -182,6 +163,26 @@ namespace MusicBeePlugin
                 {
                     RemoveSelectedTagFromList();
                 }
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.Up)
+            {
+                MoveUp();
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.Down)
+            {
+                MoveDown();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                RemoveSelectedTagFromList();
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.F)
+            {
+                TxtSearchBox.Focus();
                 e.Handled = true;
             }
         }
@@ -218,7 +219,6 @@ namespace MusicBeePlugin
                 return;
             }
 
-            // Assign index based on count
             int newIndex = _tagsStorage.TagList.Count;
             _tagsStorage.TagList.Add(newTag, newIndex);
             UpdateTags();
@@ -478,6 +478,11 @@ namespace MusicBeePlugin
             {
                 MoveItem(singleDirection);
             }
+        }
+
+        private void TxtSearchBox_TextChanged(object sender, EventArgs e)
+        {
+            FilterTagsList(TxtSearchBox.Text);
         }
     }
 }

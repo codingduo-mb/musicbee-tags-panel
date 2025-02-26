@@ -41,6 +41,7 @@ namespace MusicBeePlugin
             this.CbShowTagsThatAreNotInTheTagsList = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.BtnImportCSVToList = new System.Windows.Forms.Button();
+            this.TxtSearchBox = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,7 +50,7 @@ namespace MusicBeePlugin
             this.LstTags.BackColor = System.Drawing.Color.White;
             this.LstTags.FormattingEnabled = true;
             this.LstTags.ItemHeight = 19;
-            this.LstTags.Location = new System.Drawing.Point(6, 6);
+            this.LstTags.Location = new System.Drawing.Point(8, 42);
             this.LstTags.Margin = new System.Windows.Forms.Padding(5);
             this.LstTags.Name = "LstTags";
             this.LstTags.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
@@ -58,7 +59,7 @@ namespace MusicBeePlugin
             // 
             // BtnRemoveTagFromList
             // 
-            this.BtnRemoveTagFromList.Location = new System.Drawing.Point(313, 547);
+            this.BtnRemoveTagFromList.Location = new System.Drawing.Point(315, 583);
             this.BtnRemoveTagFromList.Name = "BtnRemoveTagFromList";
             this.BtnRemoveTagFromList.Size = new System.Drawing.Size(250, 33);
             this.BtnRemoveTagFromList.TabIndex = 2;
@@ -68,7 +69,7 @@ namespace MusicBeePlugin
             // 
             // BtnAddTagToList
             // 
-            this.BtnAddTagToList.Location = new System.Drawing.Point(6, 547);
+            this.BtnAddTagToList.Location = new System.Drawing.Point(8, 583);
             this.BtnAddTagToList.Name = "BtnAddTagToList";
             this.BtnAddTagToList.Size = new System.Drawing.Size(250, 33);
             this.BtnAddTagToList.TabIndex = 1;
@@ -112,14 +113,14 @@ namespace MusicBeePlugin
             // 
             // TxtNewTagInput
             // 
-            this.TxtNewTagInput.Location = new System.Drawing.Point(6, 510);
+            this.TxtNewTagInput.Location = new System.Drawing.Point(8, 546);
             this.TxtNewTagInput.Name = "TxtNewTagInput";
             this.TxtNewTagInput.Size = new System.Drawing.Size(557, 26);
             this.TxtNewTagInput.TabIndex = 0;
             // 
             // BtnMoveTagUp
             // 
-            this.BtnMoveTagUp.Location = new System.Drawing.Point(569, 508);
+            this.BtnMoveTagUp.Location = new System.Drawing.Point(571, 544);
             this.BtnMoveTagUp.Name = "BtnMoveTagUp";
             this.BtnMoveTagUp.Size = new System.Drawing.Size(30, 33);
             this.BtnMoveTagUp.TabIndex = 2;
@@ -129,7 +130,7 @@ namespace MusicBeePlugin
             // 
             // BtnMoveTagDown
             // 
-            this.BtnMoveTagDown.Location = new System.Drawing.Point(569, 547);
+            this.BtnMoveTagDown.Location = new System.Drawing.Point(571, 583);
             this.BtnMoveTagDown.Name = "BtnMoveTagDown";
             this.BtnMoveTagDown.Size = new System.Drawing.Size(30, 33);
             this.BtnMoveTagDown.TabIndex = 2;
@@ -155,7 +156,7 @@ namespace MusicBeePlugin
             this.groupBox1.Controls.Add(this.BtnExportCSVToFile);
             this.groupBox1.Controls.Add(this.BtnClearTagList);
             this.groupBox1.Controls.Add(this.CbEnableAlphabeticalTagListSorting);
-            this.groupBox1.Location = new System.Drawing.Point(6, 586);
+            this.groupBox1.Location = new System.Drawing.Point(8, 622);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(5);
@@ -174,11 +175,19 @@ namespace MusicBeePlugin
             this.BtnImportCSVToList.UseVisualStyleBackColor = true;
             this.BtnImportCSVToList.Click += new System.EventHandler(this.BtnImportCSVToList_Click);
             // 
+            // TxtSearchBox
+            // 
+            this.TxtSearchBox.Location = new System.Drawing.Point(8, 8);
+            this.TxtSearchBox.Name = "TxtSearchBox";
+            this.TxtSearchBox.Size = new System.Drawing.Size(593, 26);
+            this.TxtSearchBox.TabIndex = 10;
+            // 
             // TagListSettingsPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
+            this.Controls.Add(this.TxtSearchBox);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.TxtNewTagInput);
             this.Controls.Add(this.BtnMoveTagDown);
@@ -190,7 +199,7 @@ namespace MusicBeePlugin
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TagListSettingsPanel";
             this.Padding = new System.Windows.Forms.Padding(5);
-            this.Size = new System.Drawing.Size(609, 760);
+            this.Size = new System.Drawing.Size(617, 1029);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -211,5 +220,6 @@ namespace MusicBeePlugin
         private System.Windows.Forms.CheckBox CbShowTagsThatAreNotInTheTagsList;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button BtnImportCSVToList;
+        private System.Windows.Forms.TextBox TxtSearchBox;
     }
 }

@@ -187,7 +187,7 @@ namespace MusicBeePlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please enter a tag..
+        ///   Looks up a localized string similar to Please enter a new tag..
         /// </summary>
         internal static string EnterTagMessagePlaceholder {
             get {
@@ -264,6 +264,15 @@ namespace MusicBeePlugin {
         internal static string PluginTargetApplicationPluginInfo {
             get {
                 return ResourceManager.GetString("PluginTargetApplicationPluginInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search a tag ....
+        /// </summary>
+        internal static string SearchTagMessagePlaceholder {
+            get {
+                return ResourceManager.GetString("SearchTagMessagePlaceholder", resourceCulture);
             }
         }
         
