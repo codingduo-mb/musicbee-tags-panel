@@ -1242,11 +1242,32 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Ensures the panel control is created and ready for UI elements.
+        /// </summary>
+        /// <remarks>
+        /// This method safely creates the control handle if it doesn't already exist,
+        /// allowing UI operations to be performed on the control.
+        /// </remarks>
         private void EnsureControlCreated()
         {
-            if (!_tagsPanelControl.Created)
+            if (_tagsPanelControl == null)
             {
-                _tagsPanelControl.CreateControl();
+                _logger?.Error("Cannot ensure control created: _tagsPanelControl is null");
+                return;
+            }
+
+            try
+            {
+                if (!_tagsPanelControl.IsDisposed && !_tagsPanelControl.Created)
+                {
+                    _logger?.Debug("Creating control handle for panel");
+                    _tagsPanelControl.CreateControl();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger?.Error($"Failed to create control: {ex.Message}");
             }
         }
 
