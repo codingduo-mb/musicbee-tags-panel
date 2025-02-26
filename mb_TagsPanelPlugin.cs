@@ -897,29 +897,7 @@ namespace MusicBeePlugin
             }
         }
 
-        private bool ShouldClearTags(string[] filenames)
-        {
-            return filenames == null || filenames.Length == 0;
-        }
-
-        private void ClearTagsAndUpdateUI()
-        {
-            _tagsFromFiles.Clear();
-            UpdateTagsInPanelOnFileSelection();
-            SetPanelEnabled(true);
-        }
-
-        private void UpdateTagsFromFiles(string[] filenames)
-        {
-            var currentTagsStorage = GetCurrentTagsStorage();
-            if (currentTagsStorage != null)
-            {
-                _tagsFromFiles = _tagManager.CombineTagLists(filenames, currentTagsStorage);
-                UpdateTagsInPanelOnFileSelection();
-                SetPanelEnabled(true);
-            }
-        }
-
+       
         private void CreateTabPanel()
         {
             _tabControl = (TabControl)_mbApiInterface.MB_AddPanel(_tagsPanelControl, (PluginPanelDock)6);
