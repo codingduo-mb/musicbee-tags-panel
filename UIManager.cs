@@ -46,31 +46,39 @@ namespace MusicBeePlugin
 
             if (panel.InvokeRequired)
             {
-                panel.Invoke((MethodInvoker)(() => DisplaySettingsPromptLabel(panel, tabControl, message)));
+                panel.Invoke(new Action(() => DisplaySettingsPromptLabelCore(panel, tabControl, message)));
                 return;
             }
 
-            var existingLabel = panel.Controls.OfType<Label>().FirstOrDefault(lbl => lbl.Text == message);
-            if (existingLabel != null)
+            DisplaySettingsPromptLabelCore(panel, tabControl, message);
+        }
+
+        private void DisplaySettingsPromptLabelCore(Control panel, TabControl tabControl, string message)
+        {
+            // Remove any existing prompt labels
+            foreach (var existingLabel in panel.Controls.OfType<Label>().Where(l => l.Text == message).ToList())
             {
-                return; // Label with the same message already exists
+                panel.Controls.Remove(existingLabel);
+                existingLabel.Dispose();
             }
 
             var emptyPanelText = new Label
             {
                 AutoSize = true,
                 Location = new Point(14, 30),
-                Text = message
+                Text = message,
+                Font = _defaultFont ?? _mbApiInterface.Setting_GetDefaultFont()
             };
 
             panel.SuspendLayout();
             panel.Controls.Add(emptyPanelText);
+
+            // Ensure correct z-order
             panel.Controls.SetChildIndex(emptyPanelText, 1);
             panel.Controls.SetChildIndex(tabControl, 0);
 
             tabControl.Visible = tabControl.TabPages.Count > 0;
-
-            panel.ResumeLayout();
+            panel.ResumeLayout(true);
         }
 
         public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
@@ -116,7 +124,6 @@ namespace MusicBeePlugin
             return ((int)skinElement & 0x7F) << 24 | ((int)elementState & 0xFF) << 16 | (int)elementComponent & 0xFFFF;
         }
 
-        
         private readonly object _colorCacheLock = new object();
 
         public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
@@ -125,7 +132,8 @@ namespace MusicBeePlugin
 
             var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
 
-            return _colorCache.GetOrAdd(key, k => {
+            return _colorCache.GetOrAdd(key, k =>
+            {
                 lock (_colorCacheLock)
                 {
                     int colorValue = _mbApiInterface.Setting_GetSkinElementColour(
