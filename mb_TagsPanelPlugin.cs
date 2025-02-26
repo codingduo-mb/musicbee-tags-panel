@@ -442,16 +442,46 @@ namespace MusicBeePlugin
 
         private void ClearAllTagPages()
         {
-            foreach (var tabPage in _tabPageList.Values)
+            _logger?.Debug($"ClearAllTagPages: Starting cleanup of {_tabPageList.Count} tab pages");
+
+            // Safely clean up and dispose all TagListPanel controls in each tab
+            foreach (var tabPage in _tabPageList.Values.Where(tp => tp != null && !tp.IsDisposed))
             {
-                foreach (var control in tabPage.Controls.OfType<TagListPanel>())
+                try
                 {
-                    control.Dispose();
+                    // Find and dispose all TagListPanel controls
+                    var panels = tabPage.Controls.OfType<TagListPanel>().ToList();
+                    foreach (var panel in panels)
+                    {
+                        // Unregister any event handlers to prevent memory leaks
+                        panel.UnregisterItemCheckEventHandler(TagCheckStateChanged);
+                        panel.Dispose();
+                    }
+
+                    tabPage.Controls.Clear();
+                    _logger?.Debug($"Cleared controls from tab page: {tabPage.Text}");
                 }
-                tabPage.Controls.Clear();
+                catch (Exception ex)
+                {
+                    _logger?.Error($"Error cleaning up tab page {tabPage.Text}: {ex.Message}");
+                }
             }
+
+            // Clear collections
             _tabPageList.Clear();
-            _tabControl?.TabPages.Clear();
+
+            // Clear TabControl if it exists
+            if (_tabControl != null && !_tabControl.IsDisposed)
+            {
+                _tabControl.TabPages.Clear();
+                _logger?.Debug("Cleared all tab pages from TabControl");
+            }
+            else
+            {
+                _logger?.Warn("TabControl was null or disposed during cleanup");
+            }
+
+            _logger?.Debug("ClearAllTagPages: Cleanup completed");
         }
 
         private Dictionary<string, CheckState> GetTagsFromStorage(TagsStorage currentTagsStorage)
