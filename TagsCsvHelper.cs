@@ -81,7 +81,7 @@ namespace MusicBeePlugin
                                         addItemToListAction?.Invoke(tag);
                                     }
                                 }
-                                _showMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccesfullMessage}", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                _showMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccessfulMessage}", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             else
                             {

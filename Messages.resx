@@ -121,13 +121,13 @@
     <value>About Tags-Panel Plugin</value>
   </data>
   <data name="AboutMessage" xml:space="preserve">
-    <value>Tags-Panel Plugin\nVersion {0}\nVisit my GitHub page for more information.</value>
+    <value>Tags-Panel Plugin\nVersion {0}\nVisit the GitHub page for more information.</value>
   </data>
   <data name="AddTagPageTooltip" xml:space="preserve">
-    <value>Add and select a new tag and tab page</value>
+    <value>Add and select a new tag and tab page.</value>
   </data>
-  <data name="ClearAllCurrentTagsInLIstMessage" xml:space="preserve">
-    <value>This action will clear your current tag list. Do you want to proceed?</value>
+  <data name="ClearAllCurrentTagsInListMessage" xml:space="preserve">
+    <value>This action will clear your current tag list. Do you want to continue?</value>
   </data>
   <data name="ComboBoxTagSelectNotValidMessage" xml:space="preserve">
     <value>Please select a valid metadata type from the dropdown list.</value>
@@ -139,25 +139,25 @@
     <value>csv</value>
   </data>
   <data name="CsvDialogTitle" xml:space="preserve">
-    <value>Choose a CSV file</value>
+    <value>Select a CSV file</value>
   </data>
   <data name="CsvExportSuccessMessage" xml:space="preserve">
-    <value>Tags successfully exported to CSV file.</value>
+    <value>Tags successfully exported to the CSV file.</value>
   </data>
   <data name="CsvFileFilter" xml:space="preserve">
-    <value>csv files (*.csv)|*.csv</value>
+    <value>CSV files (*.csv)|*.csv</value>
   </data>
   <data name="CsvImportCancelMessage" xml:space="preserve">
     <value>CSV import has been canceled.</value>
   </data>
   <data name="CsvImportNoTagsFoundMessage" xml:space="preserve">
-    <value>No tags were found to import.</value>
+    <value>No tags found to import.</value>
   </data>
-  <data name="CsvImportTagImportSuccesfullMessage" xml:space="preserve">
-    <value>Tags have been imported successfully.</value>
+  <data name="CsvImportTagImportSuccessfulMessage" xml:space="preserve">
+    <value>Tags imported successfully.</value>
   </data>
   <data name="CsvImportWarningReplaceMessage" xml:space="preserve">
-    <value>Warning: This action will replace all existing entries of this tag. Do you want to proceed with the CSV import?</value>
+    <value>Warning: This action will replace all existing entries of this tag. Do you want to continue with the CSV import?</value>
   </data>
   <data name="EnterTagMessagePlaceholder" xml:space="preserve">
     <value>Please enter a new tag.</value>
@@ -169,7 +169,7 @@
     <value>Information</value>
   </data>
   <data name="NoMetaDataTypesMessage" xml:space="preserve">
-    <value>No metadata types are available. Please add metadata types using the 'Add Metadata Type' button.</value>
+    <value>No metadata types available. Please add metadata types using the 'Add Metadata Type' button.</value>
   </data>
   <data name="PleaseAddTagsInSettingsMessage" xml:space="preserve">
     <value>Please add a tag in the settings dialog.</value>
@@ -178,7 +178,7 @@
     <value>kn9ff &amp; The Two Anonymous Programmers</value>
   </data>
   <data name="PluginDescriptionPluginInfo" xml:space="preserve">
-    <value>Creates a dockable Panel with user-defined tabbed pages which let the user choose tags from user-defined lists</value>
+    <value>Creates a dockable panel with user-defined tabbed pages that let the user choose tags from user-defined lists.</value>
   </data>
   <data name="PluginNamePluginInfo" xml:space="preserve">
     <value>Tags-Panel</value>
@@ -187,7 +187,7 @@
     <value>Tags-Panel</value>
   </data>
   <data name="SearchTagMessagePlaceholder" xml:space="preserve">
-    <value>Search a tag ...</value>
+    <value>Search for a tag...</value>
   </data>
   <data name="SettingsFileName" xml:space="preserve">
     <value>mb_tags-panel.settings.json</value>
@@ -196,13 +196,13 @@
     <value>The tag field cannot be empty.</value>
   </data>
   <data name="TagListAddDuplicateTagMessage" xml:space="preserve">
-    <value>This tag is already in the list!</value>
+    <value>This tag is already in the list.</value>
   </data>
   <data name="TagListRemoveTagPageWarning" xml:space="preserve">
-    <value>This action will remove the current tag page and you will lose your current tag list. Do you want to proceed?</value>
+    <value>This action will remove the current tag page and you will lose your current tag list. Do you want to continue?</value>
   </data>
   <data name="TagListSortConfirmationMessage" xml:space="preserve">
-    <value>Do you really want to sort the tags alphabetically? Your current order will be lost.</value>
+    <value>Do you want to sort the tags alphabetically? Your current order will be lost.</value>
   </data>
   <data name="TagListTagAlreadyExistsMessage" xml:space="preserve">
     <value>This tag already exists.</value>

@@ -60,6 +60,9 @@ namespace MusicBeePlugin
 
             // Attach event handlers for keyboard shortcuts
             AttachEventHandlers();
+
+            // Attach event handler for CbShowTagsThatAreNotInTheTagsList
+            CbShowTagsThatAreNotInTheTagsList.CheckedChanged += CbShowTagsThatAreNotInTheTagsList_CheckedChanged;
         }
 
         private void InitializeToolTip()
@@ -197,12 +200,23 @@ namespace MusicBeePlugin
             UpdateTags();
         }
 
+        private void CbShowTagsThatAreNotInTheTagsList_CheckedChanged(object sender, EventArgs e)
+        {
+            _tagsStorage.ShowTagsNotInList = CbShowTagsThatAreNotInTheTagsList.Checked;
+            UpdateTags();
+        }
+
         /// <summary>
         /// Updates the tags displayed in the list.
         /// </summary>
         public void UpdateTags()
         {
             var tags = _tagsStorage.GetTags().Keys.ToList();
+
+            if (!_tagsStorage.ShowTagsNotInList)
+            {
+                tags = tags.Where(tag => _tagsStorage.TagList.ContainsKey(tag)).ToList();
+            }
 
             LstTags.BeginUpdate();
             LstTags.Items.Clear();
@@ -396,7 +410,7 @@ namespace MusicBeePlugin
 
         private void PromptClearTagsConfirmation()
         {
-            if (MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(Messages.ClearAllCurrentTagsInListMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
             }
