@@ -788,15 +788,52 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Enables or disables the tags panel control in a thread-safe manner.
+        /// </summary>
+        /// <param name="enabled">True to enable the panel, false to disable it.</param>
+        /// <remarks>
+        /// This method safely handles cross-thread UI updates by using Invoke when necessary.
+        /// It also protects against operating on disposed controls.
+        /// </remarks>
         private void SetPanelEnabled(bool enabled = true)
         {
             if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
+            {
+                _logger?.Debug("SetPanelEnabled: Panel control is null or disposed");
                 return;
+            }
 
-            if (_tagsPanelControl.InvokeRequired)
-                _tagsPanelControl.Invoke(new Action(() => _tagsPanelControl.Enabled = enabled));
-            else
-                _tagsPanelControl.Enabled = enabled;
+            try
+            {
+                if (_tagsPanelControl.InvokeRequired)
+                {
+                    _tagsPanelControl.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            if (!_tagsPanelControl.IsDisposed)
+                            {
+                                _tagsPanelControl.Enabled = enabled;
+                                _logger?.Debug($"Panel {(enabled ? "enabled" : "disabled")} via UI thread");
+                            }
+                        }
+                        catch (ObjectDisposedException ex)
+                        {
+                            _logger?.Debug($"Panel was disposed during Invoke: {ex.Message}");
+                        }
+                    }));
+                }
+                else
+                {
+                    _tagsPanelControl.Enabled = enabled;
+                    _logger?.Debug($"Panel directly {(enabled ? "enabled" : "disabled")}");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger?.Warn($"Failed to set panel enabled state: {ex.Message}");
+            }
         }
 
         private void UpdateTagsInPanelOnFileSelection()
