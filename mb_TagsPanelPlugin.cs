@@ -196,22 +196,58 @@ namespace MusicBeePlugin
 
         private void SavePluginConfiguration()
         {
-            _settingsManager.SaveAllSettings();
-            ApplySortOrderFromSettings();
-
-            foreach (var tagPanel in _checklistBoxList.Values)
+            try
             {
-                var tagName = tagPanel.Name;
-                var newTagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
-                if (newTagsStorage != null)
+                if (_settingsManager == null)
                 {
-                    var data = GetTagsFromStorage(newTagsStorage);
-                    tagPanel.UpdateTagsStorage(newTagsStorage, data);
+                    _logger?.Error("Cannot save plugin configuration: SettingsManager is null");
+                    return;
                 }
-            }
 
-            RefreshPanelContent();
-            _logger.Info("Plugin configuration saved.");
+                // Save settings to file
+                if (!_settingsManager.SaveAllSettings())
+                {
+                    _logger?.Warn("SaveAllSettings returned false - settings may not have been saved correctly");
+                }
+
+                // Update sort order from settings
+                ApplySortOrderFromSettings();
+
+                // Update each tag panel with the latest settings
+                foreach (var tagPanel in _checklistBoxList.Values)
+                {
+                    if (tagPanel == null || tagPanel.IsDisposed)
+                    {
+                        continue;
+                    }
+
+                    var tagName = tagPanel.Name;
+                    if (string.IsNullOrEmpty(tagName))
+                    {
+                        _logger?.Warn("Skipping tag panel with null or empty name");
+                        continue;
+                    }
+
+                    var newTagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
+                    if (newTagsStorage != null)
+                    {
+                        var data = GetTagsFromStorage(newTagsStorage);
+                        tagPanel.UpdateTagsStorage(newTagsStorage, data);
+                    }
+                    else
+                    {
+                        _logger?.Warn($"Could not retrieve TagsStorage for '{tagName}'");
+                    }
+                }
+
+                // Refresh panel content to reflect changes
+                RefreshPanelContent();
+                _logger.Info("Plugin configuration saved successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error saving plugin configuration: {ex.Message}", ex);
+            }
         }
 
         private void ApplySortOrderFromSettings()
