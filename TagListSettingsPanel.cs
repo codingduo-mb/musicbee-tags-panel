@@ -26,6 +26,9 @@ namespace MusicBeePlugin
         private readonly TagsStorage _tagsStorage;
         private readonly TagsCsvHelper _tagsCsvHelper;
 
+        // Moved ToolTip to a private field so it can be used later
+        private ToolTip _toolTip;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
         /// </summary>
@@ -51,16 +54,18 @@ namespace MusicBeePlugin
             UpdateTags();
             TxtNewTagInput.Focus();
         }
+
         private void InitializeToolTip()
         {
-            var toolTip = new ToolTip
+            _toolTip = new ToolTip
             {
                 AutoPopDelay = TOOLTIP_AUTO_POPUP_DELAY,
                 InitialDelay = TOOLTIP_INITIAL_DELAY,
                 ReshowDelay = TOOLTIP_RESHOW_DELAY,
                 ShowAlways = true
             };
-            toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
+            // Tooltip for sort option remains as is.
+            _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
         }
 
         private void SetUpDownButtonsState(bool enabled)
@@ -189,8 +194,6 @@ namespace MusicBeePlugin
         /// <summary>
         /// Removes the selected tag from the list.
         /// </summary>
-        /// 
-
         public void RemoveSelectedTagFromList()
         {
             if (LstTags.SelectedIndex == -1 || LstTags.Items.Count == 0)
@@ -244,7 +247,6 @@ namespace MusicBeePlugin
         {
             _tagsCsvHelper.ExportTagsToCsv(LstTags.Items.Cast<string>());
         }
-
 
         private void BtnAddTag_Click(object sender, EventArgs e)
         {
@@ -347,6 +349,37 @@ namespace MusicBeePlugin
             if (MessageBox.Show(Messages.ClearAllCurrentTagsInLIstMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 ClearTagsListInSettings();
+            }
+        }
+
+        /// <summary>
+        /// Overrides OnMouseMove to show tooltip for disabled reordering buttons.
+        /// </summary>
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Only show the tooltip when reordering is disabled (sorting is active)
+            if (_tagsStorage.Sorted)
+            {
+                Point pt = this.PointToClient(Cursor.Position);
+                // Check if mouse is over BtnMoveTagUp or BtnMoveTagDown bounds
+                if (BtnMoveTagUp.Bounds.Contains(pt))
+                {
+                    _toolTip.Show("Reordering disabled when alphabetical sorting is active", this, BtnMoveTagUp.Left + BtnMoveTagUp.Width / 2, BtnMoveTagUp.Top + BtnMoveTagUp.Height / 2, 2000);
+                }
+                else if (BtnMoveTagDown.Bounds.Contains(pt))
+                {
+                    _toolTip.Show("Reordering disabled when alphabetical sorting is active", this, BtnMoveTagDown.Left + BtnMoveTagDown.Width / 2, BtnMoveTagDown.Top + BtnMoveTagDown.Height / 2, 2000);
+                }
+                else
+                {
+                    _toolTip.Hide(this);
+                }
+            }
+            else
+            {
+                _toolTip.Hide(this);
             }
         }
     }
