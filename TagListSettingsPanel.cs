@@ -29,6 +29,8 @@ namespace MusicBeePlugin
         // Moved ToolTip to a private field so it can be used later
         private ToolTip _toolTip;
 
+        private int _dragIndex = -1;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
         /// </summary>
@@ -53,6 +55,7 @@ namespace MusicBeePlugin
             UpdateSortOption();
             UpdateTags();
             TxtNewTagInput.Focus();
+            InitializeDragDrop();
         }
 
         private void InitializeToolTip()
@@ -380,6 +383,56 @@ namespace MusicBeePlugin
             else
             {
                 _toolTip.Hide(this);
+            }
+        }
+
+        private void InitializeDragDrop()
+        {
+            LstTags.AllowDrop = true;
+            LstTags.DragEnter += LstTags_DragEnter;
+            LstTags.DragDrop += LstTags_DragDrop;
+            LstTags.MouseDown += LstTags_MouseDown;
+        }
+
+        private void LstTags_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_tagsStorage.Sorted)
+                return; // No drag when sorted
+
+            _dragIndex = LstTags.IndexFromPoint(e.X, e.Y);
+            if (_dragIndex != -1)
+            {
+                LstTags.DoDragDrop(LstTags.Items[_dragIndex].ToString(), DragDropEffects.Move);
+            }
+        }
+
+        private void LstTags_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(string)))
+                e.Effect = DragDropEffects.Move;
+        }
+
+        private void LstTags_DragDrop(object sender, DragEventArgs e)
+        {
+            if (_tagsStorage.Sorted)
+                return;
+
+            Point point = LstTags.PointToClient(new Point(e.X, e.Y));
+            int dropIndex = LstTags.IndexFromPoint(point);
+
+            if (dropIndex == -1) dropIndex = LstTags.Items.Count - 1;
+            if (_dragIndex == dropIndex) return;
+
+            // Calculate the equivalent "move" as in MoveItem method
+            int direction = dropIndex > _dragIndex ? dropIndex - _dragIndex : -(_dragIndex - dropIndex);
+
+            // Call existing MoveItem multiple times to reach the target position
+            int steps = Math.Abs(direction);
+            int singleDirection = direction > 0 ? 1 : -1;
+
+            for (int i = 0; i < steps; i++)
+            {
+                MoveItem(singleDirection);
             }
         }
     }
