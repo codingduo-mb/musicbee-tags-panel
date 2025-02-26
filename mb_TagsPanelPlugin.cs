@@ -1067,28 +1067,68 @@ namespace MusicBeePlugin
         {
             try
             {
-                string settingsPath = _settingsManager.GetSettingsPath();
-                if (File.Exists(settingsPath))
-                {
-                    File.Delete(settingsPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger?.Error($"Failed to delete settings file: {ex.Message}");
-            }
+                _logger?.Info("Beginning plugin uninstallation process");
 
-            try
-            {
-                string logFilePath = _logger?.GetLogFilePath();
-                if (!string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
+                // Clean up settings file
+                if (_settingsManager != null)
                 {
-                    File.Delete(logFilePath);
+                    try
+                    {
+                        string settingsPath = _settingsManager.GetSettingsPath();
+                        if (!string.IsNullOrEmpty(settingsPath) && File.Exists(settingsPath))
+                        {
+                            File.Delete(settingsPath);
+                            _logger?.Info($"Settings file deleted: {settingsPath}");
+
+                            // Clean up parent directory if empty
+                            string parentDir = Path.GetDirectoryName(settingsPath);
+                            if (!string.IsNullOrEmpty(parentDir) && Directory.Exists(parentDir) &&
+                                !Directory.EnumerateFileSystemEntries(parentDir).Any())
+                            {
+                                Directory.Delete(parentDir);
+                                _logger?.Info($"Empty settings directory removed: {parentDir}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.Error($"Failed to delete settings file: {ex.Message}", ex);
+                    }
                 }
+
+                // Clean up log file
+                try
+                {
+                    string logFilePath = _logger?.GetLogFilePath();
+                    if (!string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
+                    {
+                        File.Delete(logFilePath);
+                        _logger?.Info($"Log file deleted: {logFilePath}");
+
+                        // Clean up parent directory if empty
+                        string logDir = Path.GetDirectoryName(logFilePath);
+                        if (!string.IsNullOrEmpty(logDir) && Directory.Exists(logDir) &&
+                            !Directory.EnumerateFileSystemEntries(logDir).Any())
+                        {
+                            Directory.Delete(logDir);
+                            _logger?.Info($"Empty log directory removed: {logDir}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.Error($"Failed to delete log file: {ex.Message}", ex);
+                }
+
+                // Final cleanup of resources that might not have been disposed in Close()
+                _uiManager?.Dispose();
+                _logger?.Info("Uninstallation completed");
+                _logger?.Dispose();
             }
             catch (Exception ex)
             {
-                _logger?.Error($"Failed to delete log file: {ex.Message}");
+                // Can't use logger here as it might be disposed or in an error state
+                System.Diagnostics.Debug.WriteLine($"Error during plugin uninstallation: {ex}");
             }
         }
 
