@@ -376,9 +376,30 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Gets the MetaDataType enum value for the currently active tab.
+        /// </summary>
+        /// <returns>
+        /// The MetaDataType enum value corresponding to the active tab name, or 0 (None) if 
+        /// the tab name is invalid or cannot be parsed as a MetaDataType.
+        /// </returns>
         public MetaDataType GetActiveTabMetaDataType()
         {
-            return Enum.TryParse(_metaDataTypeName, true, out MetaDataType result) ? result : 0;
+            if (string.IsNullOrEmpty(_metaDataTypeName))
+            {
+                _logger?.Debug("GetActiveTabMetaDataType: _metaDataTypeName is null or empty");
+                return 0;
+            }
+
+            if (Enum.TryParse(_metaDataTypeName, true, out MetaDataType result))
+            {
+                return result;
+            }
+            else
+            {
+                _logger?.Warn($"GetActiveTabMetaDataType: Failed to parse '{_metaDataTypeName}' as MetaDataType");
+                return 0;
+            }
         }
 
         private TagsStorage GetCurrentTagsStorage()
