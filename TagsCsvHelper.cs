@@ -11,6 +11,12 @@ namespace MusicBeePlugin
     /// </summary>
     public class TagsCsvHelper
     {
+        // Class-level properties for CSV configuration
+        public char Delimiter { get; set; } = ';';
+        public System.Text.Encoding FileEncoding { get; set; } = System.Text.Encoding.UTF8;
+        public bool ExportWithHeader { get; set; } = false;
+        public string HeaderText { get; set; } = "Tag";
+
         private readonly Action<string, string, MessageBoxButtons, MessageBoxIcon> _showMessageBox;
 
         /// <summary>
@@ -27,11 +33,56 @@ namespace MusicBeePlugin
         /// </summary>
         /// <param name="tagsStorage">The tags storage to add imported tags to.</param>
         /// <param name="updateControl">Optional action to update UI control after tag import.</param>
-        public void ImportTagsFromCsv(TagsStorage tagsStorage, Action<string> addItemToListAction = null)
+        public void ImportTagsFromCsv(TagsStorage tagsStorage, Action<string> addItemToListAction = null, string importFilePath = null)
         {
             if (tagsStorage == null)
                 throw new ArgumentNullException(nameof(tagsStorage));
 
+            string importCsvFilename = importFilePath;
+
+            // Show dialog only if no file path was provided
+            if (string.IsNullOrEmpty(importCsvFilename))
+            {
+                importCsvFilename = ShowImportFileDialog();
+                if (string.IsNullOrEmpty(importCsvFilename))
+                {
+                    return;
+                }
+
+                // Ask for confirmation only when selecting file via dialog
+                if (MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle,
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    _showMessageBox(Messages.CsvImportCancelMessage, Messages.CsvDialogTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+
+            try
+            {
+                int importedCount = ImportTagsFromFile(importCsvFilename, tagsStorage, addItemToListAction);
+
+                if (importedCount > 0)
+                {
+                    _showMessageBox($"{importedCount} {Messages.CsvImportTagImportSuccessfulMessage}",
+                        Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    _showMessageBox(Messages.CsvImportNoTagsFoundMessage, Messages.CsvDialogTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                _showMessageBox($"Error importing tags: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string ShowImportFileDialog()
+        {
             using (var openFileDialog = new OpenFileDialog
             {
                 CheckFileExists = true,
@@ -43,73 +94,92 @@ namespace MusicBeePlugin
                 RestoreDirectory = true
             })
             {
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                return openFileDialog.ShowDialog() == DialogResult.OK ? openFileDialog.FileName : null;
+            }
+        }
+
+        private int ImportTagsFromFile(string filePath, TagsStorage tagsStorage, Action<string> addItemToListAction)
+        {
+            var lines = File.ReadAllLines(filePath);
+            var importedTags = new HashSet<string>();
+
+            foreach (var line in lines)
+            {
+                var values = line.Split(new[] { Delimiter }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var value in values)
                 {
-                    var importCsvFilename = openFileDialog.FileName;
-                    if (string.IsNullOrEmpty(importCsvFilename))
+                    var importTag = value.Trim();
+                    if (!string.IsNullOrEmpty(importTag))
                     {
-                        return;
-                    }
-
-                    if (MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        try
-                        {
-                            var lines = File.ReadAllLines(importCsvFilename);
-                            var importedTags = new HashSet<string>();
-
-                            foreach (var line in lines)
-                            {
-                                var values = line.Split(';');
-                                foreach (var value in values)
-                                {
-                                    var importTag = value.Trim();
-                                    if (!string.IsNullOrEmpty(importTag))
-                                    {
-                                        importedTags.Add(importTag);
-                                    }
-                                }
-                            }
-
-                            if (importedTags.Count > 0)
-                            {
-                                foreach (var tag in importedTags)
-                                {
-                                    if (!tagsStorage.TagList.ContainsKey(tag))
-                                    {
-                                        tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
-                                        addItemToListAction?.Invoke(tag);
-                                    }
-                                }
-                                _showMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccessfulMessage}", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                            else
-                            {
-                                _showMessageBox(Messages.CsvImportNoTagsFoundMessage, Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _showMessageBox($"Error importing tags: {ex.Message}", Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                    else
-                    {
-                        _showMessageBox(Messages.CsvImportCancelMessage, Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        importedTags.Add(importTag);
                     }
                 }
             }
+
+            foreach (var tag in importedTags)
+            {
+                if (!tagsStorage.TagList.ContainsKey(tag))
+                {
+                    tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
+                    addItemToListAction?.Invoke(tag);
+                }
+            }
+
+            return importedTags.Count;
         }
+
 
         /// <summary>
         /// Exports tags to a CSV file.
         /// </summary>
         /// <param name="tags">The tags to export.</param>
-        public void ExportTagsToCsv(IEnumerable<string> tags)
+        public void ExportTagsToCsv(IEnumerable<string> tags, string exportFilePath = null)
         {
             if (tags == null)
                 throw new ArgumentNullException(nameof(tags));
 
+            string exportCSVFilename = exportFilePath;
+
+            // Show dialog only if no file path was provided
+            if (string.IsNullOrEmpty(exportCSVFilename))
+            {
+                exportCSVFilename = ShowExportFileDialog();
+                if (string.IsNullOrEmpty(exportCSVFilename))
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                // Use more efficient file writing with encoding options
+                using (var csvWriter = new StreamWriter(exportCSVFilename, false, FileEncoding))
+                {
+                    // Add header if configured
+                    if (ExportWithHeader)
+                    {
+                        csvWriter.WriteLine(HeaderText);
+                    }
+
+                    // Optionally add a batch write for performance with large sets
+                    foreach (var tag in tags)
+                    {
+                        csvWriter.WriteLine(tag);
+                    }
+                }
+
+                _showMessageBox($"{Messages.CsvExportSuccessMessage} {exportCSVFilename}",
+                    Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                _showMessageBox($"Error exporting tags: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string ShowExportFileDialog()
+        {
             using (var saveFileDialog = new SaveFileDialog
             {
                 CheckFileExists = false,
@@ -119,28 +189,9 @@ namespace MusicBeePlugin
                 RestoreDirectory = true
             })
             {
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    var exportCSVFilename = saveFileDialog.FileName;
-
-                    try
-                    {
-                        using (var csvWriter = new StreamWriter(exportCSVFilename))
-                        {
-                            foreach (var tag in tags)
-                            {
-                                csvWriter.WriteLine(tag);
-                            }
-                        }
-
-                        _showMessageBox($"{Messages.CsvExportSuccessMessage} {exportCSVFilename}", Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        _showMessageBox($"Error exporting tags: {ex.Message}", Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+                return saveFileDialog.ShowDialog() == DialogResult.OK ? saveFileDialog.FileName : null;
             }
         }
+
     }
 }

@@ -178,6 +178,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TagListSettingsPanel.resx">
       <DependentUpon>TagListSettingsPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
