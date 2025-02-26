@@ -1200,16 +1200,46 @@ namespace MusicBeePlugin
             _excludeFromBatchSelection = false;
         }
 
+        /// <summary>
+        /// Handles creation of the dockable panel by MusicBee and initializes the plugin UI components.
+        /// </summary>
+        /// <param name="panel">The control provided by MusicBee to host the plugin UI</param>
+        /// <returns>Always returns 0 to indicate successful initialization</returns>
         public int OnDockablePanelCreated(Control panel)
         {
-            _tagsPanelControl = panel;
-            EnsureControlCreated();
-            AddControls();
-            _uiManager.DisplaySettingsPromptLabel(_tagsPanelControl, _tabControl, "No tags available. Please add tags in the settings.");
-            if (_tagsPanelControl.IsHandleCreated)
-                InvokeRefreshTagTableData();
+            try
+            {
+                _logger?.Debug("OnDockablePanelCreated: Initializing plugin panel");
+                _tagsPanelControl = panel ?? throw new ArgumentNullException(nameof(panel));
 
-            return 0;
+                // Ensure the panel is created and ready for UI elements
+                EnsureControlCreated();
+
+                // Add controls to the panel
+                AddControls();
+
+                // Display prompt if no tags are configured
+                if (_tabControl == null || _tabControl.TabCount == 0)
+                {
+                    _logger?.Info("No tag tabs available - showing settings prompt");
+                    _uiManager?.DisplaySettingsPromptLabel(_tagsPanelControl, _tabControl, "No tags available. Please add tags in the settings.");
+                }
+
+                // Initialize tag data if panel is ready
+                if (_tagsPanelControl.IsHandleCreated)
+                {
+                    _logger?.Debug("Panel handle created - refreshing tag data");
+                    InvokeRefreshTagTableData();
+                }
+
+                _logger?.Info("Dockable panel initialization completed");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in OnDockablePanelCreated: {ex.Message}", ex);
+                return 0; // Return 0 even on error to prevent plugin loading failure
+            }
         }
 
         private void EnsureControlCreated()
