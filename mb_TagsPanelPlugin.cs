@@ -1271,20 +1271,68 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Handles changes in file selection in MusicBee.
+        /// Updates the tags panel to display tags for the newly selected files.
+        /// </summary>
+        /// <param name="filenames">Array of selected file paths, or null if no files are selected</param>
         public void OnSelectedFilesChanged(string[] filenames)
         {
-            _selectedFilesUrls = filenames ?? Array.Empty<string>();
+            try
+            {
+                string[] newSelection = filenames ?? Array.Empty<string>();
 
-            if (_selectedFilesUrls.Any())
-            {
-                RefreshPanelTagsFromFiles(_selectedFilesUrls);
+                // Check if the selection actually changed to avoid unnecessary processing
+                if (SequenceEqual(_selectedFilesUrls, newSelection))
+                {
+                    _logger?.Debug("File selection unchanged - skipping refresh");
+                    return;
+                }
+
+                _logger?.Debug($"File selection changed: {newSelection.Length} files selected");
+                _selectedFilesUrls = newSelection;
+
+                if (_selectedFilesUrls.Any())
+                {
+                    // Files are selected - refresh the panel with tag data
+                    RefreshPanelTagsFromFiles(_selectedFilesUrls);
+                }
+                else
+                {
+                    // No files selected - clear the tag display
+                    _logger?.Debug("No files selected - clearing tag display");
+                    _tagsFromFiles.Clear();
+                    UpdateTagsInPanelOnFileSelection();
+                }
+
+                // Always ensure the panel is enabled
+                SetPanelEnabled(true);
             }
-            else
+            catch (Exception ex)
             {
-                _tagsFromFiles.Clear();
-                UpdateTagsInPanelOnFileSelection();
+                _logger?.Error($"Error handling file selection change: {ex.Message}", ex);
+
+                // Ensure panel is enabled even if an error occurs
+                SetPanelEnabled(true);
             }
-            SetPanelEnabled(true);
+        }
+
+        /// <summary>
+        /// Compares two string arrays for sequence equality.
+        /// </summary>
+        /// <returns>True if both arrays contain the same elements in the same order, or if both are null</returns>
+        private bool SequenceEqual(string[] array1, string[] array2)
+        {
+            if (array1 == array2) return true;
+            if (array1 == null || array2 == null) return false;
+            if (array1.Length != array2.Length) return false;
+
+            for (int i = 0; i < array1.Length; i++)
+            {
+                if (array1[i] != array2[i]) return false;
+            }
+
+            return true;
         }
 
         public List<ToolStripItem> GetMenuItems()
