@@ -965,17 +965,51 @@ namespace MusicBeePlugin
 
         private void AddControls()
         {
-            if (_tagsPanelControl.InvokeRequired)
+            try
             {
-                _tagsPanelControl.Invoke(new Action(AddControls));
-                return;
-            }
+                // Check for null control before accessing InvokeRequired
+                if (_tagsPanelControl == null)
+                {
+                    _logger?.Error("Cannot add controls: Tags panel control is null");
+                    return;
+                }
 
-            _tagsPanelControl.SuspendLayout();
-            CreateTabPanel();
-            _tagsPanelControl.Controls.Add(_tabControl);
-            _tagsPanelControl.Enabled = false;
-            _tagsPanelControl.ResumeLayout();
+                // Handle cross-thread invocation
+                if (_tagsPanelControl.InvokeRequired)
+                {
+                    _logger?.Debug("Dispatching AddControls to UI thread");
+                    _tagsPanelControl.Invoke(new Action(AddControls));
+                    return;
+                }
+
+                // Check if control is still valid (not disposed)
+                if (_tagsPanelControl.IsDisposed)
+                {
+                    _logger?.Error("Cannot add controls: Tags panel control is disposed");
+                    return;
+                }
+
+                _logger?.Debug("Adding controls to panel");
+                _tagsPanelControl.SuspendLayout();
+
+                // Create tab panel and check if successful before adding to controls
+                if (CreateTabPanel())
+                {
+                    _tagsPanelControl.Controls.Add(_tabControl);
+                    _tagsPanelControl.Enabled = false;
+                    _logger?.Debug("Controls added successfully");
+                }
+                else
+                {
+                    _logger?.Error("Failed to create tab panel, controls not added");
+                }
+
+                _tagsPanelControl.ResumeLayout();
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in AddControls: {ex.Message}", ex);
+            }
         }
 
         public void Close(PluginCloseReason reason)
