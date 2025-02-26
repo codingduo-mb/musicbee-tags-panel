@@ -591,18 +591,51 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Refreshes the tag table data in a thread-safe manner.
+        /// </summary>
+        /// <remarks>
+        /// This method ensures that UI updates are performed on the UI thread
+        /// and handles any exceptions that might occur during the update process.
+        /// </remarks>
         private void InvokeRefreshTagTableData()
         {
             if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
+            {
+                _logger?.Debug("RefreshTagTableData skipped: panel control is null or disposed");
                 return;
-
-            if (_tagsPanelControl.InvokeRequired)
-            {
-                _tagsPanelControl.Invoke(new Action(UpdateTagsDisplayFromStorage));
             }
-            else
+
+            try
             {
-                UpdateTagsDisplayFromStorage();
+                if (_tagsPanelControl.InvokeRequired)
+                {
+                    _logger?.Debug("Dispatching UpdateTagsDisplayFromStorage to UI thread");
+                    _tagsPanelControl.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            UpdateTagsDisplayFromStorage();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger?.Error($"Error in UI thread while updating tags display: {ex.Message}", ex);
+                        }
+                    }));
+                }
+                else
+                {
+                    _logger?.Debug("Directly updating tags display from storage");
+                    UpdateTagsDisplayFromStorage();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger?.Error($"Failed to invoke UpdateTagsDisplayFromStorage: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Unexpected error in {nameof(InvokeRefreshTagTableData)}: {ex.Message}", ex);
             }
         }
 
