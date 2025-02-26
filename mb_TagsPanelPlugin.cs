@@ -402,11 +402,41 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Gets the current TagsStorage object associated with the active tab.
+        /// </summary>
+        /// <returns>
+        /// The TagsStorage object for the currently active metadata type,
+        /// or null if not available or if the metadata type is invalid.
+        /// </returns>
         private TagsStorage GetCurrentTagsStorage()
         {
+            if (_settingsManager == null)
+            {
+                _logger?.Error("GetCurrentTagsStorage failed: SettingsManager is null");
+                return null;
+            }
+
             MetaDataType metaDataType = GetActiveTabMetaDataType();
-            var tagsStorage = metaDataType != 0 ? _settingsManager.RetrieveTagsStorageByTagName(metaDataType.ToString()) : null;
-            _logger.Info($"{nameof(GetCurrentTagsStorage)} returned TagsStorage for metaDataType: {metaDataType}");
+            if (metaDataType == 0)
+            {
+                _logger?.Debug("GetCurrentTagsStorage: No valid metadata type selected");
+                return null;
+            }
+
+            var tagName = metaDataType.ToString();
+            var tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
+
+            // Only log at Info level if a tag storage was found
+            if (tagsStorage != null)
+            {
+                _logger?.Debug($"Retrieved TagsStorage for metaDataType: {metaDataType}");
+            }
+            else
+            {
+                _logger?.Warn($"No TagsStorage found for metaDataType: {metaDataType}");
+            }
+
             return tagsStorage;
         }
 
