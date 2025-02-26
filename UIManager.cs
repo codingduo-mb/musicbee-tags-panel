@@ -75,32 +75,40 @@ namespace MusicBeePlugin
 
         public void AddTagsToChecklistBoxPanel(string tagName, Dictionary<string, CheckState> tags)
         {
+            if (string.IsNullOrEmpty(tagName) || tags == null)
+                return;
+
             if (_checklistBoxList.TryGetValue(tagName, out var checklistBoxPanel) &&
-                checklistBoxPanel?.IsDisposed == false &&
-                checklistBoxPanel.IsHandleCreated)
+                checklistBoxPanel?.IsDisposed == false)
             {
-                checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
+                if (checklistBoxPanel.InvokeRequired)
+                {
+                    checklistBoxPanel.Invoke(new Action(() => checklistBoxPanel.PopulateChecklistBoxesFromData(tags)));
+                }
+                else
+                {
+                    checklistBoxPanel.PopulateChecklistBoxesFromData(tags);
+                }
             }
         }
 
         public void SwitchVisibleTagPanel(string visibleTag)
         {
-            if (_checklistBoxList == null || _selectedFileUrls == null)
+            if (_checklistBoxList == null || string.IsNullOrEmpty(visibleTag))
             {
                 return;
             }
 
-            foreach (var checklistBoxPanel in _checklistBoxList.Values)
+            foreach (var pair in _checklistBoxList)
             {
-                if (checklistBoxPanel?.Tag == null)
+                var checklistBoxPanel = pair.Value;
+                if (checklistBoxPanel?.Tag != null)
                 {
-                    continue;
+                    checklistBoxPanel.Visible = checklistBoxPanel.Tag.ToString() == visibleTag;
                 }
-
-                checklistBoxPanel.Visible = checklistBoxPanel.Tag.ToString() == visibleTag;
             }
 
-            _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls);
+            _refreshPanelTagsFromFiles?.Invoke(_selectedFileUrls ?? Array.Empty<string>());
         }
 
         private int GetKeyFromArgs(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
@@ -108,19 +116,22 @@ namespace MusicBeePlugin
             return ((int)skinElement & 0x7F) << 24 | ((int)elementState & 0xFF) << 16 | (int)elementComponent & 0xFFFF;
         }
 
-        public Color GetElementColor(
-    SkinElement skinElement,
-    ElementState elementState,
-    ElementComponent elementComponent)
+        
+        private readonly object _colorCacheLock = new object();
+
+        public Color GetElementColor(SkinElement skinElement, ElementState elementState, ElementComponent elementComponent)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(UIManager));
 
             var key = GetKeyFromArgs(skinElement, elementState, elementComponent);
-            return _colorCache.GetOrAdd(key, _ =>
-            {
-                int colorValue = _mbApiInterface.Setting_GetSkinElementColour(
-                    skinElement, elementState, elementComponent);
-                return Color.FromArgb(colorValue);
+
+            return _colorCache.GetOrAdd(key, k => {
+                lock (_colorCacheLock)
+                {
+                    int colorValue = _mbApiInterface.Setting_GetSkinElementColour(
+                        skinElement, elementState, elementComponent);
+                    return Color.FromArgb(colorValue);
+                }
             });
         }
 

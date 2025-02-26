@@ -128,7 +128,7 @@ namespace MusicBeePlugin
         {
             if (_settingsManager == null)
             {
-                _logger.Error("SettingsManager is not initialized.");
+                _logger?.Error("SettingsManager is not initialized.");
                 return;
             }
 
@@ -136,21 +136,16 @@ namespace MusicBeePlugin
             {
                 _settingsManager.LoadSettingsWithFallback();
                 UpdateSettingsFromTagsStorage();
-                _logger.Info("Plugin settings loaded successfully.");
+                _logger?.Info("Plugin settings loaded successfully.");
             }
-            catch (IOException ioEx)
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
-                _logger.Error($"I/O error while loading plugin settings: {ioEx.Message}");
-                ShowErrorMessage("An error occurred while accessing the settings file. Please check file permissions or disk space.");
-            }
-            catch (UnauthorizedAccessException uaEx)
-            {
-                _logger.Error($"Unauthorized access during settings load: {uaEx.Message}");
-                ShowErrorMessage("Insufficient permissions to access the settings file.");
+                _logger?.Error($"File access error while loading plugin settings: {ex.GetType().Name} - {ex.Message}");
+                ShowErrorMessage($"Unable to access settings file: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Unexpected error while loading plugin settings: {ex.Message}");
+                _logger?.Error($"Unexpected error in {nameof(LoadPluginSettings)}: {ex}");
                 ShowErrorMessage("An unexpected error occurred while loading settings.");
             }
         }
