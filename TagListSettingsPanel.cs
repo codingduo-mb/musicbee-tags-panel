@@ -31,6 +31,8 @@ namespace MusicBeePlugin
 
         private int _dragIndex = -1;
 
+        private TextBox _searchBox;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
         /// </summary>
@@ -40,6 +42,7 @@ namespace MusicBeePlugin
         {
             InitializeComponent();
             InitializeToolTip();
+            InitializeSearchBox();
 
             if (string.IsNullOrEmpty(tagName))
                 throw new ArgumentNullException(nameof(tagName), "Tag name cannot be null or empty");
@@ -69,6 +72,39 @@ namespace MusicBeePlugin
             };
             // Tooltip for sort option remains as is.
             _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
+        }
+
+        private void InitializeSearchBox()
+        {
+            _searchBox = new TextBox
+            {
+                Dock = DockStyle.Top
+            };
+
+            // Set the placeholder text using a cue banner
+            SendMessage(_searchBox.Handle, EM_SETCUEBANNER, 0, "Search tags...");
+
+            _searchBox.TextChanged += (s, e) => FilterTagsList(_searchBox.Text);
+            Controls.Add(_searchBox);
+            Controls.SetChildIndex(_searchBox, 0);
+        }
+
+        private void FilterTagsList(string filter)
+        {
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                UpdateTags(); // Show all tags
+                return;
+            }
+
+            var tags = _tagsStorage.GetTags().Keys
+                .Where(tag => tag.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToArray();
+
+            LstTags.BeginUpdate();
+            LstTags.Items.Clear();
+            LstTags.Items.AddRange(tags);
+            LstTags.EndUpdate();
         }
 
         private void SetUpDownButtonsState(bool enabled)
