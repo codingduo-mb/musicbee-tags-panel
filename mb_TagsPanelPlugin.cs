@@ -509,37 +509,85 @@ namespace MusicBeePlugin
 
         private void UpdateTagsDisplayFromStorage()
         {
-            var currentTagsStorage = GetCurrentTagsStorage();
-            if (currentTagsStorage == null)
+            try
             {
-                _logger.Error("Current TagsStorage is null");
-                return;
-            }
+                // Get current tags storage and validate
+                var currentTagsStorage = GetCurrentTagsStorage();
+                if (currentTagsStorage == null)
+                {
+                    _logger?.Error($"{nameof(UpdateTagsDisplayFromStorage)}: Current TagsStorage is null");
+                    return;
+                }
 
-            var data = GetTagsFromStorage(currentTagsStorage);
+                // Get tag name from storage
+                var tagName = currentTagsStorage.GetTagName();
+                if (string.IsNullOrEmpty(tagName))
+                {
+                    _logger?.Error($"{nameof(UpdateTagsDisplayFromStorage)}: Tag name from storage is empty or null");
+                    return;
+                }
+
+                _logger?.Debug($"Updating tag display for '{tagName}'");
+
+                // Get tags from storage and merge with tags from files
+                var data = GetTagsFromStorage(currentTagsStorage);
+                MergeTagsFromFiles(data);
+
+                // Update the appropriate panel if it exists
+                if (_checklistBoxList?.TryGetValue(tagName, out var tagListPanel) == true && tagListPanel != null)
+                {
+                    UpdateTagListPanel(tagListPanel, currentTagsStorage, data);
+                }
+                else
+                {
+                    _logger?.Error($"TagListPanel for tag '{tagName}' not found in checklist box dictionary");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in {nameof(UpdateTagsDisplayFromStorage)}: {ex.Message}", ex);
+            }
+        }
+
+        private void MergeTagsFromFiles(Dictionary<string, CheckState> data)
+        {
+            if (_tagsFromFiles == null || data == null)
+                return;
+
             foreach (var tagFromFile in _tagsFromFiles)
             {
-                if (!data.ContainsKey(tagFromFile.Key))
+                if (!string.IsNullOrWhiteSpace(tagFromFile.Key) && !data.ContainsKey(tagFromFile.Key))
                 {
                     data[tagFromFile.Key] = tagFromFile.Value;
                 }
             }
+        }
 
-            var tagName = currentTagsStorage.GetTagName();
-            if (_checklistBoxList.TryGetValue(tagName, out var tagListPanel))
+        private void UpdateTagListPanel(TagListPanel tagListPanel, TagsStorage tagsStorage, Dictionary<string, CheckState> data)
+        {
+            if (tagListPanel == null)
+                return;
+
+            if (tagListPanel.InvokeRequired)
             {
-                if (tagListPanel.InvokeRequired)
+                try
                 {
-                    tagListPanel.Invoke(new Action(() => tagListPanel.UpdateTagsStorage(currentTagsStorage, data)));
+                    tagListPanel.Invoke(new Action(() => tagListPanel.UpdateTagsStorage(tagsStorage, data)));
+                    _logger?.Debug($"Updated tags via Invoke for panel '{tagsStorage.GetTagName()}'");
                 }
-                else
+                catch (ObjectDisposedException)
                 {
-                    tagListPanel.UpdateTagsStorage(currentTagsStorage, data);
+                    _logger?.Warn($"TagListPanel was disposed while attempting to invoke UpdateTagsStorage");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger?.Warn($"Failed to invoke UpdateTagsStorage: {ex.Message}");
                 }
             }
             else
             {
-                _logger.Error($"TagListPanel for tag '{tagName}' not found.");
+                tagListPanel.UpdateTagsStorage(tagsStorage, data);
+                _logger?.Debug($"Updated tags directly for panel '{tagsStorage.GetTagName()}'");
             }
         }
 
