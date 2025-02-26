@@ -20,6 +20,7 @@ namespace MusicBeePlugin
 
         private readonly SettingsManager _settingsManager;
         private readonly TagsStorage _tagsStorage;
+        private readonly TagsCsvHelper _tagsCsvHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TagListSettingsPanel"/> class.
@@ -34,13 +35,13 @@ namespace MusicBeePlugin
 
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
             _tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName) ?? throw new ArgumentNullException(nameof(tagName));
+            _tagsCsvHelper = new TagsCsvHelper(ShowMessageBox);
 
             AttachEventHandlers();
             UpdateSortOption();
             UpdateTags();
             TxtNewTagInput.Focus();
         }
-
         private void InitializeToolTip()
         {
             var toolTip = new ToolTip
@@ -208,75 +209,14 @@ namespace MusicBeePlugin
         /// <summary>
         /// Imports tags from a CSV file.
         /// </summary>
+
+        /// <summary>
+        /// Imports tags from a CSV file.
+        /// </summary>
         public void ImportTagsFromCsv()
         {
-            using (var openFileDialog1 = new OpenFileDialog
-            {
-                CheckFileExists = true,
-                CheckPathExists = true,
-                Title = Messages.CsvDialogTitle,
-                Filter = Messages.CsvFileFilter,
-                DefaultExt = Messages.CsvDefaultExt,
-                Multiselect = false,
-                RestoreDirectory = true
-            })
-            {
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    var importCsvFilename = openFileDialog1.FileName;
-                    if (string.IsNullOrEmpty(importCsvFilename))
-                    {
-                        return;
-                    }
-
-                    if (MessageBox.Show(Messages.CsvImportWarningReplaceMessage, Messages.WarningTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        try
-                        {
-                            var lines = File.ReadAllLines(importCsvFilename);
-                            var importedTags = new HashSet<string>();
-
-                            foreach (var line in lines)
-                            {
-                                var values = line.Split(';');
-                                foreach (var value in values)
-                                {
-                                    var importTag = value.Trim();
-                                    if (!string.IsNullOrEmpty(importTag))
-                                    {
-                                        importedTags.Add(importTag);
-                                    }
-                                }
-                            }
-
-                            if (importedTags.Count > 0)
-                            {
-                                foreach (var tag in importedTags)
-                                {
-                                    if (!_tagsStorage.TagList.ContainsKey(tag))
-                                    {
-                                        _tagsStorage.TagList.Add(tag, _tagsStorage.TagList.Count);
-                                        LstTags.Items.Add(tag);
-                                    }
-                                }
-                                ShowMessageBox($"{importedTags.Count} {Messages.CsvImportTagImportSuccesfullMessage}", Messages.CsvDialogTitle);
-                            }
-                            else
-                            {
-                                ShowMessageBox(Messages.CsvImportNoTagsFoundMessage, Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowMessageBox($"Error importing tags: {ex.Message}", Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                    else
-                    {
-                        ShowMessageBox(Messages.CsvImportCancelMessage, Messages.CsvDialogTitle);
-                    }
-                }
-            }
+            _tagsCsvHelper.ImportTagsFromCsv(_tagsStorage, tag => LstTags.Items.Add(tag));
+            UpdateTags(); // Ensure the list is fully updated
         }
 
         /// <summary>
@@ -284,38 +224,9 @@ namespace MusicBeePlugin
         /// </summary>
         public void ExportTagsToCsv()
         {
-            using (var saveFileDialog1 = new SaveFileDialog
-            {
-                CheckFileExists = false,
-                Title = Messages.CsvDialogTitle,
-                Filter = Messages.CsvFileFilter,
-                DefaultExt = Messages.CsvDefaultExt,
-                RestoreDirectory = true
-            })
-            {
-                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    var exportCSVFilename = saveFileDialog1.FileName;
-
-                    try
-                    {
-                        using (var csvWriter = new StreamWriter(exportCSVFilename))
-                        {
-                            foreach (var tag in LstTags.Items.Cast<string>())
-                            {
-                                csvWriter.WriteLine(tag);
-                            }
-                        }
-
-                        ShowMessageBox($"{Messages.CsvExportSuccessMessage} {exportCSVFilename}", Messages.CsvDialogTitle);
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowMessageBox($"Error exporting tags: {ex.Message}", Messages.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
+            _tagsCsvHelper.ExportTagsToCsv(LstTags.Items.Cast<string>());
         }
+
 
         private void BtnAddTag_Click(object sender, EventArgs e)
         {
