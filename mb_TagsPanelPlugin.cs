@@ -1134,25 +1134,69 @@ namespace MusicBeePlugin
 
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
-            if (_tagsPanelControl == null || type == NotificationType.ApplicationWindowChanged ||
-                GetActiveTabMetaDataType() == 0 || _ignoreEventFromHandler)
+            try
+            {
+                // Skip processing in these cases
+                if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed ||
+                    type == NotificationType.ApplicationWindowChanged ||
+                    GetActiveTabMetaDataType() == 0 ||
+                    _ignoreEventFromHandler)
+                {
+                    return;
+                }
+
+                _logger?.Debug($"Received notification: {type} for file: {sourceFileUrl ?? "(null)"}");
+
+                switch (type)
+                {
+                    case NotificationType.TagsChanging:
+                        HandleTagsChanging(sourceFileUrl);
+                        break;
+
+                    case NotificationType.TrackChanged:
+                        HandleTrackChanged(sourceFileUrl);
+                        break;
+
+                    // Add other relevant notification types as needed
+                    default:
+                        _logger?.Debug($"Unhandled notification type: {type}");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error handling notification {type}: {ex.Message}", ex);
+            }
+        }
+
+        private void HandleTagsChanging(string sourceFileUrl)
+        {
+            if (string.IsNullOrEmpty(sourceFileUrl))
+            {
+                _logger?.Warn("HandleTagsChanging: sourceFileUrl is null or empty");
                 return;
-
-            bool isTagsChanging = type == NotificationType.TagsChanging;
-            bool isTrackChanged = type == NotificationType.TrackChanged;
-
-            if (isTagsChanging)
-            {
-                _excludeFromBatchSelection = true;
-                _mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
             }
 
-            if (isTrackChanged)
+            _excludeFromBatchSelection = true;
+            _mbApiInterface.Library_CommitTagsToFile(sourceFileUrl);
+            _logger?.Debug($"Tags committed to file: {sourceFileUrl}");
+        }
+
+        private void HandleTrackChanged(string sourceFileUrl)
+        {
+            if (string.IsNullOrEmpty(sourceFileUrl))
             {
-                _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, GetActiveTabMetaDataType());
-                InvokeRefreshTagTableData();
+                _logger?.Debug("HandleTrackChanged: sourceFileUrl is null or empty, clearing tags");
+                _tagsFromFiles.Clear();
+            }
+            else
+            {
+                MetaDataType metaDataType = GetActiveTabMetaDataType();
+                _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, metaDataType);
+                _logger?.Debug($"Updated tags from file: {sourceFileUrl} for metadata type: {metaDataType}");
             }
 
+            InvokeRefreshTagTableData();
             _excludeFromBatchSelection = false;
         }
 
