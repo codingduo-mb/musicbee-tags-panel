@@ -293,16 +293,51 @@ namespace MusicBeePlugin
 
         private void PopulateTabPages()
         {
-            _tabPageList.Clear();
-            _checklistBoxList.Clear();
-
-            if (_tabControl?.TabPages != null)
+            try
             {
+                _logger.Info($"Starting {nameof(PopulateTabPages)}...");
+
+                // Clear existing collections
+                _tabPageList.Clear();
+                _checklistBoxList.Clear();
+
+                if (_tabControl == null || _tabControl.IsDisposed)
+                {
+                    _logger.Error($"{nameof(PopulateTabPages)}: TabControl is null or disposed");
+                    return;
+                }
+
                 _tabControl.TabPages.Clear();
+
+                // Exit early if no tags storage
+                if (_settingsManager?.TagsStorages == null || !_settingsManager.TagsStorages.Any())
+                {
+                    _logger.Warn($"{nameof(PopulateTabPages)}: No tags storage available");
+                    return;
+                }
+
+                // Add visible tag panels based on settings
+                int addedCount = 0;
                 foreach (var tagsStorage in _settingsManager.TagsStorages.Values)
                 {
-                    AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
+                    if (tagsStorage != null && !string.IsNullOrEmpty(tagsStorage.MetaDataType))
+                    {
+                        AddTagPanelForVisibleTags(tagsStorage.MetaDataType);
+                        addedCount++;
+                    }
                 }
+
+                _logger.Info($"{nameof(PopulateTabPages)}: Added {addedCount} tag panels");
+
+                // Show first tab if any exist
+                if (_tabControl.TabCount > 0)
+                {
+                    _tabControl.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in {nameof(PopulateTabPages)}: {ex}");
             }
         }
 
