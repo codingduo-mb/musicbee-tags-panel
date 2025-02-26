@@ -1335,12 +1335,16 @@ namespace MusicBeePlugin
             return true;
         }
 
+        /// <summary>
+        /// Provides a list of menu items that will be displayed in MusicBee's plugin menu.
+        /// </summary>
+        /// <returns>A list of ToolStripItems to be displayed in the plugins menu.</returns>
         public List<ToolStripItem> GetMenuItems()
         {
             return new List<ToolStripItem>
-                {
-                    new ToolStripMenuItem("Tag-Panel Settings", null, OnSettingsMenuClicked)
-                };
+            {
+                new ToolStripMenuItem("Settings", null, OnSettingsMenuClicked)
+            };
         }
     }
 }
