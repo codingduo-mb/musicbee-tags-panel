@@ -687,21 +687,46 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Handles the check state change event for tag checkboxes.
+        /// Updates the selected files with the appropriate tag state when a user checks or unchecks a tag.
+        /// </summary>
+        /// <param name="sender">The CheckedListBox that raised the event</param>
+        /// <param name="e">Event arguments containing the item index and check state</param>
         private void TagCheckStateChanged(object sender, ItemCheckEventArgs e)
         {
+            // Skip processing if batch operations are excluded or if we're already handling an event
             if (_excludeFromBatchSelection || _ignoreEventFromHandler)
                 return;
 
+            // Prevent recursive event handling by setting the ignore flag
             _ignoreEventFromHandler = true;
             try
             {
-                var newState = e.NewValue;
-                var tagName = ((CheckedListBox)sender).Items[e.Index].ToString();
-                ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName);
-                _mbApiInterface.MB_RefreshPanels();
+                // Ensure sender is a CheckedListBox and has valid items
+                if (sender is CheckedListBox checkedListBox && e.Index >= 0 && e.Index < checkedListBox.Items.Count)
+                {
+                    var newState = e.NewValue;
+                    var tagName = checkedListBox.Items[e.Index]?.ToString();
+
+                    if (!string.IsNullOrEmpty(tagName) && _selectedFilesUrls != null && _selectedFilesUrls.Length > 0)
+                    {
+                        // Apply the tag change to all selected files
+                        _logger?.Debug($"Applying tag '{tagName}' with state {newState} to {_selectedFilesUrls.Length} files");
+                        ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName);
+
+                        // Refresh UI to reflect changes
+                        _mbApiInterface.MB_RefreshPanels();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error while changing tag check state: {ex.Message}", ex);
             }
             finally
             {
+                // Always reset the ignore flag to prevent event handling from being permanently disabled
                 _ignoreEventFromHandler = false;
             }
         }
