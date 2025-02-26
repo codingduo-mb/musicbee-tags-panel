@@ -85,9 +85,9 @@ namespace MusicBeePlugin
             this.CbEnableAlphabeticalTagListSorting.Margin = new System.Windows.Forms.Padding(0);
             this.CbEnableAlphabeticalTagListSorting.Name = "CbEnableAlphabeticalTagListSorting";
             this.CbEnableAlphabeticalTagListSorting.Padding = new System.Windows.Forms.Padding(5);
-            this.CbEnableAlphabeticalTagListSorting.Size = new System.Drawing.Size(184, 33);
+            this.CbEnableAlphabeticalTagListSorting.Size = new System.Drawing.Size(182, 33);
             this.CbEnableAlphabeticalTagListSorting.TabIndex = 3;
-            this.CbEnableAlphabeticalTagListSorting.Text = "Sort Tags Alphabetically";
+            this.CbEnableAlphabeticalTagListSorting.Text = "Sort tags alphabetically";
             this.CbEnableAlphabeticalTagListSorting.UseVisualStyleBackColor = true;
             // 
             // BtnClearTagList
@@ -140,12 +140,12 @@ namespace MusicBeePlugin
             // CbShowTagsThatAreNotInTheTagsList
             // 
             this.CbShowTagsThatAreNotInTheTagsList.AutoSize = true;
-            this.CbShowTagsThatAreNotInTheTagsList.Location = new System.Drawing.Point(341, 104);
+            this.CbShowTagsThatAreNotInTheTagsList.Location = new System.Drawing.Point(324, 104);
             this.CbShowTagsThatAreNotInTheTagsList.Name = "CbShowTagsThatAreNotInTheTagsList";
             this.CbShowTagsThatAreNotInTheTagsList.Padding = new System.Windows.Forms.Padding(5);
-            this.CbShowTagsThatAreNotInTheTagsList.Size = new System.Drawing.Size(254, 33);
+            this.CbShowTagsThatAreNotInTheTagsList.Size = new System.Drawing.Size(261, 33);
             this.CbShowTagsThatAreNotInTheTagsList.TabIndex = 8;
-            this.CbShowTagsThatAreNotInTheTagsList.Text = "Show Tags That Are Not In The List";
+            this.CbShowTagsThatAreNotInTheTagsList.Text = "Show tags that are not in the taglist";
             this.CbShowTagsThatAreNotInTheTagsList.UseVisualStyleBackColor = true;
             // 
             // groupBox1

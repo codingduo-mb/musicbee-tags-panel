@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using ToolTip = System.Windows.Forms.ToolTip;
+using TextBox = System.Windows.Forms.TextBox;
 
 namespace MusicBeePlugin
 {
@@ -72,6 +75,11 @@ namespace MusicBeePlugin
             };
             // Tooltip for sort option remains as is.
             _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
+            _toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
+            _toolTip.SetToolTip(BtnAddTagToList, "Add Tag (Enter)");
+            _toolTip.SetToolTip(BtnRemoveTagFromList, "Remove Selected Tags (Delete)");
+            _toolTip.SetToolTip(BtnMoveTagUp, "Move Up (Ctrl+Up)");
+            _toolTip.SetToolTip(BtnMoveTagDown, "Move Down (Ctrl+Down)");
         }
 
         private void InitializeSearchBox()
