@@ -731,22 +731,61 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Handles the selection change event for the tab control.
+        /// Updates the current metadata type and refreshes the panel contents.
+        /// </summary>
+        /// <param name="sender">The tab control that raised the event</param>
+        /// <param name="e">Event arguments</param>
         private void TabControlSelectionChanged(object sender, EventArgs e)
         {
-            if (!(sender is TabControl tabControl) || tabControl.SelectedTab == null || tabControl.SelectedTab.IsDisposed)
-                return;
-
-            var newMetaDataTypeName = tabControl.SelectedTab.Text;
-            if (_metaDataTypeName != newMetaDataTypeName)
+            try
             {
-                _metaDataTypeName = newMetaDataTypeName;
-                _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
-                RefreshPanelTagsFromFiles(_selectedFilesUrls);
-                UpdateTagsInPanelOnFileSelection();
-            }
+                // Validate the sender is a TabControl and has a valid selected tab
+                if (!(sender is TabControl tabControl) || tabControl.SelectedTab == null || tabControl.SelectedTab.IsDisposed)
+                {
+                    _logger?.Debug("TabControlSelectionChanged: Invalid tab control or selected tab");
+                    return;
+                }
 
-            var tagListPanel = tabControl.SelectedTab.Controls.OfType<TagListPanel>().FirstOrDefault();
-            tagListPanel?.Refresh();
+                string newMetaDataTypeName = tabControl.SelectedTab.Text;
+                _logger?.Debug($"TabControlSelectionChanged: Tab changed to '{newMetaDataTypeName}'");
+
+                // Only update if the metadata type has actually changed
+                if (_metaDataTypeName != newMetaDataTypeName)
+                {
+                    _logger?.Info($"Switching metadata type from '{_metaDataTypeName}' to '{newMetaDataTypeName}'");
+                    _metaDataTypeName = newMetaDataTypeName;
+
+                    // Update the UI manager with the new visible tag panel
+                    _uiManager.SwitchVisibleTagPanel(_metaDataTypeName);
+
+                    // Refresh the tags from the selected files with the new metadata type
+                    RefreshPanelTagsFromFiles(_selectedFilesUrls);
+
+                    // Update the panel to reflect the current file selection
+                    UpdateTagsInPanelOnFileSelection();
+                }
+
+                // Find and refresh the tag list panel in the selected tab
+                var tagListPanel = tabControl.SelectedTab.Controls
+                    .OfType<TagListPanel>()
+                    .FirstOrDefault();
+
+                if (tagListPanel != null)
+                {
+                    _logger?.Debug($"Refreshing tag list panel for tab '{newMetaDataTypeName}'");
+                    tagListPanel.Refresh();
+                }
+                else
+                {
+                    _logger?.Debug($"No tag list panel found in tab '{newMetaDataTypeName}'");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in TabControlSelectionChanged: {ex.Message}", ex);
+            }
         }
 
         private void SetPanelEnabled(bool enabled = true)
