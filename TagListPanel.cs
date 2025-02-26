@@ -175,8 +175,16 @@ namespace MusicBeePlugin
 
         private void StylePanel()
         {
-            _controlStyle.ApplySkinStyleToControl(CheckedListBoxWithTags);
-            _controlStyle.ApplySkinStyleToControl(this);
+            this.SuspendLayout();
+            try
+            {
+                _controlStyle.ApplySkinStyleToControl(CheckedListBoxWithTags);
+                _controlStyle.ApplySkinStyleToControl(this);
+            }
+            finally
+            {
+                this.ResumeLayout();
+            }
         }
 
         public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
