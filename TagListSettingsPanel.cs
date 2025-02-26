@@ -57,6 +57,9 @@ namespace MusicBeePlugin
             InitializeDragDrop();
 
             TxtSearchBox.TextChanged += TxtSearchBox_TextChanged;
+
+            // Attach event handlers for keyboard shortcuts
+            AttachEventHandlers();
         }
 
         private void InitializeToolTip()
@@ -147,7 +150,7 @@ namespace MusicBeePlugin
             TxtNewTagInput.KeyDown += KeyEventHandler;
             CbEnableAlphabeticalTagListSorting.CheckedChanged += CbEnableTagSort_CheckedChanged;
             this.KeyDown += KeyEventHandler;
-            TxtSearchBox.TextChanged += TxtSearchBox_TextChanged;
+            TxtSearchBox.KeyDown += KeyEventHandler; // Ensure TxtSearchBox also handles key events
         }
 
         private void KeyEventHandler(object sender, KeyEventArgs e)
@@ -249,6 +252,7 @@ namespace MusicBeePlugin
             }
 
             var selectedItems = LstTags.SelectedItems.Cast<string>().ToList();
+            int selectedIndex = LstTags.SelectedIndex;
 
             foreach (var selectedItem in selectedItems)
             {
@@ -263,7 +267,8 @@ namespace MusicBeePlugin
             // Update selection
             if (LstTags.Items.Count > 0)
             {
-                LstTags.SelectedIndex = Math.Min(LstTags.SelectedIndex, LstTags.Items.Count - 1);
+                // Select the next item if available, otherwise select the previous item
+                LstTags.SelectedIndex = Math.Min(selectedIndex, LstTags.Items.Count - 1);
             }
         }
 
@@ -355,7 +360,6 @@ namespace MusicBeePlugin
         /// <param name="direction">The direction to move the item.</param>
         public void MoveItem(int direction)
         {
-            // Add early return for sorting check
             if (_tagsStorage.Sorted)
             {
                 return; // No moving allowed when sorted
@@ -374,7 +378,6 @@ namespace MusicBeePlugin
             var selectedTag = tags[oldIndex];
             var otherTag = tags[newIndex];
 
-            // Swap indices in TagList
             int tempIndex = _tagsStorage.TagList[selectedTag.Key];
             _tagsStorage.TagList[selectedTag.Key] = _tagsStorage.TagList[otherTag.Key];
             _tagsStorage.TagList[otherTag.Key] = tempIndex;
