@@ -109,12 +109,8 @@ namespace MusicBeePlugin
             int maxWidth = 0;
             if (CheckedListBoxWithTags.IsDisposed)
             {
-                if (CheckedListBoxWithTags.IsDisposed)
-                {
-                    // Handle the disposed state, possibly by returning early or reinitializing the control
-                    return 0;
-                }
-                throw new ObjectDisposedException("CheckedListBoxWithTags");
+                // Handle the disposed state, possibly by returning early or reinitializing the control
+                return 0;
             }
 
             using (Graphics g = CheckedListBoxWithTags.CreateGraphics())
@@ -128,7 +124,7 @@ namespace MusicBeePlugin
                     }
                 }
             }
-            return maxWidth;
+            return maxWidth + SystemInformation.BorderSize.Width * 2 + PaddingWidth;
         }
 
         private void StylePanel()

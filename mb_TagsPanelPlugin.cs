@@ -173,6 +173,7 @@ namespace MusicBeePlugin
             {
                 if (settingsForm.ShowDialog() == DialogResult.OK)
                 {
+                    // When the settings dialog is closed via "Save Settings", update and save the settings.
                     _settingsManager = settingsForm.SettingsStorage;
                     SavePluginConfiguration();
                     UpdateTabControlVisibility();
