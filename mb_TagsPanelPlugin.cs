@@ -486,15 +486,24 @@ namespace MusicBeePlugin
 
         private Dictionary<string, CheckState> GetTagsFromStorage(TagsStorage currentTagsStorage)
         {
-            var allTags = currentTagsStorage.GetTags();
-            var data = new Dictionary<string, CheckState>(allTags.Count);
+            if (currentTagsStorage == null)
+            {
+                _logger?.Error($"{nameof(GetTagsFromStorage)}: Received null TagsStorage");
+                return new Dictionary<string, CheckState>();
+            }
+
+            var allTags = currentTagsStorage.GetTags() ?? new Dictionary<string, int>();
+            var data = new Dictionary<string, CheckState>(allTags.Count, StringComparer.OrdinalIgnoreCase);
 
             foreach (var tag in allTags)
             {
-                string trimmedKey = tag.Key.Trim();
-                var checkState = _tagsFromFiles.TryGetValue(trimmedKey, out var state) ? state : CheckState.Unchecked;
-                data[trimmedKey] = checkState;
+                string trimmedKey = tag.Key?.Trim() ?? string.Empty;
+                if (!string.IsNullOrEmpty(trimmedKey))
+                {
+                    data[trimmedKey] = _tagsFromFiles.TryGetValue(trimmedKey, out var state) ? state : CheckState.Unchecked;
+                }
             }
+
             return data;
         }
 
