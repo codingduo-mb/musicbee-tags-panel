@@ -255,14 +255,40 @@ namespace MusicBeePlugin
 
         private TabPage GetOrCreateTagPage(string tagName)
         {
-            if (!_tabPageList.TryGetValue(tagName, out var tabPage))
+            if (string.IsNullOrEmpty(tagName))
             {
-                tabPage = new TabPage(tagName);
-                _tabPageList[tagName] = tabPage;
-                _tabControl.TabPages.Add(tabPage);
+                _logger.Error($"{nameof(GetOrCreateTagPage)}: tagName parameter is null or empty");
+                throw new ArgumentNullException(nameof(tagName));
             }
-            _logger.Info($"{nameof(GetOrCreateTagPage)} returned tabPage for tag: {tagName}");
-            return tabPage;
+
+            try
+            {
+                if (_tabPageList == null || _tabControl == null)
+                {
+                    _logger.Error($"{nameof(GetOrCreateTagPage)}: Required controls not initialized");
+                    throw new InvalidOperationException("TabPage collection or TabControl is not initialized");
+                }
+
+                TabPage tabPage;
+                if (!_tabPageList.TryGetValue(tagName, out tabPage) || tabPage == null || tabPage.IsDisposed)
+                {
+                    _logger.Info($"{nameof(GetOrCreateTagPage)}: Creating new tab page for tag: {tagName}");
+                    tabPage = new TabPage(tagName);
+                    _tabPageList[tagName] = tabPage;
+                    _tabControl.TabPages.Add(tabPage);
+                }
+                else
+                {
+                    _logger.Info($"{nameof(GetOrCreateTagPage)}: Using existing tab page for tag: {tagName}");
+                }
+
+                return tabPage;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error in {nameof(GetOrCreateTagPage)} for tag '{tagName}': {ex.Message}");
+                throw;
+            }
         }
 
         private void PopulateTabPages()
