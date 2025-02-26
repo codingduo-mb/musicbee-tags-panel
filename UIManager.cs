@@ -171,5 +171,7 @@ namespace MusicBeePlugin
             }
             _disposed = true;
         }
+
+
     }
 }

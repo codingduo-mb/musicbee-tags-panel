@@ -11,9 +11,13 @@ namespace MusicBeePlugin
     /// <summary>
     /// Represents the settings panel for managing tag lists.
     /// </summary>
-    public partial class TagListSettingsPanel : UserControl
+    public partial class TagListSettingsPanel : UserControl, IDisposable
     {
         private const int EM_SETCUEBANNER = 0x1501;
+
+        private const int TOOLTIP_AUTO_POPUP_DELAY = 5000;
+        private const int TOOLTIP_INITIAL_DELAY = 1000;
+        private const int TOOLTIP_RESHOW_DELAY = 500;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
@@ -31,12 +35,17 @@ namespace MusicBeePlugin
         {
             InitializeComponent();
             InitializeToolTip();
-            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
+
+            if (string.IsNullOrEmpty(tagName))
+                throw new ArgumentNullException(nameof(tagName), "Tag name cannot be null or empty");
 
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
-            _tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName) ?? throw new ArgumentNullException(nameof(tagName));
+            _tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName) ??
+                throw new InvalidOperationException($"Could not retrieve tags storage for tag name '{tagName}'");
+
             _tagsCsvHelper = new TagsCsvHelper(ShowMessageBox);
 
+            SendMessage(TxtNewTagInput.Handle, EM_SETCUEBANNER, 0, Messages.EnterTagMessagePlaceholder);
             AttachEventHandlers();
             UpdateSortOption();
             UpdateTags();
@@ -46,9 +55,9 @@ namespace MusicBeePlugin
         {
             var toolTip = new ToolTip
             {
-                AutoPopDelay = 5000,
-                InitialDelay = 1000,
-                ReshowDelay = 500,
+                AutoPopDelay = TOOLTIP_AUTO_POPUP_DELAY,
+                InitialDelay = TOOLTIP_INITIAL_DELAY,
+                ReshowDelay = TOOLTIP_RESHOW_DELAY,
                 ShowAlways = true
             };
             toolTip.SetToolTip(CbEnableAlphabeticalTagListSorting, Messages.TagSortTooltip);
@@ -161,12 +170,27 @@ namespace MusicBeePlugin
             int newIndex = _tagsStorage.TagList.Count;
             _tagsStorage.TagList.Add(newTag, newIndex);
             UpdateTags();
+            SaveChanges();
             TxtNewTagInput.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Reindexes all tags in the tag list.
+        /// </summary>
+        private void ReindexTags()
+        {
+            int index = 0;
+            foreach (var key in _tagsStorage.TagList.Keys.ToList())
+            {
+                _tagsStorage.TagList[key] = index++;
+            }
         }
 
         /// <summary>
         /// Removes the selected tag from the list.
         /// </summary>
+        /// 
+
         public void RemoveSelectedTagFromList()
         {
             if (LstTags.SelectedIndex == -1 || LstTags.Items.Count == 0)
@@ -182,12 +206,7 @@ namespace MusicBeePlugin
             }
 
             // Reindex remaining tags
-            int index = 0;
-            foreach (var key in _tagsStorage.TagList.Keys.ToList())
-            {
-                _tagsStorage.TagList[key] = index;
-                index++;
-            }
+            ReindexTags();
 
             UpdateTags();
 
@@ -199,16 +218,15 @@ namespace MusicBeePlugin
         }
 
         /// <summary>
-        /// Clears the tags list in the settings.
+        /// Clears the tags list in the settings and updates the UI.
         /// </summary>
         public void ClearTagsListInSettings()
         {
             _tagsStorage.Clear();
+            UpdateTags();
+            // Reset selection state
+            SetUpDownButtonsState(!_tagsStorage.Sorted);
         }
-
-        /// <summary>
-        /// Imports tags from a CSV file.
-        /// </summary>
 
         /// <summary>
         /// Imports tags from a CSV file.
@@ -288,7 +306,13 @@ namespace MusicBeePlugin
         /// <param name="direction">The direction to move the item.</param>
         public void MoveItem(int direction)
         {
-            if (LstTags.SelectedItem == null || LstTags.SelectedIndex < 0 || _tagsStorage.Sorted)
+            // Add early return for sorting check
+            if (_tagsStorage.Sorted)
+            {
+                return; // No moving allowed when sorted
+            }
+
+            if (LstTags.SelectedItem == null || LstTags.SelectedIndex < 0)
                 return;
 
             int oldIndex = LstTags.SelectedIndex;
@@ -299,16 +323,23 @@ namespace MusicBeePlugin
 
             var tags = _tagsStorage.GetTags().ToList();
             var selectedTag = tags[oldIndex];
-
-            // Swap indices in TagList
             var otherTag = tags[newIndex];
 
+            // Swap indices in TagList
             int tempIndex = _tagsStorage.TagList[selectedTag.Key];
             _tagsStorage.TagList[selectedTag.Key] = _tagsStorage.TagList[otherTag.Key];
             _tagsStorage.TagList[otherTag.Key] = tempIndex;
 
             UpdateTags();
             LstTags.SetSelected(newIndex, true);
+        }
+
+        /// <summary>
+        /// Saves all tag settings.
+        /// </summary>
+        private void SaveChanges()
+        {
+            _settingsManager.SaveAllSettings();
         }
 
         private void PromptClearTagsConfirmation()
