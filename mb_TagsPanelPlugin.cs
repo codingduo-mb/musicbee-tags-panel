@@ -641,7 +641,50 @@ namespace MusicBeePlugin
 
         public void OnSettingsMenuClicked(object sender, EventArgs args)
         {
-            ShowSettingsDialog();
+            try
+            {
+                _logger?.Info("Settings menu clicked - opening settings dialog");
+
+                // Ensure settings manager is initialized before showing dialog
+                if (_settingsManager == null)
+                {
+                    _logger?.Error("Unable to open settings: SettingsManager is not initialized");
+                    MessageBox.Show("Cannot open settings at this time. Please try again later.",
+                                   "Settings Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Use cursor to indicate processing
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    ShowSettingsDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error opening settings dialog: {ex.Message}", ex);
+                MessageBox.Show($"An error occurred while opening settings: {ex.Message}",
+                               "Settings Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Helper class to temporarily change the cursor and restore it when done
+        /// </summary>
+        private class CursorScope : IDisposable
+        {
+            private readonly Cursor _previous;
+
+            public CursorScope(Cursor cursor)
+            {
+                _previous = Cursor.Current;
+                Cursor.Current = cursor;
+            }
+
+            public void Dispose()
+            {
+                Cursor.Current = _previous;
+            }
         }
 
         private void TagCheckStateChanged(object sender, ItemCheckEventArgs e)
