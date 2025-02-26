@@ -18,6 +18,13 @@ namespace MusicBeePlugin
 
         public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
         {
+            // Enable double buffering to reduce flickering
+            this.SetStyle(ControlStyles.DoubleBuffer |
+                          ControlStyles.UserPaint |
+                          ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.OptimizedDoubleBuffer, true);
+            this.UpdateStyles();
+
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface, checklistBoxList, selectedFileUrls, refreshPanelTagsFromFiles);
             _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
@@ -28,7 +35,26 @@ namespace MusicBeePlugin
             this.Name = tagName;
 
             StylePanel();
+
+            // Also enable for the CheckedListBox
+            EnableDoubleBufferingForListBox();
         }
+
+        // Method to enable double buffering for the CheckedListBox using reflection
+        private void EnableDoubleBufferingForListBox()
+        {
+            // CheckedListBox doesn't expose DoubleBuffered property, so we use reflection
+            if (CheckedListBoxWithTags != null)
+            {
+                typeof(Control).GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                    ?.SetValue(CheckedListBoxWithTags, true);
+            }
+        }
+
+
+
 
         /// <summary>
         /// Updates the TagsStorage and refreshes the checklist with new data.
