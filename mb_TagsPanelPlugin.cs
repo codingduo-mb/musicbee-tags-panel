@@ -1014,11 +1014,53 @@ namespace MusicBeePlugin
 
         public void Close(PluginCloseReason reason)
         {
-            _logger?.Info(reason.ToString("G"));
-            _logger?.Dispose();
-            _tagsPanelControl?.Dispose();
-            _tagsPanelControl = null;
-            _logger = null;
+            try
+            {
+                _logger?.Info($"Plugin closing with reason: {reason.ToString("G")}");
+
+                // Clean up event handlers
+                if (_tabControl != null)
+                {
+                    _tabControl.SelectedIndexChanged -= TabControlSelectionChanged;
+                }
+
+                // Dispose of all TagListPanel controls
+                foreach (var panel in _checklistBoxList.Values)
+                {
+                    try
+                    {
+                        panel?.UnregisterItemCheckEventHandler(TagCheckStateChanged);
+                        panel?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.Error($"Error disposing TagListPanel: {ex.Message}");
+                    }
+                }
+
+                // Clear collections
+                _checklistBoxList.Clear();
+                _tabPageList.Clear();
+                _tagsFromFiles.Clear();
+
+                // Dispose of remaining resources
+                _tagManager = null;
+                _uiManager?.Dispose();
+                _uiManager = null;
+                _settingsManager = null;
+
+                // Finally dispose of the panel and logger
+                _tagsPanelControl?.Dispose();
+                _tagsPanelControl = null;
+
+                _logger?.Dispose();
+                _logger = null;
+            }
+            catch (Exception ex)
+            {
+                // Can't use logger here as it might be disposed
+                System.Diagnostics.Debug.WriteLine($"Error during plugin shutdown: {ex}");
+            }
         }
 
         public void Uninstall()
