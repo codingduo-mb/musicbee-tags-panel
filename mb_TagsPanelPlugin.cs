@@ -853,26 +853,48 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Refreshes the tags panel with tag information from the selected files.
+        /// </summary>
+        /// <param name="filenames">Array of file URLs to process</param>
         private void RefreshPanelTagsFromFiles(string[] filenames)
         {
-            if (filenames == null || filenames.Length == 0)
+            try
             {
-                _tagsFromFiles.Clear();
+                _logger?.Debug($"Refreshing panel tags from {(filenames?.Length ?? 0)} files");
+
+                // Handle case where no files are selected
+                if (filenames == null || filenames.Length == 0)
+                {
+                    _logger?.Debug("No files selected, clearing tags");
+                    _tagsFromFiles.Clear();
+                    UpdateTagsInPanelOnFileSelection();
+                    SetPanelEnabled(true);
+                    return;
+                }
+
+                // Get current tags storage
+                var currentTagsStorage = GetCurrentTagsStorage();
+                if (currentTagsStorage == null)
+                {
+                    _logger?.Error("RefreshPanelTagsFromFiles: Current TagsStorage is null");
+                    SetPanelEnabled(false);
+                    return;
+                }
+
+                // Update tags from selected files
+                _logger?.Debug($"Combining tag lists for {filenames.Length} files with metadata type: {currentTagsStorage.GetTagName()}");
+                _tagsFromFiles = _tagManager.CombineTagLists(filenames, currentTagsStorage);
+
+                // Update UI with refreshed tag data
                 UpdateTagsInPanelOnFileSelection();
                 SetPanelEnabled(true);
-                return;
             }
-
-            var currentTagsStorage = GetCurrentTagsStorage();
-            if (currentTagsStorage == null)
+            catch (Exception ex)
             {
-                _logger.Error("Current TagsStorage is null");
-                return;
+                _logger?.Error($"Error refreshing panel tags: {ex.Message}", ex);
+                SetPanelEnabled(true); // Ensure panel is enabled even if an error occurs
             }
-
-            _tagsFromFiles = _tagManager.CombineTagLists(filenames, currentTagsStorage);
-            UpdateTagsInPanelOnFileSelection();
-            SetPanelEnabled(true);
         }
 
         private bool ShouldClearTags(string[] filenames)
