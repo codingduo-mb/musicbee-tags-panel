@@ -152,7 +152,7 @@ namespace MusicBeePlugin
 
         private void UpdateSettingsFromTagsStorage()
         {
-            var tagsStorage = _settingsManager.GetFirstOne();
+            var tagsStorage = _settingsManager.RetrieveFirstTagsStorage();
             if (tagsStorage != null)
             {
                 _metaDataTypeName = tagsStorage.MetaDataType;
@@ -216,7 +216,7 @@ namespace MusicBeePlugin
 
         private void ApplySortOrderFromSettings()
         {
-            _sortAlphabetically = _settingsManager.GetFirstOne()?.Sorted ?? false;
+            _sortAlphabetically = _settingsManager.RetrieveFirstTagsStorage()?.Sorted ?? false;
         }
 
         private void RefreshPanelContent()
