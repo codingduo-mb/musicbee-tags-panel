@@ -897,16 +897,69 @@ namespace MusicBeePlugin
             }
         }
 
-       
-        private void CreateTabPanel()
-        {
-            _tabControl = (TabControl)_mbApiInterface.MB_AddPanel(_tagsPanelControl, (PluginPanelDock)6);
-            _tabControl.Dock = DockStyle.Fill;
-            _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
 
-            if (_tabControl.TabPages.Count == 0)
+
+        /// Creates and initializes the tab control panel for displaying tag categories.
+        /// </summary>
+        /// <returns>True if the tab panel was successfully created, false otherwise.</returns>
+        private bool CreateTabPanel()
+        {
+            try
             {
-                PopulateTabPages();
+                _logger?.Debug("Creating tab panel...");
+
+                // Validate required dependencies
+                if (_mbApiInterface.Equals(default(MusicBeeApiInterface)))
+                {
+                    _logger?.Error("Cannot create tab panel: MusicBee API interface is null");
+                    return false;
+                }
+                // Remove this redundant check since we already checked above
+                // if (_mbApiInterface == null)
+                // {
+                //     _logger?.Error("Cannot create tab panel: MusicBee API interface is null");
+                //     return false;
+                // }
+
+                if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
+                {
+                    _logger?.Error("Cannot create tab panel: Tags panel control is null or disposed");
+                    return false;
+                }
+
+                // Create the tab control through MusicBee API
+                _tabControl = (TabControl)_mbApiInterface.MB_AddPanel(_tagsPanelControl, (PluginPanelDock)6);
+                if (_tabControl == null)
+                {
+                    _logger?.Error("Failed to create tab control: MB_AddPanel returned null");
+                    return false;
+                }
+
+                // Configure the tab control
+                _tabControl.Dock = DockStyle.Fill;
+                _tabControl.SuspendLayout();
+
+                // Apply styling if UIManager is available
+                _uiManager?.ApplySkinStyleToControl(_tabControl);
+
+                // Register event handler
+                _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
+
+                // Populate the tab pages if needed
+                if (_tabControl.TabPages.Count == 0)
+                {
+                    _logger?.Debug("Tab control created with no pages, populating pages...");
+                    PopulateTabPages();
+                }
+
+                _tabControl.ResumeLayout();
+                _logger?.Info($"Tab panel created successfully with {_tabControl.TabPages.Count} tabs");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error creating tab panel: {ex.Message}", ex);
+                return false;
             }
         }
 
