@@ -186,11 +186,26 @@ namespace MusicBeePlugin
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        /// <summary>
+        /// Updates the visibility of the tab control based on whether it has any tabs.
+        /// </summary>
         private void UpdateTabControlVisibility()
         {
-            if (_tabControl != null)
+            try
             {
-                _tabControl.Visible = _tabControl.Controls.Count > 0;
+                if (_tabControl != null && !_tabControl.IsDisposed)
+                {
+                    bool shouldBeVisible = _tabControl.TabCount > 0;
+                    if (_tabControl.Visible != shouldBeVisible)
+                    {
+                        _tabControl.Visible = shouldBeVisible;
+                        _logger?.Debug($"TabControl visibility set to {shouldBeVisible} (tab count: {_tabControl.TabCount})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error updating tab control visibility: {ex.Message}");
             }
         }
 
