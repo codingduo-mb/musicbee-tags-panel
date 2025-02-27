@@ -107,8 +107,17 @@ namespace MusicBeePlugin
         {
             if (_tabControl != null)
             {
+                // Remove event handler only if _tabControl exists
                 _tabControl.SelectedIndexChanged -= TabControlSelectionChanged;
+
+                // Add the event handler
                 _tabControl.SelectedIndexChanged += TabControlSelectionChanged;
+
+                _logger?.Debug("TabControl event handlers initialized");
+            }
+            else
+            {
+                _logger?.Warn("EnsureTabControlInitialized called with null TabControl");
             }
         }
         public bool Configure(IntPtr panelHandle)
