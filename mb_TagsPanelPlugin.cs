@@ -150,17 +150,36 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Updates internal settings based on the first available TagsStorage.
+        /// Retrieves metadata type name and sort order from storage or uses defaults if not available.
+        /// </summary>
         private void UpdateSettingsFromTagsStorage()
         {
-            var tagsStorage = _settingsManager.RetrieveFirstTagsStorage();
-            if (tagsStorage != null)
+            try
             {
-                _metaDataTypeName = tagsStorage.MetaDataType;
-                _sortAlphabetically = tagsStorage.Sorted;
+                var tagsStorage = _settingsManager?.RetrieveFirstTagsStorage();
+                if (tagsStorage != null)
+                {
+                    _metaDataTypeName = string.IsNullOrEmpty(tagsStorage.MetaDataType)
+                        ? string.Empty
+                        : tagsStorage.MetaDataType;
+
+                    _sortAlphabetically = tagsStorage.Sorted;
+
+                    _logger?.Debug($"Settings updated from storage: MetaDataType={_metaDataTypeName}, Sort={_sortAlphabetically}");
+                }
+                else
+                {
+                    _logger?.Warn("No TagsStorage found in SettingsManager. Using default values.");
+                    _metaDataTypeName = string.Empty;
+                    _sortAlphabetically = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.Warn("No TagsStorage found in SettingsManager.");
+                _logger?.Error($"Failed to update settings from TagsStorage: {ex.Message}", ex);
+                // Use defaults in case of error
                 _metaDataTypeName = string.Empty;
                 _sortAlphabetically = false;
             }
