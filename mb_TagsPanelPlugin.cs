@@ -333,10 +333,62 @@ namespace MusicBeePlugin
             }
         }
 
-        private void RebuildTabPages()
+        /// <summary>
+        /// Rebuilds all tab pages by clearing existing pages and repopulating with fresh data.
+        /// </summary>
+        /// <param name="preserveSelectedTab">If true, attempts to restore the previously selected tab after rebuilding.</param>
+        private void RebuildTabPages(bool preserveSelectedTab = true)
         {
-            ClearAllTagPages();
-            PopulateTabPages();
+            try
+            {
+                _logger?.Debug("Beginning tab pages rebuild...");
+
+                // Store currently selected tab name if needed
+                string selectedTabName = null;
+                if (preserveSelectedTab && _tabControl != null && !_tabControl.IsDisposed &&
+                    _tabControl.SelectedTab != null)
+                {
+                    selectedTabName = _tabControl.SelectedTab.Text;
+                    _logger?.Debug($"Preserving selected tab: '{selectedTabName}'");
+                }
+
+                // Suspend layout to reduce flickering
+                if (_tabControl != null && !_tabControl.IsDisposed)
+                    _tabControl.SuspendLayout();
+
+                // Clear and rebuild tabs
+                ClearAllTagPages();
+                PopulateTabPages();
+
+                // Restore selected tab if possible
+                if (preserveSelectedTab && selectedTabName != null &&
+                    _tabControl != null && !_tabControl.IsDisposed)
+                {
+                    for (int i = 0; i < _tabControl.TabCount; i++)
+                    {
+                        if (_tabControl.TabPages[i].Text == selectedTabName)
+                        {
+                            _tabControl.SelectedIndex = i;
+                            _logger?.Debug($"Restored selected tab: '{selectedTabName}'");
+                            break;
+                        }
+                    }
+                }
+
+                // Resume layout
+                if (_tabControl != null && !_tabControl.IsDisposed)
+                    _tabControl.ResumeLayout();
+
+                _logger?.Debug("Tab pages rebuild completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error rebuilding tab pages: {ex.Message}", ex);
+
+                // Make sure layout is resumed even if an exception occurs
+                if (_tabControl != null && !_tabControl.IsDisposed)
+                    _tabControl.ResumeLayout();
+            }
         }
 
         private void AddTagPanelForVisibleTags(string tagName)
