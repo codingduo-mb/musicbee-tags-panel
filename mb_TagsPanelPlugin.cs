@@ -291,10 +291,46 @@ namespace MusicBeePlugin
             }
         }
 
-        private void RefreshPanelContent()
+        /// <summary>
+        /// Refreshes the entire panel content by rebuilding tab pages and updating tag data.
+        /// </summary>
+        /// <param name="rebuildTabs">Optional. If true, rebuilds all tab pages. Default is true.</param>
+        /// <remarks>
+        /// This method performs a complete refresh of the UI, which may be expensive.
+        /// For partial updates, consider using more specific refresh methods.
+        /// </remarks>
+        private void RefreshPanelContent(bool rebuildTabs = true)
         {
-            RebuildTabPages();
-            InvokeRefreshTagTableData();
+            try
+            {
+                _logger?.Debug("Beginning panel content refresh");
+
+                if (rebuildTabs)
+                {
+                    RebuildTabPages();
+                }
+
+                InvokeRefreshTagTableData();
+
+                _logger?.Debug("Panel content refresh completed");
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error refreshing panel content: {ex.Message}", ex);
+
+                // Ensure tag table data is still refreshed even if tab rebuild fails
+                if (rebuildTabs)
+                {
+                    try
+                    {
+                        InvokeRefreshTagTableData();
+                    }
+                    catch (Exception innerEx)
+                    {
+                        _logger?.Error($"Failed to refresh tag table data after tab rebuild error: {innerEx.Message}", innerEx);
+                    }
+                }
+            }
         }
 
         private void RebuildTabPages()
