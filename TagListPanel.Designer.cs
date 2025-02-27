@@ -43,7 +43,7 @@
             this.CheckedListBoxWithTags.Margin = new System.Windows.Forms.Padding(0);
             this.CheckedListBoxWithTags.MultiColumn = true;
             this.CheckedListBoxWithTags.Name = "CheckedListBoxWithTags";
-            this.CheckedListBoxWithTags.Size = new System.Drawing.Size(588, 385);
+            this.CheckedListBoxWithTags.Size = new System.Drawing.Size(270, 235);
             this.CheckedListBoxWithTags.TabIndex = 1;
             this.CheckedListBoxWithTags.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyDown);
             this.CheckedListBoxWithTags.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CheckedListBoxWithTags_KeyUp);
@@ -58,7 +58,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TagListPanel";
             this.Padding = new System.Windows.Forms.Padding(5);
-            this.Size = new System.Drawing.Size(598, 395);
+            this.Size = new System.Drawing.Size(280, 245);
             this.ResumeLayout(false);
 
         }

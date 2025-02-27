@@ -53,9 +53,6 @@ namespace MusicBeePlugin
             }
         }
 
-
-
-
         /// <summary>
         /// Updates the TagsStorage and refreshes the checklist with new data.
         /// </summary>
