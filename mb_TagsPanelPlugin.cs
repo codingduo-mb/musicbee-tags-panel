@@ -28,12 +28,42 @@ namespace MusicBeePlugin
         private bool _ignoreEventFromHandler = true;
         private bool _excludeFromBatchSelection = true;
 
+        /// <summary>
+        /// Initializes the plugin and prepares it for use with MusicBee.
+        /// </summary>
+        /// <param name="apiInterfacePtr">Pointer to the MusicBee API interface</param>
+        /// <returns>A fully initialized PluginInfo object describing this plugin</returns>
+        /// <exception cref="ArgumentException">Thrown when the API interface pointer is invalid</exception>
+        /// <exception cref="InvalidOperationException">Thrown when plugin initialization fails</exception>
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
-            InitializeApi(apiInterfacePtr);
-            var pluginInformation = CreatePluginInfo();
-            InitializePluginComponents();
-            return pluginInformation;
+            try
+            {
+                _logger?.Debug("Plugin initialization started");
+
+                // Initialize the MusicBee API with proper validation
+                if (apiInterfacePtr == IntPtr.Zero)
+                {
+                    _logger?.Error("Invalid API interface pointer provided");
+                    throw new ArgumentException("Invalid MusicBee API interface pointer", nameof(apiInterfacePtr));
+                }
+
+                InitializeApi(apiInterfacePtr);
+
+                // Create plugin information for MusicBee
+                var pluginInformation = CreatePluginInfo();
+
+                // Initialize all plugin components
+                InitializePluginComponents();
+
+                _logger?.Info("Plugin initialization completed successfully");
+                return pluginInformation;
+            }
+            catch (Exception ex) when (!(ex is ArgumentException) && !(ex is InvalidOperationException))
+            {
+                _logger?.Error($"Unexpected error during plugin initialization: {ex.Message}", ex);
+                throw new InvalidOperationException("Failed to initialize Tags Panel plugin", ex);
+            }
         }
 
         /// <summary>
