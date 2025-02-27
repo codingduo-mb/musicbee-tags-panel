@@ -181,9 +181,36 @@ namespace MusicBeePlugin
             }
         }
 
-        private void ShowErrorMessage(string message)
+        /// <summary>
+        /// Displays an error message to the user with standard formatting.
+        /// </summary>
+        /// <param name="message">The error message to display</param>
+        /// <param name="title">Optional title for the error dialog (defaults to "Error")</param>
+        /// <param name="buttons">Optional dialog buttons (defaults to OK)</param>
+        private void ShowErrorMessage(string message, string title = "Error", MessageBoxButtons buttons = MessageBoxButtons.OK)
         {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            try
+            {
+                // Log the error first
+                _logger?.Error($"Error displayed to user: {message}");
+
+                // Ensure we're on the UI thread
+                if (_tagsPanelControl?.InvokeRequired == true)
+                {
+                    _tagsPanelControl.BeginInvoke(new Action(() =>
+                        MessageBox.Show(message, title, buttons, MessageBoxIcon.Error)));
+                }
+                else
+                {
+                    MessageBox.Show(message, title, buttons, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Last resort logging if showing the error dialog itself fails
+                _logger?.Error($"Failed to show error message dialog: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error showing message box: {ex.Message}");
+            }
         }
 
         /// <summary>
