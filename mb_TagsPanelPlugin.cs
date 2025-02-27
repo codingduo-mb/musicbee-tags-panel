@@ -120,9 +120,34 @@ namespace MusicBeePlugin
             ShowSettingsDialog();
             return true;
         }
+        /// <summary>
+        /// Initializes menu items for the plugin in MusicBee's menu structure.
+        /// </summary>
+        /// <remarks>
+        /// Adds menu entries to allow users to access plugin functionality.
+        /// Uses consistent naming conventions and provides error handling.
+        /// </remarks>
         private void InitializeMenu()
         {
-            _mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", OnSettingsMenuClicked);
+            try
+            {
+                _logger?.Debug("Adding plugin menu items");
+
+                // Add main settings menu item in Tools menu
+                ToolStripItem added = _mbApiInterface.MB_AddMenuItem(
+                     "mnuTools/Tags-Panel Settings",
+                     "Tags-Panel: Open Settings",
+                     OnSettingsMenuClicked);
+
+                if (added == null && _logger != null)
+                {
+                    _logger.Warn("Failed to add plugin menu item");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error initializing plugin menu: {ex.Message}", ex);
+            }
         }
 
         /// <summary>
