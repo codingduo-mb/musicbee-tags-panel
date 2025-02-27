@@ -250,9 +250,45 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Updates the sort order setting from the current settings manager configuration.
+        /// </summary>
         private void ApplySortOrderFromSettings()
         {
-            _sortAlphabetically = _settingsManager.RetrieveFirstTagsStorage()?.Sorted ?? false;
+            try
+            {
+                var tagsStorage = _settingsManager?.RetrieveFirstTagsStorage();
+                if (tagsStorage != null)
+                {
+                    bool newSortOrder = tagsStorage.Sorted;
+
+                    // Only update if the sort order has actually changed
+                    if (_sortAlphabetically != newSortOrder)
+                    {
+                        _logger?.Debug($"Changing sort order from {_sortAlphabetically} to {newSortOrder}");
+                        _sortAlphabetically = newSortOrder;
+
+                        // Update tag panels that might need to refresh their sort order
+                        foreach (var panel in _checklistBoxList.Values)
+                        {
+                            if (panel != null && !panel.IsDisposed)
+                            {
+                                panel.Refresh();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    _logger?.Warn("ApplySortOrderFromSettings: No TagsStorage available to retrieve sort setting");
+                    _sortAlphabetically = false; // Default to unsorted if no storage is available
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error applying sort order from settings: {ex.Message}", ex);
+                // Keep current sort setting in case of error
+            }
         }
 
         private void RefreshPanelContent()
