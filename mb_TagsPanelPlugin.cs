@@ -42,29 +42,61 @@ namespace MusicBeePlugin
             _mbApiInterface.Initialise(apiInterfacePtr);
         }
 
+        /// <summary>
+        /// Creates and initializes the plugin information structure with version details and required settings.
+        /// </summary>
+        /// <returns>A fully initialized PluginInfo object that describes the plugin to MusicBee</returns>
         private PluginInfo CreatePluginInfo()
         {
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            return new PluginInfo
+            try
             {
-                PluginInfoVersion = PluginInfoVersion,
-                Name = Messages.PluginNamePluginInfo,
-                Description = Messages.PluginDescriptionPluginInfo,
-                Author = Messages.PluginAuthorPluginInfo,
-                TargetApplication = Messages.PluginTargetApplicationPluginInfo,
-                Type = PluginType.General,
-                VersionMajor = (short)version.Major,
-                VersionMinor = (short)version.Minor,
-                Revision = 1,
-                MinInterfaceVersion = MinInterfaceVersion,
-                MinApiRevision = MinApiRevision,
-                ReceiveNotifications = ReceiveNotificationFlags.PlayerEvents | ReceiveNotificationFlags.TagEvents | ReceiveNotificationFlags.DataStreamEvents,
-                ConfigurationPanelHeight = 0
-            };
+                // Get the current assembly version to use for plugin versioning
+                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version
+                              ?? new Version(1, 0, 0, 0);
+
+                // Create and return the plugin information structure with all required details
+                return new PluginInfo
+                {
+                    PluginInfoVersion = PluginInfoVersion,
+                    Name = Messages.PluginNamePluginInfo,
+                    Description = Messages.PluginDescriptionPluginInfo,
+                    Author = Messages.PluginAuthorPluginInfo,
+                    TargetApplication = Messages.PluginTargetApplicationPluginInfo,
+                    Type = PluginType.General,
+                    VersionMajor = (short)version.Major,
+                    VersionMinor = (short)version.Minor,
+                    Revision = 1,
+                    MinInterfaceVersion = MinInterfaceVersion,
+                    MinApiRevision = MinApiRevision,
+                    ReceiveNotifications = ReceiveNotificationFlags.PlayerEvents |
+                                            ReceiveNotificationFlags.TagEvents |
+                                            ReceiveNotificationFlags.DataStreamEvents,
+                    ConfigurationPanelHeight = 0 // Use popup settings dialog instead of embedded panel
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error creating plugin information: {ex.Message}", ex);
+
+                // Provide fallback plugin info in case of an error
+                return new PluginInfo
+                {
+                    PluginInfoVersion = PluginInfoVersion,
+                    Name = "Tags Panel",
+                    Description = "A panel to manage music file tags",
+                    Type = PluginType.General,
+                    VersionMajor = 1,
+                    VersionMinor = 0,
+                    Revision = 0,
+                    MinInterfaceVersion = MinInterfaceVersion,
+                    MinApiRevision = MinApiRevision
+                };
+            }
         }
 
         private void InitializePluginComponents()
         {
+            _logger?.Info($"{nameof(InitializePluginComponents)} started");
             InitializeUIManager();
             ClearCollections();
             InitializeLogger();
@@ -73,7 +105,6 @@ namespace MusicBeePlugin
             LoadPluginSettings();
             InitializeMenu();
             EnsureTabControlInitialized();
-            _logger.Info($"{nameof(InitializePluginComponents)} started");
         }
 
         private void InitializeUIManager()
