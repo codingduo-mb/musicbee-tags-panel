@@ -81,11 +81,32 @@ namespace MusicBeePlugin
             _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles);
         }
 
+        /// <summary>
+        /// Clears all collection objects used by the plugin to ensure a clean state.
+        /// </summary>
+        /// <remarks>
+        /// This method resets all collections and state variables to prepare for reinitialization
+        /// or when the plugin needs to return to a default state.
+        /// </remarks>
         private void ClearCollections()
         {
-            _tagsFromFiles.Clear();
-            _tabPageList.Clear();
+            // Clear tag-related collections
+            _tagsFromFiles?.Clear();
+            foreach (var pair in _checklistBoxList)
+            {
+                pair.Value?.UnregisterItemCheckEventHandler(TagCheckStateChanged);
+            }
+            _checklistBoxList?.Clear();
+            _tabPageList?.Clear();
+            _availableMetaTags?.Clear();
+
+            // Reset state variables
             _showTagsNotInList = false;
+            _metaDataTypeName = string.Empty;
+            _selectedFilesUrls = Array.Empty<string>();
+            _ignoreEventFromHandler = true;
+
+            _logger?.Debug("All collections and state variables cleared");
         }
 
         private void InitializeLogger()
