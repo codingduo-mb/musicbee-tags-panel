@@ -36,10 +36,38 @@ namespace MusicBeePlugin
             return pluginInformation;
         }
 
+        /// <summary>
+        /// Initializes the MusicBee API interface with the given pointer.
+        /// </summary>
+        /// <param name="apiInterfacePtr">Pointer to the MusicBee API interface</param>
+        /// <exception cref="ArgumentException">Thrown when the API interface pointer is invalid</exception>
         private void InitializeApi(IntPtr apiInterfacePtr)
         {
-            _mbApiInterface = new MusicBeeApiInterface();
-            _mbApiInterface.Initialise(apiInterfacePtr);
+            if (apiInterfacePtr == IntPtr.Zero)
+            {
+                _logger?.Error("API interface pointer is null or zero");
+                throw new ArgumentException("Invalid MusicBee API interface pointer", nameof(apiInterfacePtr));
+            }
+
+            try
+            {
+                _mbApiInterface = new MusicBeeApiInterface();
+                _mbApiInterface.Initialise(apiInterfacePtr);
+
+                // Verify successful initialization by checking version
+                if (_mbApiInterface.InterfaceVersion <= 0)
+                {
+                    _logger?.Error("API interface initialization failed: Invalid interface version");
+                    throw new InvalidOperationException("Failed to initialize MusicBee API interface");
+                }
+
+                _logger?.Debug($"MusicBee API initialized: v{_mbApiInterface.InterfaceVersion}.{_mbApiInterface.ApiRevision}");
+            }
+            catch (Exception ex) when (!(ex is ArgumentException) && !(ex is InvalidOperationException))
+            {
+                _logger?.Error($"Error initializing MusicBee API: {ex.Message}", ex);
+                throw new InvalidOperationException("Failed to initialize MusicBee API interface", ex);
+            }
         }
 
         /// <summary>
