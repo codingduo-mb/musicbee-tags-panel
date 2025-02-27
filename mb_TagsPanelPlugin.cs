@@ -166,18 +166,51 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Shows the settings dialog and processes the results if the user saves changes.
+        /// </summary>
         private void ShowSettingsDialog()
         {
-            var settingsCopy = _settingsManager.DeepCopy();
-            using (var settingsForm = new TagListSettingsForm(settingsCopy))
+            try
             {
-                if (settingsForm.ShowDialog() == DialogResult.OK)
+                _logger?.Debug("Opening settings dialog");
+
+                // Create a deep copy of settings to avoid modifying originals until confirmed
+                var settingsCopy = _settingsManager.DeepCopy();
+
+                // Show wait cursor while preparing settings form
+                using (new CursorScope(Cursors.WaitCursor))
+                using (var settingsForm = new TagListSettingsForm(settingsCopy))
                 {
-                    // When the settings dialog is closed via "Save Settings", update and save the settings.
-                    _settingsManager = settingsForm.SettingsStorage;
-                    SavePluginConfiguration();
-                    UpdateTabControlVisibility();
+                    _logger?.Debug("Settings dialog initialized");
+
+                    var result = settingsForm.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        _logger?.Info("User confirmed settings changes - applying updates");
+
+                        // Show wait cursor while applying settings
+                        using (new CursorScope(Cursors.WaitCursor))
+                        {
+                            // Update and save the settings
+                            _settingsManager = settingsForm.SettingsStorage;
+                            SavePluginConfiguration();
+                            UpdateTabControlVisibility();
+
+                            _logger?.Info("Settings applied successfully");
+                        }
+                    }
+                    else
+                    {
+                        _logger?.Debug("Settings dialog canceled - no changes applied");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in settings dialog: {ex.Message}", ex);
+                ShowErrorMessage("An error occurred while processing settings. Please check the log for details.");
             }
         }
 
