@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace MusicBeePlugin
 {
@@ -124,29 +125,62 @@ namespace MusicBeePlugin
             _mbApiInterface.MB_AddMenuItem("mnuTools/Tags-Panel Settings", "Tags-Panel: Open Settings", OnSettingsMenuClicked);
         }
 
+        /// <summary>
+        /// Loads plugin settings from storage, with appropriate error handling for different failure scenarios.
+        /// </summary>
+        /// <remarks>
+        /// This method attempts to load settings with fallback options if the primary load fails.
+        /// It provides detailed logging and user-friendly error messages for different types of failures.
+        /// </remarks>
         private void LoadPluginSettings()
         {
             if (_settingsManager == null)
             {
-                _logger?.Error("SettingsManager is not initialized.");
+                _logger?.Error("Cannot load plugin settings: SettingsManager is not initialized.");
+                ShowErrorMessage("Unable to initialize plugin settings manager. Please restart MusicBee.");
                 return;
             }
 
             try
             {
+                _logger?.Debug("Loading plugin settings...");
                 _settingsManager.LoadSettingsWithFallback();
                 UpdateSettingsFromTagsStorage();
                 _logger?.Info("Plugin settings loaded successfully.");
             }
+            catch (JsonException ex)
+            {
+                _logger?.Error($"Settings file is corrupted or has invalid format: {ex.Message}", ex);
+                ShowErrorMessage("Your settings file appears to be corrupted. Default settings will be used.",
+                                "Settings Error");
+
+                // Try to initialize with defaults after corruption
+                try
+                {
+                    _settingsManager.LoadSettingsWithFallback();
+                    _logger?.Info("Initialized with default settings after corruption.");
+                }
+                catch (Exception fallbackEx)
+                {
+                    _logger?.Error($"Failed to initialize default settings: {fallbackEx.Message}", fallbackEx);
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                _logger?.Info($"Settings file not found, will create defaults: {ex.Message}");
+                // No error message needed for users - this is expected on first run
+            }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
-                _logger?.Error($"File access error while loading plugin settings: {ex.GetType().Name} - {ex.Message}");
-                ShowErrorMessage($"Unable to access settings file: {ex.Message}");
+                _logger?.Error($"File access error while loading plugin settings: {ex.GetType().Name} - {ex.Message}", ex);
+                ShowErrorMessage($"Unable to access settings file: {ex.Message}\n\nPlease check file permissions.",
+                                "Settings Access Error");
             }
             catch (Exception ex)
             {
-                _logger?.Error($"Unexpected error in {nameof(LoadPluginSettings)}: {ex}");
-                ShowErrorMessage("An unexpected error occurred while loading settings.");
+                _logger?.Error($"Unexpected error in {nameof(LoadPluginSettings)}: {ex}", ex);
+                ShowErrorMessage("An unexpected error occurred while loading settings.\n\nPlease check the log file for details.",
+                                "Settings Error");
             }
         }
 
