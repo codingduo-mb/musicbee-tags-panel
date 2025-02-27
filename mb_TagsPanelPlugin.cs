@@ -113,13 +113,29 @@ namespace MusicBeePlugin
         }
         public bool Configure(IntPtr panelHandle)
         {
-            // save any persistent settings in a sub-folder of this path
-            // panelHandle will only be set if you set _pluginInformation.ConfigurationPanelHeight to a non-zero value
-            // keep in mind the panel width is scaled according to the font the user has selected
-            // if _pluginInformation.ConfigurationPanelHeight is set to 0, you can display your own popup window
-            ShowSettingsDialog();
-            return true;
+            try
+            {
+                _logger?.Debug("Configure method called");
+
+                // panelHandle will only be set if _pluginInformation.ConfigurationPanelHeight is non-zero
+                // Here we're using a popup window approach (ConfigurationPanelHeight = 0)
+
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    ShowSettingsDialog();
+                    _logger?.Info("Settings dialog closed successfully");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error in Configure method: {ex.Message}", ex);
+                ShowErrorMessage("An error occurred while opening settings. Please check the log for details.");
+                return false;
+            }
         }
+
         /// <summary>
         /// Initializes menu items for the plugin in MusicBee's menu structure.
         /// </summary>
