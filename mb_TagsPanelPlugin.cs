@@ -789,40 +789,6 @@ namespace MusicBeePlugin
             }
         }
 
-        /// <summary>
-        /// Applies the selected tag to all selected files with the specified check state.
-        /// </summary>
-        /// <param name="fileUrls">Array of file paths to process</param>
-        /// <param name="selected">The check state to apply</param>
-        /// <param name="selectedTag">The tag to apply or remove</param>
-        /// <returns>True if the operation was successful, false otherwise</returns>
-        private bool ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag)
-        {
-            if (fileUrls == null || fileUrls.Length == 0 || string.IsNullOrWhiteSpace(selectedTag))
-            {
-                _logger?.Debug("ApplyTagsToSelectedFiles called with invalid parameters");
-                return false;
-            }
-
-            try
-            {
-                var metaDataType = GetActiveTabMetaDataType();
-                if (metaDataType == 0)
-                {
-                    _logger?.Error("ApplyTagsToSelectedFiles failed: Invalid metadata type");
-                    return false;
-                }
-
-                _logger?.Info($"Applying tag '{selectedTag}' with state {selected} to {fileUrls.Length} files");
-                _tagManager.SetTagsInFile(fileUrls, selected, selectedTag, metaDataType);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger?.Error($"Error applying tags to files: {ex.Message}", ex);
-                return false;
-            }
-        }
 
         /// <summary>
         /// Gets the MetaDataType enum value for the currently active tab.
@@ -1135,7 +1101,8 @@ namespace MusicBeePlugin
                     {
                         // Apply the tag change to all selected files
                         _logger?.Debug($"Applying tag '{tagName}' with state {newState} to {_selectedFilesUrls.Length} files");
-                        ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName);
+                        var metaDataType = GetActiveTabMetaDataType(); // Get the current MetaDataType
+                        _tagManager.ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName, metaDataType);
 
                         // Refresh UI to reflect changes
                         _mbApiInterface.MB_RefreshPanels();

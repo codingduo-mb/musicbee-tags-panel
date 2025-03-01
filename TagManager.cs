@@ -252,5 +252,36 @@ namespace MusicBeePlugin
 
             return targetDictionary;
         }
+
+        /// <summary>
+        /// Applies the selected tag to all selected files with the specified check state.
+        /// </summary>
+        /// <param name="fileUrls">Array of file paths to process</param>
+        /// <param name="selected">The check state to apply</param>
+        /// <param name="selectedTag">The tag to apply or remove</param>
+        /// <param name="metaDataType">The metadata type to modify</param>
+        /// <returns>True if the operation was successful, false otherwise</returns>
+        public bool ApplyTagsToSelectedFiles(string[] fileUrls, CheckState selected, string selectedTag, MetaDataType metaDataType)
+        {
+            if (fileUrls == null || fileUrls.Length == 0 || string.IsNullOrWhiteSpace(selectedTag))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (metaDataType == 0)
+                {
+                    return false;
+                }
+
+                SetTagsInFile(fileUrls, selected, selectedTag, metaDataType);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
