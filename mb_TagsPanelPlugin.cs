@@ -211,7 +211,7 @@ namespace MusicBeePlugin
 
         private void InitializeTagManager()
         {
-            _tagManager = new TagManager(_mbApiInterface, _settingsManager);
+            _tagManager = new TagManager(_mbApiInterface, _settingsManager, _logger);
         }
 
         private void EnsureTabControlInitialized()
@@ -816,44 +816,6 @@ namespace MusicBeePlugin
             }
         }
 
-        /// <summary>
-        /// Gets the current TagsStorage object associated with the active tab.
-        /// </summary>
-        /// <returns>
-        /// The TagsStorage object for the currently active metadata type,
-        /// or null if not available or if the metadata type is invalid.
-        /// </returns>
-        private TagsStorage GetCurrentTagsStorage()
-        {
-            if (_settingsManager == null)
-            {
-                _logger?.Error("GetCurrentTagsStorage failed: SettingsManager is null");
-                return null;
-            }
-
-            MetaDataType metaDataType = GetActiveTabMetaDataType();
-            if (metaDataType == 0)
-            {
-                _logger?.Debug("GetCurrentTagsStorage: No valid metadata type selected");
-                return null;
-            }
-
-            var tagName = metaDataType.ToString();
-            var tagsStorage = _settingsManager.RetrieveTagsStorageByTagName(tagName);
-
-            // Only log at Info level if a tag storage was found
-            if (tagsStorage != null)
-            {
-                _logger?.Debug($"Retrieved TagsStorage for metaDataType: {metaDataType}");
-            }
-            else
-            {
-                _logger?.Warn($"No TagsStorage found for metaDataType: {metaDataType}");
-            }
-
-            return tagsStorage;
-        }
-
         private void ClearAllTagPages()
         {
             _logger?.Debug($"ClearAllTagPages: Starting cleanup of {_tabPageList.Count} tab pages");
@@ -914,7 +876,7 @@ namespace MusicBeePlugin
             try
             {
                 // Get current tags storage and validate
-                var currentTagsStorage = GetCurrentTagsStorage();
+                var currentTagsStorage = _tagManager.GetCurrentTagsStorage(_metaDataTypeName);
                 if (currentTagsStorage == null)
                 {
                     _logger?.Error($"{nameof(UpdateTagsDisplayFromStorage)}: Current TagsStorage is null");
@@ -1263,7 +1225,7 @@ namespace MusicBeePlugin
                 }
 
                 // Get current tags storage
-                var currentTagsStorage = GetCurrentTagsStorage();
+                var currentTagsStorage = _tagManager.GetCurrentTagsStorage(_metaDataTypeName);
                 if (currentTagsStorage == null)
                 {
                     _logger?.Error("RefreshPanelTagsFromFiles: Current TagsStorage is null");

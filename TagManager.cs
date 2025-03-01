@@ -15,8 +15,9 @@ namespace MusicBeePlugin
 
         private readonly MusicBeeApiInterface _mbApiInterface;
         private readonly SettingsManager _settingsStorage;
+        private readonly Logger _logger;
 
-        public TagManager(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage)
+        public TagManager(MusicBeeApiInterface mbApiInterface, SettingsManager settingsStorage, Logger logger)
         {
             if (mbApiInterface.Equals(default(MusicBeeApiInterface)))
                 throw new ArgumentNullException(nameof(mbApiInterface));
@@ -25,6 +26,7 @@ namespace MusicBeePlugin
 
             _mbApiInterface = mbApiInterface;
             _settingsStorage = settingsStorage;
+            _logger = logger;
         }
 
         /// <summary>
@@ -282,6 +284,45 @@ namespace MusicBeePlugin
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the current TagsStorage object based on the provided metadata type name.
+        /// </summary>
+        public TagsStorage GetCurrentTagsStorage(string metaDataTypeName)
+        {
+            if (_settingsStorage == null)
+            {
+                _logger?.Error("GetCurrentTagsStorage failed: SettingsManager is null");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(metaDataTypeName))
+            {
+                _logger?.Debug("GetCurrentTagsStorage: No valid metadata type selected");
+                return null;
+            }
+
+            // Attempt to parse the metaDataTypeName to a MetaDataType
+            if (!Enum.TryParse(metaDataTypeName, out MetaDataType metaDataType) || metaDataType == 0)
+            {
+                _logger?.Debug("GetCurrentTagsStorage: No valid metadata type selected");
+                return null;
+            }
+
+            var tagName = metaDataType.ToString();
+            var tagsStorage = _settingsStorage.RetrieveTagsStorageByTagName(tagName);
+
+            if (tagsStorage != null)
+            {
+                _logger?.Debug($"Retrieved TagsStorage for metaDataType: {metaDataType}");
+            }
+            else
+            {
+                _logger?.Warn($"No TagsStorage found for metaDataType: {metaDataType}");
+            }
+
+            return tagsStorage;
         }
     }
 }
