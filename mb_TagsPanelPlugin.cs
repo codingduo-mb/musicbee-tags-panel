@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
@@ -1510,6 +1511,7 @@ namespace MusicBeePlugin
             }
         }
 
+      
         public void Uninstall()
         {
             try
@@ -1517,67 +1519,143 @@ namespace MusicBeePlugin
                 _logger?.Info("Beginning plugin uninstallation process");
 
                 // Clean up settings file
-                if (_settingsManager != null)
-                {
-                    try
-                    {
-                        string settingsPath = _settingsManager.GetSettingsPath();
-                        if (!string.IsNullOrEmpty(settingsPath) && File.Exists(settingsPath))
-                        {
-                            File.Delete(settingsPath);
-                            _logger?.Info($"Settings file deleted: {settingsPath}");
-
-                            // Clean up parent directory if empty
-                            string parentDir = Path.GetDirectoryName(settingsPath);
-                            if (!string.IsNullOrEmpty(parentDir) && Directory.Exists(parentDir) &&
-                                !Directory.EnumerateFileSystemEntries(parentDir).Any())
-                            {
-                                Directory.Delete(parentDir);
-                                _logger?.Info($"Empty settings directory removed: {parentDir}");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger?.Error($"Failed to delete settings file: {ex.Message}", ex);
-                    }
-                }
+                CleanUpSettingsFile();
 
                 // Clean up log file
-                try
-                {
-                    string logFilePath = _logger?.GetLogFilePath();
-                    if (!string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
-                    {
-                        File.Delete(logFilePath);
-                        _logger?.Info($"Log file deleted: {logFilePath}");
+                CleanUpLogFile();
 
-                        // Clean up parent directory if empty
-                        string logDir = Path.GetDirectoryName(logFilePath);
-                        if (!string.IsNullOrEmpty(logDir) && Directory.Exists(logDir) &&
-                            !Directory.EnumerateFileSystemEntries(logDir).Any())
-                        {
-                            Directory.Delete(logDir);
-                            _logger?.Info($"Empty log directory removed: {logDir}");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger?.Error($"Failed to delete log file: {ex.Message}", ex);
-                }
+                // Final cleanup of resources
+                DisposeRemainingResources();
 
-                // Final cleanup of resources that might not have been disposed in Close()
-                _uiManager?.Dispose();
-                _logger?.Info("Uninstallation completed");
-                _logger?.Dispose();
+                _logger?.Info("Uninstallation completed successfully");
             }
             catch (Exception ex)
             {
                 // Can't use logger here as it might be disposed or in an error state
                 System.Diagnostics.Debug.WriteLine($"Error during plugin uninstallation: {ex}");
             }
+            finally
+            {
+                // Ensure logger is disposed even if an exception occurs
+                _logger?.Dispose();
+            }
         }
+
+        private void CleanUpSettingsFile()
+        {
+            if (_settingsManager == null)
+            {
+                _logger?.Debug("Settings manager is null, skipping settings cleanup");
+                return;
+            }
+
+            try
+            {
+                string settingsPath = _settingsManager.GetSettingsPath();
+                if (string.IsNullOrEmpty(settingsPath))
+                {
+                    _logger?.Debug("Settings path is empty, skipping settings cleanup");
+                    return;
+                }
+
+                DeleteFileWithRetry(settingsPath, "settings");
+                CleanEmptyDirectory(Path.GetDirectoryName(settingsPath), "settings");
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is SecurityException)
+            {
+                _logger?.Error($"Failed to delete settings file: {ex.Message}", ex);
+            }
+        }
+
+        private void CleanUpLogFile()
+        {
+            try
+            {
+                string logFilePath = _logger?.GetLogFilePath();
+                if (string.IsNullOrEmpty(logFilePath))
+                {
+                    return;
+                }
+
+                DeleteFileWithRetry(logFilePath, "log");
+                CleanEmptyDirectory(Path.GetDirectoryName(logFilePath), "log");
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is SecurityException)
+            {
+                _logger?.Error($"Failed to delete log file: {ex.Message}", ex);
+            }
+        }
+
+        private bool DeleteFileWithRetry(string filePath, string fileType)
+        {
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
+
+            const int maxRetries = 3;
+            const int retryDelayMs = 100;
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    File.Delete(filePath);
+                    _logger?.Info($"{fileType.ToUpperInvariant()} file deleted: {filePath}");
+                    return true;
+                }
+                catch (IOException) when (attempt < maxRetries)
+                {
+                    // File might be locked, wait briefly and retry
+                    System.Threading.Thread.Sleep(retryDelayMs * attempt);
+                }
+            }
+
+            _logger?.Warn($"Failed to delete {fileType} file after {maxRetries} attempts: {filePath}");
+            return false;
+        }
+
+        private bool CleanEmptyDirectory(string dirPath, string dirType)
+        {
+            if (string.IsNullOrEmpty(dirPath) || !Directory.Exists(dirPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!Directory.EnumerateFileSystemEntries(dirPath).Any())
+                {
+                    Directory.Delete(dirPath);
+                    _logger?.Info($"Empty {dirType} directory removed: {dirPath}");
+                    return true;
+                }
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                _logger?.Warn($"Failed to remove empty {dirType} directory: {ex.Message}");
+            }
+
+            return false;
+        }
+
+        private void DisposeRemainingResources()
+        {
+            try
+            {
+                // Dispose UI manager if not already disposed
+                if (_uiManager != null)
+                {
+                    _uiManager.Dispose();
+                    _logger?.Debug("UI manager disposed");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error disposing remaining resources: {ex.Message}", ex);
+            }
+        }
+        
 
         public void ReceiveNotification(string sourceFileUrl, NotificationType type)
         {
