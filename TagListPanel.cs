@@ -16,28 +16,61 @@ namespace MusicBeePlugin
         private readonly UIManager _controlStyle;
         private TagsStorage _tagsStorage;
 
-        public TagListPanel(MusicBeeApiInterface mbApiInterface, SettingsManager settingsManager, string tagName, Dictionary<string, TagListPanel> checklistBoxList, string[] selectedFileUrls, Action<string[]> refreshPanelTagsFromFiles)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TagListPanel"/> class.
+        /// </summary>
+        /// <param name="mbApiInterface">The MusicBee API interface for interacting with the application.</param>
+        /// <param name="settingsManager">Manager for retrieving and storing panel settings.</param>
+        /// <param name="tagName">The name of the tag this panel will display.</param>
+        /// <param name="checklistBoxList">Dictionary of all tag panels for cross-panel communication.</param>
+        /// <param name="selectedFileUrls">Array of currently selected file URLs in MusicBee.</param>
+        /// <param name="refreshPanelTagsFromFiles">Action to refresh panel tags from selected files.</param>
+        /// <exception cref="ArgumentNullException">Thrown if required parameters are null.</exception>
+        public TagListPanel(
+            MusicBeeApiInterface mbApiInterface,
+            SettingsManager settingsManager,
+            string tagName,
+            Dictionary<string, TagListPanel> checklistBoxList,
+            string[] selectedFileUrls,
+            Action<string[]> refreshPanelTagsFromFiles)
         {
-            // Enable double buffering to reduce flickering
-            this.SetStyle(ControlStyles.DoubleBuffer |
-                          ControlStyles.UserPaint |
-                          ControlStyles.AllPaintingInWmPaint |
-                          ControlStyles.OptimizedDoubleBuffer, true);
-            this.UpdateStyles();
+            // Validate required parameters
+            if (mbApiInterface.Equals(default(MusicBeeApiInterface))) throw new ArgumentNullException(nameof(mbApiInterface));
+            if (settingsManager == null) throw new ArgumentNullException(nameof(settingsManager));
+            if (string.IsNullOrEmpty(tagName)) throw new ArgumentNullException(nameof(tagName));
+            if (checklistBoxList == null) throw new ArgumentNullException(nameof(checklistBoxList));
 
+            // Initialize core dependencies
             _mbApiInterface = mbApiInterface;
             _controlStyle = new UIManager(mbApiInterface, checklistBoxList, selectedFileUrls, refreshPanelTagsFromFiles);
             _tagsStorage = settingsManager.RetrieveTagsStorageByTagName(tagName);
 
+            // Initialize UI components
             InitializeComponent();
 
-            // Set the Name property to ensure the correct tab name
+            // Configure panel properties
             this.Name = tagName;
 
-            StylePanel();
-
-            // Also enable for the CheckedListBox
+            // Apply visual optimizations
+            ConfigureDoubleBuffering();
             EnableDoubleBufferingForListBox();
+
+            // Apply visual styles
+            StylePanel();
+        }
+
+        /// <summary>
+        /// Configures double buffering to reduce flickering when the panel is redrawn.
+        /// </summary>
+        private void ConfigureDoubleBuffering()
+        {
+            this.SetStyle(
+                ControlStyles.DoubleBuffer |
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true);
+            this.UpdateStyles();
         }
 
         // Method to enable double buffering for the CheckedListBox using reflection
