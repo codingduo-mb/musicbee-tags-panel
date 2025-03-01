@@ -1583,29 +1583,46 @@ namespace MusicBeePlugin
         {
             try
             {
-                // Skip processing in these cases
-                if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed ||
-                    type == NotificationType.ApplicationWindowChanged ||
-                    GetActiveTabMetaDataType() == 0 ||
-                    _ignoreEventFromHandler)
+                // Skip processing with a single condition check for better readability
+                if (ShouldSkipNotificationProcessing(type))
                 {
                     return;
                 }
 
-                _logger?.Debug($"Received notification: {type} for file: {sourceFileUrl ?? "(null)"}");
+                _logger?.Debug($"Processing notification: {type} for file: {sourceFileUrl ?? "(null)"}");
 
                 switch (type)
                 {
+                    // Tag-related notifications
                     case NotificationType.TagsChanging:
                         HandleTagsChanging(sourceFileUrl);
                         break;
+                    case NotificationType.TagsChanged:
+                        HandleTagsChanged(sourceFileUrl);
+                        break;
 
+                    // File/track change notifications
                     case NotificationType.TrackChanged:
                         HandleTrackChanged(sourceFileUrl);
                         break;
+                    case NotificationType.FileAddedToLibrary:
+                        HandleFileAddedToLibrary(sourceFileUrl);
+                        break;
 
-                    // Add other relevant notification types as needed
+                    // Player state notifications
+                    case NotificationType.PlayStateChanged:
+                        // Only log these high-frequency events at trace level
+                        _logger?.Debug("Play state changed - no action needed");
+                        break;
+
+                    // Library notifications
+                    case NotificationType.FileDeleted:
+                        HandleFileDeleted(sourceFileUrl);
+                        break;
+
+                    // Other notifications we don't need to handle specifically
                     default:
+                        // Only log unhandled notification types at debug level to avoid log spam
                         _logger?.Debug($"Unhandled notification type: {type}");
                         break;
                 }
@@ -1613,6 +1630,111 @@ namespace MusicBeePlugin
             catch (Exception ex)
             {
                 _logger?.Error($"Error handling notification {type}: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Determines if notification processing should be skipped.
+        /// </summary>
+        /// <param name="type">The notification type to check</param>
+        /// <returns>True if the notification should be skipped, false otherwise</returns>
+        private bool ShouldSkipNotificationProcessing(NotificationType type)
+        {
+            // Skip processing if any of these conditions are true
+            if (_tagsPanelControl == null || _tagsPanelControl.IsDisposed)
+            {
+                _logger?.Debug("Skipping notification: panel control is null or disposed");
+                return true;
+            }
+
+            if (type == NotificationType.ApplicationWindowChanged)
+            {
+                // This is a high-frequency event that we don't need to process
+                return true;
+            }
+
+            if (GetActiveTabMetaDataType() == 0)
+            {
+                _logger?.Debug("Skipping notification: no active metadata type");
+                return true;
+            }
+
+            if (_ignoreEventFromHandler)
+            {
+                _logger?.Debug("Skipping notification: events being ignored due to handler operation");
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Handles tag change notifications from MusicBee.
+        /// </summary>
+        /// <param name="sourceFileUrl">The URL of the file whose tags have changed</param>
+        private void HandleTagsChanged(string sourceFileUrl)
+        {
+            if (string.IsNullOrEmpty(sourceFileUrl))
+            {
+                _logger?.Warn("HandleTagsChanged: sourceFileUrl is null or empty");
+                return;
+            }
+
+            // Refresh the panel contents for the affected file
+            _logger?.Debug($"Tags changed for file: {sourceFileUrl}");
+
+            MetaDataType metaDataType = GetActiveTabMetaDataType();
+            _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, metaDataType);
+
+            InvokeRefreshTagTableData();
+        }
+
+        /// <summary>
+        /// Handles file deletion notifications from MusicBee.
+        /// </summary>
+        /// <param name="sourceFileUrl">The URL of the file that was deleted</param>
+        private void HandleFileDeleted(string sourceFileUrl)
+        {
+            if (string.IsNullOrEmpty(sourceFileUrl))
+            {
+                _logger?.Warn("HandleFileDeleted: sourceFileUrl is null or empty");
+                return;
+            }
+
+            _logger?.Debug($"File deleted: {sourceFileUrl}");
+
+            // If this file was part of the current selection, refresh the panel
+            if (_selectedFilesUrls != null && _selectedFilesUrls.Contains(sourceFileUrl))
+            {
+                var updatedSelection = _selectedFilesUrls.Where(url => url != sourceFileUrl).ToArray();
+                OnSelectedFilesChanged(updatedSelection);
+            }
+        }
+
+        /// <summary>
+        /// Handles file added to library notifications from MusicBee.
+        /// </summary>
+        /// <param name="sourceFileUrl">The URL of the file that was added</param>
+        private void HandleFileAddedToLibrary(string sourceFileUrl)
+        {
+            if (string.IsNullOrEmpty(sourceFileUrl))
+            {
+                _logger?.Warn("HandleFileAddedToLibrary: sourceFileUrl is null or empty");
+                return;
+            }
+
+            _logger?.Debug($"File added to library: {sourceFileUrl}");
+
+            // If no files are currently selected, we don't need to update anything
+            if (_selectedFilesUrls == null || _selectedFilesUrls.Length == 0)
+            {
+                return;
+            }
+
+            // If exactly this file is selected (e.g., via pending files list), update the tags
+            if (_selectedFilesUrls.Length == 1 && _selectedFilesUrls[0] == sourceFileUrl)
+            {
+                RefreshPanelTagsFromFiles(_selectedFilesUrls);
             }
         }
 
