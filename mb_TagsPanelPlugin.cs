@@ -717,8 +717,7 @@ namespace MusicBeePlugin
                     throw new InvalidOperationException("TabPage collection or TabControl is not initialized");
                 }
 
-                TabPage tabPage;
-                if (!_tabPageList.TryGetValue(tagName, out tabPage) || tabPage == null || tabPage.IsDisposed)
+                if (!_tabPageList.TryGetValue(tagName, out var tabPage) || tabPage == null || tabPage.IsDisposed)
                 {
                     _logger.Info($"{nameof(GetOrCreateTagPage)}: Creating new tab page for tag: {tagName}");
                     tabPage = new TabPage(tagName);
@@ -1464,7 +1463,7 @@ namespace MusicBeePlugin
         {
             try
             {
-                _logger?.Info($"Plugin closing with reason: {reason.ToString("G")}");
+                _logger?.Info($"Plugin closing with reason: {reason:G}");
 
                 // Clean up event handlers
                 if (_tabControl != null)

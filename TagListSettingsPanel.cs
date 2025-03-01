@@ -392,9 +392,8 @@ namespace MusicBeePlugin
             var selectedTag = tags[oldIndex];
             var otherTag = tags[newIndex];
 
-            int tempIndex = _tagsStorage.TagList[selectedTag.Key];
-            _tagsStorage.TagList[selectedTag.Key] = _tagsStorage.TagList[otherTag.Key];
-            _tagsStorage.TagList[otherTag.Key] = tempIndex;
+            (_tagsStorage.TagList[selectedTag.Key], _tagsStorage.TagList[otherTag.Key]) =
+                (_tagsStorage.TagList[otherTag.Key], _tagsStorage.TagList[selectedTag.Key]);
 
             UpdateTags();
             LstTags.SetSelected(newIndex, true);

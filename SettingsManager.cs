@@ -32,12 +32,7 @@ namespace MusicBeePlugin
             // MusicBeeApiInterface is a value type (struct), so we can't check it against null
             _mbApiInterface = mbApiInterface;
 
-            if (log == null)
-            {
-                throw new ArgumentNullException(nameof(log));
-            }
-
-            _logger = log;
+            _logger = log ?? throw new ArgumentNullException(nameof(log));
             TagsStorages = new Dictionary<string, TagsStorage>(StringComparer.OrdinalIgnoreCase);
 
             // Configure serializer settings once

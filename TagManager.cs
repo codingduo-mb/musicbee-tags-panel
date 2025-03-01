@@ -45,15 +45,21 @@ namespace MusicBeePlugin
             {
                 foreach (var tag in ReadTagsFromFile(fileName, metaDataType))
                 {
-                    tagCounts.TryGetValue(tag, out int count);
-                    tagCounts[tag] = count + 1;
+                    if (!tagCounts.TryGetValue(tag, out int count))
+                    {
+                        tagCounts[tag] = 1;
+                    }
+                    else
+                    {
+                        tagCounts[tag] = count + 1;
+                    }
                 }
             }
 
-            return tagCounts.ToDictionary(
+            return new Dictionary<string, CheckState>(tagCounts.ToDictionary(
                 entry => entry.Key,
                 entry => entry.Value == fileNames.Length ? CheckState.Checked : CheckState.Indeterminate,
-                StringComparer.OrdinalIgnoreCase);
+                StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
