@@ -939,20 +939,8 @@ namespace MusicBeePlugin
                 _logger?.Error($"{nameof(GetTagsFromStorage)}: Received null TagsStorage");
                 return new Dictionary<string, CheckState>();
             }
-
-            var allTags = currentTagsStorage.GetTags() ?? new Dictionary<string, int>();
-            var data = new Dictionary<string, CheckState>(allTags.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var tag in allTags)
-            {
-                string trimmedKey = tag.Key?.Trim() ?? string.Empty;
-                if (!string.IsNullOrEmpty(trimmedKey))
-                {
-                    data[trimmedKey] = _tagsFromFiles.TryGetValue(trimmedKey, out var state) ? state : CheckState.Unchecked;
-                }
-            }
-
-            return data;
+            
+            return _tagManager.GetTagsFromStorage(currentTagsStorage, _tagsFromFiles);
         }
 
         private void UpdateTagsDisplayFromStorage()
@@ -1184,7 +1172,7 @@ namespace MusicBeePlugin
         /// Updates the current metadata type and refreshes the panel contents.
         /// </summary>
         /// <param name="sender">The tab control that raised the event</param>
-        /// <param name="e">Event arguments</param>
+        /// <param="e">Event arguments</param>
         private void TabControlSelectionChanged(object sender, EventArgs e)
         {
             try

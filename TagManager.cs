@@ -28,6 +28,36 @@ namespace MusicBeePlugin
         }
 
         /// <summary>
+        /// Retrieves tags from a TagsStorage object and formats them as a dictionary with check states.
+        /// </summary>
+        /// <param name="tagsStorage">The TagsStorage object containing tag information</param>
+        /// <param name="existingTags">Optional dictionary of existing tags with their check states</param>
+        /// <returns>Dictionary mapping tag names to their check states</returns>
+        public Dictionary<string, CheckState> GetTagsFromStorage(TagsStorage tagsStorage, Dictionary<string, CheckState> existingTags = null)
+        {
+            if (tagsStorage == null)
+            {
+                return new Dictionary<string, CheckState>();
+            }
+
+            var allTags = tagsStorage.GetTags() ?? new Dictionary<string, int>();
+            var data = new Dictionary<string, CheckState>(allTags.Count, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var tag in allTags)
+            {
+                string trimmedKey = tag.Key?.Trim() ?? string.Empty;
+                if (!string.IsNullOrEmpty(trimmedKey))
+                {
+                    data[trimmedKey] = existingTags != null && existingTags.TryGetValue(trimmedKey, out var state) 
+                        ? state 
+                        : CheckState.Unchecked;
+                }
+            }
+
+            return data;
+        }
+
+        /// <summary>
         /// Combines tag lists from multiple files and determines their check state.
         /// </summary>
         /// <param name="fileNames">Array of file paths to process</param>
