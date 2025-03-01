@@ -967,7 +967,7 @@ namespace MusicBeePlugin
 
                 // Get tags from storage and merge with tags from files
                 var data = GetTagsFromStorage(currentTagsStorage);
-                MergeTagsFromFiles(data);
+                data = _tagManager.MergeTagsFromFiles(data, _tagsFromFiles);
 
                 // Update the appropriate panel if it exists
                 if (_checklistBoxList?.TryGetValue(tagName, out var tagListPanel) == true && tagListPanel != null)
@@ -982,20 +982,6 @@ namespace MusicBeePlugin
             catch (Exception ex)
             {
                 _logger?.Error($"Error in {nameof(UpdateTagsDisplayFromStorage)}: {ex.Message}", ex);
-            }
-        }
-
-        private void MergeTagsFromFiles(Dictionary<string, CheckState> data)
-        {
-            if (_tagsFromFiles == null || data == null)
-                return;
-
-            foreach (var tagFromFile in _tagsFromFiles)
-            {
-                if (!string.IsNullOrWhiteSpace(tagFromFile.Key) && !data.ContainsKey(tagFromFile.Key))
-                {
-                    data[tagFromFile.Key] = tagFromFile.Value;
-                }
             }
         }
 

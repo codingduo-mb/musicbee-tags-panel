@@ -230,5 +230,27 @@ namespace MusicBeePlugin
             return ReadTagsFromFile(sourceFileUrl, metaDataType)
                 .ToDictionary(tag => tag, _ => CheckState.Checked, StringComparer.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Merges additional tags from files into the provided tag dictionary.
+        /// </summary>
+        /// <param name="targetDictionary">Dictionary to merge tags into</param>
+        /// <param name="tagsFromFiles">Dictionary containing tags from files</param>
+        /// <returns>The updated dictionary with merged tags</returns>
+        public Dictionary<string, CheckState> MergeTagsFromFiles(Dictionary<string, CheckState> targetDictionary, Dictionary<string, CheckState> tagsFromFiles)
+        {
+            if (tagsFromFiles == null || targetDictionary == null)
+                return targetDictionary ?? new Dictionary<string, CheckState>();
+
+            foreach (var tagFromFile in tagsFromFiles)
+            {
+                if (!string.IsNullOrWhiteSpace(tagFromFile.Key) && !targetDictionary.ContainsKey(tagFromFile.Key))
+                {
+                    targetDictionary[tagFromFile.Key] = tagFromFile.Value;
+                }
+            }
+
+            return targetDictionary;
+        }
     }
 }
