@@ -168,7 +168,8 @@ namespace MusicBeePlugin
 
         private void InitializeUIManager()
         {
-            _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles);
+            // Pass the logger and panel control to UIManager
+            _uiManager = new UIManager(_mbApiInterface, _checklistBoxList, _selectedFilesUrls, RefreshPanelTagsFromFiles, _logger, _tagsPanelControl);
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace MusicBeePlugin
             catch (Exception ex)
             {
                 _logger?.Error($"Error in Configure method: {ex.Message}", ex);
-                ShowErrorMessage("An error occurred while opening settings. Please check the log for details.");
+                _uiManager.ShowErrorMessage("An error occurred while opening settings. Please check the log for details.");
                 return false;
             }
         }
@@ -298,7 +299,7 @@ namespace MusicBeePlugin
             if (_settingsManager == null)
             {
                 _logger?.Error("Cannot load plugin settings: SettingsManager is not initialized.");
-                ShowErrorMessage("Unable to initialize plugin settings manager. Please restart MusicBee.");
+                _uiManager.ShowErrorMessage("Unable to initialize plugin settings manager. Please restart MusicBee.");
                 return;
             }
 
@@ -312,7 +313,7 @@ namespace MusicBeePlugin
             catch (JsonException ex)
             {
                 _logger?.Error($"Settings file is corrupted or has invalid format: {ex.Message}", ex);
-                ShowErrorMessage("Your settings file appears to be corrupted. Default settings will be used.",
+                _uiManager.ShowErrorMessage("Your settings file appears to be corrupted. Default settings will be used.",
                                 "Settings Error");
 
                 // Try to initialize with defaults after corruption
@@ -334,13 +335,13 @@ namespace MusicBeePlugin
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
                 _logger?.Error($"File access error while loading plugin settings: {ex.GetType().Name} - {ex.Message}", ex);
-                ShowErrorMessage($"Unable to access settings file: {ex.Message}\n\nPlease check file permissions.",
+                _uiManager.ShowErrorMessage($"Unable to access settings file: {ex.Message}\n\nPlease check file permissions.",
                                 "Settings Access Error");
             }
             catch (Exception ex)
             {
                 _logger?.Error($"Unexpected error in {nameof(LoadPluginSettings)}: {ex}", ex);
-                ShowErrorMessage("An unexpected error occurred while loading settings.\n\nPlease check the log file for details.",
+                _uiManager.ShowErrorMessage("An unexpected error occurred while loading settings.\n\nPlease check the log file for details.",
                                 "Settings Error");
             }
         }
@@ -424,39 +425,7 @@ namespace MusicBeePlugin
             catch (Exception ex)
             {
                 _logger?.Error($"Error in settings dialog: {ex.Message}", ex);
-                ShowErrorMessage("An error occurred while processing settings. Please check the log for details.");
-            }
-        }
-
-        /// <summary>
-        /// Displays an error message to the user with standard formatting.
-        /// </summary>
-        /// <param name="message">The error message to display</param>
-        /// <param name="title">Optional title for the error dialog (defaults to "Error")</param>
-        /// <param name="buttons">Optional dialog buttons (defaults to OK)</param>
-        private void ShowErrorMessage(string message, string title = "Error", MessageBoxButtons buttons = MessageBoxButtons.OK)
-        {
-            try
-            {
-                // Log the error first
-                _logger?.Error($"Error displayed to user: {message}");
-
-                // Ensure we're on the UI thread
-                if (_tagsPanelControl?.InvokeRequired == true)
-                {
-                    _tagsPanelControl.BeginInvoke(new Action(() =>
-                        MessageBox.Show(message, title, buttons, MessageBoxIcon.Error)));
-                }
-                else
-                {
-                    MessageBox.Show(message, title, buttons, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Last resort logging if showing the error dialog itself fails
-                _logger?.Error($"Failed to show error message dialog: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Error showing message box: {ex.Message}");
+                _uiManager.ShowErrorMessage("An error occurred while processing settings. Please check the log for details.");
             }
         }
 
@@ -734,7 +703,7 @@ namespace MusicBeePlugin
             }
             catch (Exception ex)
             {
-                _logger.Error($"Error in {nameof(GetOrCreateTagPage)} for tag '{tagName}': {ex.Message}");
+                _logger?.Error($"Error in {nameof(GetOrCreateTagPage)} for tag '{tagName}': {ex.Message}");
                 throw;
             }
         }

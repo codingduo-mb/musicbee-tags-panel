@@ -22,6 +22,8 @@ namespace MusicBeePlugin
         private readonly Dictionary<string, TagListPanel> _checklistBoxList;
         private readonly string[] _selectedFileUrls;
         private readonly Action<string[]> _refreshPanelTagsFromFiles;
+        private readonly Logger _logger;
+        private readonly Control _mainPanelControl;
 
         private Font _defaultFont;
         private bool _disposed;
@@ -33,18 +35,30 @@ namespace MusicBeePlugin
         /// <param name="checklistBoxList">Dictionary of tag panels.</param>
         /// <param name="selectedFileUrls">Currently selected file URLs.</param>
         /// <param name="refreshPanelTagsFromFiles">Action to refresh panel tags from files.</param>
+        /// <param name="logger">Logger instance for logging errors.</param>
+        /// <param name="mainPanelControl">Main panel control for UI operations.</param>
         /// <exception cref="ArgumentNullException">Thrown when essential parameters are null.</exception>
         public UIManager(
     MusicBeeApiInterface mbApiInterface,
     Dictionary<string, TagListPanel> checklistBoxList,
     string[] selectedFileUrls,
-    Action<string[]> refreshPanelTagsFromFiles)
+    Action<string[]> refreshPanelTagsFromFiles,
+    Logger logger,
+    Control mainPanelControl)
         {
             if (mbApiInterface.Equals(default(MusicBeeApiInterface))) throw new ArgumentNullException(nameof(mbApiInterface));
+            if (checklistBoxList == null) throw new ArgumentNullException(nameof(checklistBoxList));
+            if (selectedFileUrls == null) throw new ArgumentNullException(nameof(selectedFileUrls));
+            if (refreshPanelTagsFromFiles == null) throw new ArgumentNullException(nameof(refreshPanelTagsFromFiles));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (mainPanelControl == null) throw new ArgumentNullException(nameof(mainPanelControl));
+
             _mbApiInterface = mbApiInterface;
-            _checklistBoxList = checklistBoxList ?? throw new ArgumentNullException(nameof(checklistBoxList));
+            _checklistBoxList = checklistBoxList;
             _selectedFileUrls = selectedFileUrls;
             _refreshPanelTagsFromFiles = refreshPanelTagsFromFiles;
+            _logger = logger;
+            _mainPanelControl = mainPanelControl;
         }
 
         /// <summary>
@@ -198,6 +212,34 @@ namespace MusicBeePlugin
             formControl.Font = _defaultFont;
             formControl.BackColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentBackground);
             formControl.ForeColor = GetElementColor(DefaultSkinElement, DefaultElementState, ElementComponent.ComponentForeground);
+        }
+
+        /// <summary>
+        /// Shows an error message to the user.
+        /// </summary>
+        /// <param name="message">The error message to display.</param>
+        /// <param name="title">The title of the error message box.</param>
+        /// <param name="buttons">The buttons to display on the message box.</param>
+        public void ShowErrorMessage(string message, string title = "Error", MessageBoxButtons buttons = MessageBoxButtons.OK)
+        {
+            try
+            {
+                _logger?.Error($"Error displayed to user: {message}");
+
+                if (_mainPanelControl?.InvokeRequired == true)
+                {
+                    _mainPanelControl.BeginInvoke(new Action(() =>
+                        MessageBox.Show(message, title, buttons, MessageBoxIcon.Error)));
+                }
+                else
+                {
+                    MessageBox.Show(message, title, buttons, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Failed to show error message dialog: {ex.Message}");
+            }
         }
 
         /// <summary>
