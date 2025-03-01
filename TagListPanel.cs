@@ -66,6 +66,7 @@ namespace MusicBeePlugin
             PopulateChecklistBoxesFromData(data);
         }
 
+      
         public void PopulateChecklistBoxesFromData(Dictionary<string, CheckState> data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -76,63 +77,14 @@ namespace MusicBeePlugin
 
             try
             {
-                // Prepare all items before adding them to reduce visual updates
-                List<object> itemsToAdd = new List<object>();
-                List<CheckState> statesToApply = new List<CheckState>();
+                // Get tags from settings and prepare items for display
+                var (itemsToAdd, statesToApply) = PrepareTagsForDisplay(data);
 
-                var tagsFromSettings = _tagsStorage?.GetTags();
+                // Calculate optimal column width for display
+                int maxWidth = CalculateMaxStringPixelWidth(itemsToAdd);
 
-                if (tagsFromSettings != null)
-                {
-                    // Sort tags based on their indices in TagsStorage
-                    var sortedTagsFromSettings = tagsFromSettings
-                        .OrderBy(tag => tag.Value)
-                        .Select(tag => tag.Key.Trim())
-                        .ToList();
-
-                    // Prepare tags from settings in the specified order
-                    foreach (var tag in sortedTagsFromSettings)
-                    {
-                        itemsToAdd.Add(tag);
-                        if (data.TryGetValue(tag, out var checkState))
-                        {
-                            statesToApply.Add(checkState);
-                        }
-                        else
-                        {
-                            statesToApply.Add(CheckState.Unchecked);
-                        }
-                    }
-
-                    // Prepare any additional tags not in the settings
-                    var additionalTags = data.Keys.Except(sortedTagsFromSettings).ToList();
-                    foreach (var tag in additionalTags)
-                    {
-                        itemsToAdd.Add(tag);
-                        statesToApply.Add(data[tag]);
-                    }
-                }
-                else
-                {
-                    // If no tags from settings, prepare tags from data
-                    foreach (var kvp in data)
-                    {
-                        itemsToAdd.Add(kvp.Key);
-                        statesToApply.Add(kvp.Value);
-                    }
-                }
-
-                // Calculate column width before adding items
-                int maxWidth = CalculateMaxStringPixelWidth(itemsToAdd.Cast<string>());
-
-                // Clear and add all items at once
-                CheckedListBoxWithTags.Items.Clear();
-
-                // Add all items at once using object[] to minimize UI updates
-                for (int i = 0; i < itemsToAdd.Count; i++)
-                {
-                    CheckedListBoxWithTags.Items.Add(itemsToAdd[i], statesToApply[i]);
-                }
+                // Update the UI with the prepared items
+                UpdateCheckListBoxItems(itemsToAdd, statesToApply);
 
                 // Set column width only once
                 CheckedListBoxWithTags.ColumnWidth = maxWidth + PaddingWidth;
@@ -143,6 +95,98 @@ namespace MusicBeePlugin
                 this.ResumeLayout();
             }
         }
+
+        /// <summary>
+        /// Prepares the tag items and their check states for display in the checklist box
+        /// </summary>
+        /// <param name="data">Dictionary of tags and their check states</param>
+        /// <returns>Tuple containing lists of items and their corresponding check states</returns>
+        private (List<string> Items, List<CheckState> States) PrepareTagsForDisplay(Dictionary<string, CheckState> data)
+        {
+            var itemsToAdd = new List<string>();
+            var statesToApply = new List<CheckState>();
+            var tagsFromSettings = _tagsStorage?.GetTags();
+
+            if (tagsFromSettings != null && tagsFromSettings.Any())
+            {
+                // First add tags from settings in their specified order
+                AddTagsFromSettings(tagsFromSettings, data, itemsToAdd, statesToApply);
+
+                // Then add any additional tags not in settings
+                AddAdditionalTags(tagsFromSettings.Keys.ToList(), data, itemsToAdd, statesToApply);
+            }
+            else
+            {
+                // If no tags from settings, add all tags from data
+                foreach (var kvp in data)
+                {
+                    itemsToAdd.Add(kvp.Key);
+                    statesToApply.Add(kvp.Value);
+                }
+            }
+
+            return (itemsToAdd, statesToApply);
+        }
+
+        /// <summary>
+        /// Adds tags from settings to the display lists in the order specified by their indices
+        /// </summary>
+        private void AddTagsFromSettings(
+            Dictionary<string, int> tagsFromSettings,
+            Dictionary<string, CheckState> data,
+            List<string> itemsToAdd,
+            List<CheckState> statesToApply)
+        {
+            var sortedTagsFromSettings = tagsFromSettings
+                .OrderBy(tag => tag.Value)
+                .Select(tag => tag.Key.Trim())
+                .ToList();
+
+            foreach (var tag in sortedTagsFromSettings)
+            {
+                itemsToAdd.Add(tag);
+                statesToApply.Add(data.TryGetValue(tag, out var checkState)
+                    ? checkState
+                    : CheckState.Unchecked);
+            }
+        }
+
+        /// <summary>
+        /// Adds tags from the data that aren't already in the settings
+        /// </summary>
+        private void AddAdditionalTags(
+            List<string> existingTags,
+            Dictionary<string, CheckState> data,
+            List<string> itemsToAdd,
+            List<CheckState> statesToApply)
+        {
+            var additionalTags = data.Keys
+                .Where(key => !existingTags.Contains(key))
+                .ToList();
+
+            foreach (var tag in additionalTags)
+            {
+                itemsToAdd.Add(tag);
+                statesToApply.Add(data[tag]);
+            }
+        }
+
+        /// <summary>
+        /// Updates the CheckedListBox with the prepared items and states
+        /// </summary>
+        /// <param name="items">The items to display</param>
+        /// <param name="states">The check states for each item</param>
+        private void UpdateCheckListBoxItems(List<string> items, List<CheckState> states)
+        {
+            CheckedListBoxWithTags.Items.Clear();
+
+            // Add all items at once
+            for (int i = 0; i < items.Count; i++)
+            {
+                CheckedListBoxWithTags.Items.Add(items[i], states[i]);
+            }
+        }
+        
 
         /// <summary>
         /// Calculates the maximum width in pixels needed to display a collection of strings.
@@ -219,12 +263,18 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Registers an event handler for the ItemCheck event if it hasn't been registered already.
+        /// </summary>
+        /// <param name="eventHandler">The event handler to register.</param>
         public void RegisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            if (eventHandler != null && !IsHandlerRegistered(eventHandler))
-            {
-                CheckedListBoxWithTags.ItemCheck += eventHandler;
-            }
+            if (eventHandler == null)
+                return;
+
+            // Unregister first to prevent duplicate registrations
+            CheckedListBoxWithTags.ItemCheck -= eventHandler;
+            CheckedListBoxWithTags.ItemCheck += eventHandler;
         }
 
         private bool IsHandlerRegistered(Delegate handler)
@@ -237,16 +287,30 @@ namespace MusicBeePlugin
             return registeredHandler?.GetInvocationList().Contains(handler) ?? false;
         }
 
+        /// <summary>
+        /// Unregisters an event handler from the ItemCheck event.
+        /// </summary>
+        /// <param name="eventHandler">The event handler to unregister.</param>
         public void UnregisterItemCheckEventHandler(ItemCheckEventHandler eventHandler)
         {
-            CheckedListBoxWithTags.ItemCheck -= eventHandler;
+            if (eventHandler != null)
+            {
+                CheckedListBoxWithTags.ItemCheck -= eventHandler;
+            }
         }
 
+        /// <summary>
+        /// Enables CheckOnClick on key up to allow for keyboard navigation without 
+        /// immediately toggling the checkbox state.
+        /// </summary>
         private void CheckedListBoxWithTags_KeyUp(object sender, KeyEventArgs e)
         {
             CheckedListBoxWithTags.CheckOnClick = true;
         }
 
+        /// <summary>
+        /// Disables CheckOnClick on key down to provide better keyboard navigation experience.
+        /// </summary>
         private void CheckedListBoxWithTags_KeyDown(object sender, KeyEventArgs e)
         {
             CheckedListBoxWithTags.CheckOnClick = false;
