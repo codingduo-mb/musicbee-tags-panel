@@ -324,5 +324,27 @@ namespace MusicBeePlugin
 
             return tagsStorage;
         }
+
+        /// <summary>
+        /// Retrieves the active tab's metadata type based on the provided metadata type name.
+        /// </summary>
+        public MetaDataType GetActiveTabMetaDataType(string metaDataTypeName)
+        {
+            if (string.IsNullOrEmpty(metaDataTypeName))
+            {
+                _logger?.Debug("GetActiveTabMetaDataType: metaDataTypeName is null or empty");
+                return 0;
+            }
+
+            if (Enum.TryParse(metaDataTypeName, true, out MetaDataType result))
+            {
+                return result;
+            }
+            else
+            {
+                _logger?.Warn($"GetActiveTabMetaDataType: Failed to parse '{metaDataTypeName}' as MetaDataType");
+                return 0;
+            }
+        }
     }
 }

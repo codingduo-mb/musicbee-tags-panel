@@ -790,32 +790,6 @@ namespace MusicBeePlugin
         }
 
 
-        /// <summary>
-        /// Gets the MetaDataType enum value for the currently active tab.
-        /// </summary>
-        /// <returns>
-        /// The MetaDataType enum value corresponding to the active tab name, or 0 (None) if 
-        /// the tab name is invalid or cannot be parsed as a MetaDataType.
-        /// </returns>
-        public MetaDataType GetActiveTabMetaDataType()
-        {
-            if (string.IsNullOrEmpty(_metaDataTypeName))
-            {
-                _logger?.Debug("GetActiveTabMetaDataType: _metaDataTypeName is null or empty");
-                return 0;
-            }
-
-            if (Enum.TryParse(_metaDataTypeName, true, out MetaDataType result))
-            {
-                return result;
-            }
-            else
-            {
-                _logger?.Warn($"GetActiveTabMetaDataType: Failed to parse '{_metaDataTypeName}' as MetaDataType");
-                return 0;
-            }
-        }
-
         private void ClearAllTagPages()
         {
             _logger?.Debug($"ClearAllTagPages: Starting cleanup of {_tabPageList.Count} tab pages");
@@ -1063,7 +1037,7 @@ namespace MusicBeePlugin
                     {
                         // Apply the tag change to all selected files
                         _logger?.Debug($"Applying tag '{tagName}' with state {newState} to {_selectedFilesUrls.Length} files");
-                        var metaDataType = GetActiveTabMetaDataType(); // Get the current MetaDataType
+                        var metaDataType = _tagManager.GetActiveTabMetaDataType(_metaDataTypeName);
                         _tagManager.ApplyTagsToSelectedFiles(_selectedFilesUrls, newState, tagName, metaDataType);
 
                         // Refresh UI to reflect changes
@@ -1634,7 +1608,7 @@ namespace MusicBeePlugin
                 return true;
             }
 
-            if (GetActiveTabMetaDataType() == 0)
+            if (_tagManager.GetActiveTabMetaDataType(_metaDataTypeName) == 0)
             {
                 _logger?.Debug("Skipping notification: no active metadata type");
                 return true;
@@ -1664,7 +1638,7 @@ namespace MusicBeePlugin
             // Refresh the panel contents for the affected file
             _logger?.Debug($"Tags changed for file: {sourceFileUrl}");
 
-            MetaDataType metaDataType = GetActiveTabMetaDataType();
+            MetaDataType metaDataType = _tagManager.GetActiveTabMetaDataType(_metaDataTypeName);
             _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, metaDataType);
 
             InvokeRefreshTagTableData();
@@ -1741,7 +1715,7 @@ namespace MusicBeePlugin
             }
             else
             {
-                MetaDataType metaDataType = GetActiveTabMetaDataType();
+                MetaDataType metaDataType = _tagManager.GetActiveTabMetaDataType(_metaDataTypeName);
                 _tagsFromFiles = _tagManager.UpdateTagsFromFile(sourceFileUrl, metaDataType);
                 _logger?.Debug($"Updated tags from file: {sourceFileUrl} for metadata type: {metaDataType}");
             }
