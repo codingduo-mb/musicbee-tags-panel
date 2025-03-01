@@ -1,18 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace MusicBeePlugin
 {
+    /// <summary>
+    /// Extension methods for operating on ListBox controls.
+    /// </summary>
     public static class TagListBoxExtensions
     {
+        /// <summary>
+        /// Moves selected items up one position in the ListBox.
+        /// </summary>
+        /// <param name="listBox">The ListBox to operate on.</param>
+        /// <exception cref="ArgumentNullException">Thrown when listBox is null.</exception>
         public static void MoveUp(this ListBox listBox)
         {
+            if (listBox == null)
+                throw new ArgumentNullException(nameof(listBox));
+
             MoveSelectedItems(listBox, -1);
         }
 
+        /// <summary>
+        /// Moves selected items down one position in the ListBox.
+        /// </summary>
+        /// <param name="listBox">The ListBox to operate on.</param>
+        /// <exception cref="ArgumentNullException">Thrown when listBox is null.</exception>
         public static void MoveDown(this ListBox listBox)
         {
+            if (listBox == null)
+                throw new ArgumentNullException(nameof(listBox));
+
             MoveSelectedItems(listBox, 1);
         }
 
@@ -21,21 +41,28 @@ namespace MusicBeePlugin
             if (listBox == null || listBox.SelectedItems.Count == 0)
                 return;
 
+            // Validate direction
+            if (direction != -1 && direction != 1)
+                throw new ArgumentException("Direction must be -1 (up) or 1 (down).", nameof(direction));
+
             bool isCheckedListBox = listBox is CheckedListBox;
             var selectedIndices = listBox.SelectedIndices.Cast<int>().ToList();
 
             // Prevent movement if any selected item is at the boundary
-            if ((direction < 0 && selectedIndices.Contains(0)) ||
-                (direction > 0 && selectedIndices.Contains(listBox.Items.Count - 1)))
+            bool cannotMoveUp = direction < 0 && selectedIndices.Contains(0);
+            bool cannotMoveDown = direction > 0 && selectedIndices.Contains(listBox.Items.Count - 1);
+
+            if (cannotMoveUp || cannotMoveDown)
                 return;
 
-            // Sort indices based on direction
+            // Sort indices based on direction to avoid index shifting issues
             selectedIndices.Sort();
             if (direction > 0)
                 selectedIndices.Reverse();
 
-            var itemsToMove = new List<object>();
-            var checkStates = new List<CheckState>();
+            // Store items and their check states before moving
+            var itemsToMove = new List<object>(selectedIndices.Count);
+            var checkStates = isCheckedListBox ? new List<CheckState>(selectedIndices.Count) : null;
 
             foreach (int index in selectedIndices)
             {
@@ -43,30 +70,40 @@ namespace MusicBeePlugin
 
                 if (isCheckedListBox)
                 {
-                    var clb = (CheckedListBox)listBox;
-                    checkStates.Add(clb.GetItemCheckState(index));
+                    var checkedListBox = (CheckedListBox)listBox;
+                    checkStates.Add(checkedListBox.GetItemCheckState(index));
                 }
             }
 
-            // Remove items
-            foreach (int index in selectedIndices)
-            {
-                listBox.Items.RemoveAt(index);
-            }
+            // Begin moving items
+            listBox.BeginUpdate();
 
-            // Insert items at new positions
-            for (int i = 0; i < selectedIndices.Count; i++)
+            try
             {
-                int newIndex = selectedIndices[i] + direction;
-                listBox.Items.Insert(newIndex, itemsToMove[i]);
-
-                if (isCheckedListBox)
+                // Remove items
+                foreach (int index in selectedIndices)
                 {
-                    var clb = (CheckedListBox)listBox;
-                    clb.SetItemCheckState(newIndex, checkStates[i]);
+                    listBox.Items.RemoveAt(index);
                 }
 
-                listBox.SetSelected(newIndex, true);
+                // Insert items at new positions
+                for (int i = 0; i < selectedIndices.Count; i++)
+                {
+                    int newIndex = selectedIndices[i] + direction;
+                    listBox.Items.Insert(newIndex, itemsToMove[i]);
+
+                    if (isCheckedListBox)
+                    {
+                        var checkedListBox = (CheckedListBox)listBox;
+                        checkedListBox.SetItemCheckState(newIndex, checkStates[i]);
+                    }
+
+                    listBox.SetSelected(newIndex, true);
+                }
+            }
+            finally
+            {
+                listBox.EndUpdate();
             }
         }
     }
