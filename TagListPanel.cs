@@ -144,43 +144,78 @@ namespace MusicBeePlugin
             }
         }
 
+        /// <summary>
+        /// Calculates the maximum width in pixels needed to display a collection of strings.
+        /// </summary>
+        /// <param name="strings">The collection of strings to measure.</param>
+        /// <returns>The width in pixels needed for the widest string plus padding and borders.</returns>
         private int CalculateMaxStringPixelWidth(IEnumerable<string> strings)
         {
-            if (CheckedListBoxWithTags.IsDisposed || strings == null || !strings.Any())
+            // Early return if control is disposed or no strings to measure
+            if (CheckedListBoxWithTags == null ||
+                CheckedListBoxWithTags.IsDisposed ||
+                strings == null ||
+                !strings.Any())
             {
                 return 0;
             }
 
+            // Get the font to use for measurement
+            Font font = CheckedListBoxWithTags.Font;
+            if (font == null)
+            {
+                return PaddingWidth; // Return minimal width if no font available
+            }
+
             int maxWidth = 0;
 
-            // Use a static bitmap to avoid creating Graphics context from control
+            // Create measurement objects only once outside the loop
             using (var bitmap = new Bitmap(1, 1))
-            using (var g = Graphics.FromImage(bitmap))
+            using (var graphics = Graphics.FromImage(bitmap))
             {
-                // Use the font from the control for accurate measurements
                 foreach (var str in strings)
                 {
-                    if (string.IsNullOrEmpty(str)) continue;
+                    if (string.IsNullOrEmpty(str))
+                        continue;
 
-                    int width = TextRenderer.MeasureText(g, str, CheckedListBoxWithTags.Font).Width;
-                    maxWidth = Math.Max(maxWidth, width);
+                    // Use TextRenderer for accurate Windows Forms text measurement
+                    Size textSize = TextRenderer.MeasureText(graphics, str, font);
+                    maxWidth = Math.Max(maxWidth, textSize.Width);
                 }
             }
 
-            return maxWidth + SystemInformation.BorderSize.Width * 2 + PaddingWidth;
+            // Add system border width on both sides plus padding
+            return maxWidth + (SystemInformation.BorderSize.Width * 2) + PaddingWidth;
         }
 
+        /// <summary>
+        /// Applies the MusicBee skin styles to the panel and its contained controls.
+        /// This ensures consistent appearance with the rest of the application.
+        /// </summary>
         private void StylePanel()
         {
+            if (_controlStyle == null)
+                return;
+
             this.SuspendLayout();
             try
             {
-                _controlStyle.ApplySkinStyleToControl(CheckedListBoxWithTags);
+                // Apply styling to the checklist box first
+                if (CheckedListBoxWithTags != null && !CheckedListBoxWithTags.IsDisposed)
+                {
+                    _controlStyle.ApplySkinStyleToControl(CheckedListBoxWithTags);
+                }
+
+                // Then apply styling to the panel itself
                 _controlStyle.ApplySkinStyleToControl(this);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error styling panel: {ex.Message}");
             }
             finally
             {
-                this.ResumeLayout();
+                this.ResumeLayout(true); // true to perform layout if needed
             }
         }
 
