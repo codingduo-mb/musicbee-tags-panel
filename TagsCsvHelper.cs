@@ -178,18 +178,35 @@ namespace MusicBeePlugin
             }
         }
 
-        private string ShowExportFileDialog()
+        /// <summary>
+        /// Shows a file dialog for the user to select a CSV export location.
+        /// </summary>
+        /// <param name="initialDirectory">Optional initial directory to show in the dialog.</param>
+        /// <returns>The selected file path, or null if the user cancelled the operation.</returns>
+        private string ShowExportFileDialog(string initialDirectory = null)
         {
             using (var saveFileDialog = new SaveFileDialog
             {
                 CheckFileExists = false,
+                CheckPathExists = true, // Added to validate path exists
+                OverwritePrompt = true, // Added to confirm file overwrite
                 Title = Messages.CsvDialogTitle,
                 Filter = Messages.CsvFileFilter,
                 DefaultExt = Messages.CsvDefaultExt,
-                RestoreDirectory = true
+                RestoreDirectory = true,
+                InitialDirectory = initialDirectory // Added optional initial directory
             })
             {
-                return saveFileDialog.ShowDialog() == DialogResult.OK ? saveFileDialog.FileName : null;
+                try
+                {
+                    return saveFileDialog.ShowDialog() == DialogResult.OK ? saveFileDialog.FileName : null;
+                }
+                catch (Exception ex)
+                {
+                    _showMessageBox($"Error displaying file dialog: {ex.Message}", Messages.WarningTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return null;
+                }
             }
         }
 

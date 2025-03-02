@@ -107,7 +107,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SettingsManager.cs" />
-    <Compile Include="mb_TagsPanelPlugin.cs" />
+    <Compile Include="mb_TagsPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TagsCsvHelper.cs" />
     <Compile Include="UIManager.cs" />
