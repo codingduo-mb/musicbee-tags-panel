@@ -15,6 +15,7 @@ namespace MusicBeePlugin
         public char Delimiter { get; set; } = ';';
         public System.Text.Encoding FileEncoding { get; set; } = System.Text.Encoding.UTF8;
         public bool ExportWithHeader { get; set; } = false;
+        public bool ImportSkipFirstRow { get; set; } = false;
         public string HeaderText { get; set; } = "Tag";
 
         private readonly Action<string, string, MessageBoxButtons, MessageBoxIcon> _showMessageBox;
@@ -32,7 +33,8 @@ namespace MusicBeePlugin
         /// Imports tags from a CSV file and adds them to the provided TagsStorage.
         /// </summary>
         /// <param name="tagsStorage">The tags storage to add imported tags to.</param>
-        /// <param name="updateControl">Optional action to update UI control after tag import.</param>
+        /// <param name="addItemToListAction">Optional action to update UI control after tag import.</param>
+        /// <param name="importFilePath">Optional file path. If not provided, will show a dialog.</param>
         public void ImportTagsFromCsv(TagsStorage tagsStorage, Action<string> addItemToListAction = null, string importFilePath = null)
         {
             if (tagsStorage == null)
@@ -74,6 +76,16 @@ namespace MusicBeePlugin
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+            catch (FileNotFoundException ex)
+            {
+                _showMessageBox($"File not found: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (IOException ex)
+            {
+                _showMessageBox($"Error reading file: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             catch (Exception ex)
             {
                 _showMessageBox($"Error importing tags: {ex.Message}", Messages.WarningTitle,
@@ -100,11 +112,21 @@ namespace MusicBeePlugin
 
         private int ImportTagsFromFile(string filePath, TagsStorage tagsStorage, Action<string> addItemToListAction)
         {
-            var lines = File.ReadAllLines(filePath);
-            var importedTags = new HashSet<string>();
+            // Read all lines with appropriate encoding
+            var lines = File.ReadAllLines(filePath, FileEncoding);
+            if (lines.Length == 0)
+                return 0;
 
-            foreach (var line in lines)
+            var importedTags = new HashSet<string>();
+            int startIndex = ImportSkipFirstRow && lines.Length > 0 ? 1 : 0;
+
+            // First pass - collect unique tags
+            for (int i = startIndex; i < lines.Length; i++)
             {
+                var line = lines[i];
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
                 var values = line.Split(new[] { Delimiter }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var value in values)
                 {
@@ -116,11 +138,15 @@ namespace MusicBeePlugin
                 }
             }
 
+            // Start adding at the current max index + 1
+            int nextIndex = tagsStorage.TagList.Count > 0 ? tagsStorage.TagList.Values.Max() + 1 : 0;
+
+            // Second pass - add tags to storage
             foreach (var tag in importedTags)
             {
                 if (!tagsStorage.TagList.ContainsKey(tag))
                 {
-                    tagsStorage.TagList.Add(tag, tagsStorage.TagList.Count);
+                    tagsStorage.TagList.Add(tag, nextIndex++);
                     addItemToListAction?.Invoke(tag);
                 }
             }
@@ -128,15 +154,24 @@ namespace MusicBeePlugin
             return importedTags.Count;
         }
 
-
         /// <summary>
         /// Exports tags to a CSV file.
         /// </summary>
         /// <param name="tags">The tags to export.</param>
+        /// <param name="exportFilePath">Optional file path. If not provided, will show a dialog.</param>
         public void ExportTagsToCsv(IEnumerable<string> tags, string exportFilePath = null)
         {
             if (tags == null)
                 throw new ArgumentNullException(nameof(tags));
+
+            // Filter out empty tags
+            var tagsToExport = tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            if (tagsToExport.Count == 0)
+            {
+                _showMessageBox("No tags to export.", Messages.CsvDialogTitle, 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
             string exportCSVFilename = exportFilePath;
 
@@ -161,8 +196,8 @@ namespace MusicBeePlugin
                         csvWriter.WriteLine(HeaderText);
                     }
 
-                    // Optionally add a batch write for performance with large sets
-                    foreach (var tag in tags)
+                    // Write tags line by line
+                    foreach (var tag in tagsToExport)
                     {
                         csvWriter.WriteLine(tag);
                     }
@@ -170,6 +205,21 @@ namespace MusicBeePlugin
 
                 _showMessageBox($"{Messages.CsvExportSuccessMessage} {exportCSVFilename}",
                     Messages.CsvDialogTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _showMessageBox($"Access denied: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                _showMessageBox($"Directory not found: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (IOException ex)
+            {
+                _showMessageBox($"Error writing file: {ex.Message}", Messages.WarningTitle,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -188,13 +238,13 @@ namespace MusicBeePlugin
             using (var saveFileDialog = new SaveFileDialog
             {
                 CheckFileExists = false,
-                CheckPathExists = true, // Added to validate path exists
-                OverwritePrompt = true, // Added to confirm file overwrite
+                CheckPathExists = true,
+                OverwritePrompt = true,
                 Title = Messages.CsvDialogTitle,
                 Filter = Messages.CsvFileFilter,
                 DefaultExt = Messages.CsvDefaultExt,
                 RestoreDirectory = true,
-                InitialDirectory = initialDirectory // Added optional initial directory
+                InitialDirectory = initialDirectory
             })
             {
                 try
@@ -209,6 +259,5 @@ namespace MusicBeePlugin
                 }
             }
         }
-
     }
 }
